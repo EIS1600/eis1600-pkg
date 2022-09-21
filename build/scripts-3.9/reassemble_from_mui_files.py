@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 import sys
 import os
 
-from eis1600.mui_handling import disassembling
+from eis1600.mui_handling import reassembling
 
 
 if __name__ == "__main__":
@@ -15,7 +13,7 @@ if __name__ == "__main__":
 
     path, uri = os.path.split(infilename)
     uri, ext = os.path.splitext(uri)
-    print(f'Disassemble {uri + ext} and storing MUI files in {path + "/" + uri + "/"}')
-    disassembling.disassemble_text(path + '/' + uri, uri)
+    print(f'Reassemble {uri + ext} from MUI files')
+    reassembling.reassemble_text(path + '/' + uri, uri)
 
     print('Done')

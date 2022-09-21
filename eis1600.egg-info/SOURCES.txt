@@ -1,0 +1,16 @@
+LICENSE
+README.md
+setup.py
+eis1600/__init__.py
+eis1600.egg-info/PKG-INFO
+eis1600.egg-info/SOURCES.txt
+eis1600.egg-info/dependency_links.txt
+eis1600.egg-info/top_level.txt
+eis1600/bin/disassemble_into_mui_files.py
+eis1600/bin/reassemble_from_mui_files.py
+eis1600/mui_handling/__init__.py
+eis1600/mui_handling/disassembling.py
+eis1600/mui_handling/re_patterns.py
+eis1600/mui_handling/reassembling.py
+eis1600/mui_handling/yaml_template.yml
+eis1600/mui_handling/yml_handling.py

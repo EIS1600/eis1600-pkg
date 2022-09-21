@@ -11,5 +11,5 @@ Execute inside the directory of a work which shall be disassembled into MUI file
 
 ```
 $ cd <uri>
-$ python3 eis1600_tools/bin/create_mui_mod.py <uri>.EIS1600
+$ disassemble_into_mui_files.py <uri>.EIS1600
 ```

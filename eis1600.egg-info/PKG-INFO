@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: eis1600
+Version: 0.1.0
+Summary: EIS1600 project tools and utilities
+Home-page: https://github.com/EIS1600/eis1600-pkg
+Author: Lisa Mischer
+Author-email: mischer.lisa@gmail.com
+License: MIT License
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Science/Research
+Requires-Python: >=3.7
+License-File: LICENSE
+
+UNKNOWN
+

@@ -2,7 +2,7 @@
 
 ## Installation
 ```angular2html
-pip install 
+pip install eis1600
 ```
 
 ## Usage

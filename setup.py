@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
 from setuptools import setup
+
 
 setup(name='eis1600',
       version='0.1.0',

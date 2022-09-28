@@ -1,9 +1,15 @@
 from setuptools import setup
 
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+
 setup(name='eis1600',
       version='0.1.0',
       description='EIS1600 project tools and utilities',
+      long_description=long_description,
+      long_description_content_type="text/markdown",
       url='https://github.com/EIS1600/eis1600-pkg',
       author='Lisa Mischer',
       author_email='mischer.lisa@gmail.com',

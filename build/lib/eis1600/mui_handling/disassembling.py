@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from eis1600.mui_handling.yml_handling import create_yml_header
-from eis1600.mui_handling.re_patterns import HEADER_END_PATTERN, UID_PATTERN
+from eis1600.eis1600_tags import HEADER_END_PATTERN, UID_PATTERN
 
 
 def disassemble_text(file_path, uri):

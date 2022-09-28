@@ -1,4 +1,4 @@
-from eis1600.mui_handling.re_patterns import MUI_HEADER_PATTERN, MUI_NEWLINE_PATTERN
+from eis1600.eis1600_tags import MUI_HEADER_PATTERN, MUI_NEWLINE_PATTERN
 from importlib.resources import read_text
 
 
@@ -20,7 +20,7 @@ def extract_yml_header_and_text(mui_file, mui_id, is_header):
                 # Omit the #MUI#Header# line as it is only needed inside the MUI.EIS1600 file, but not in YMLDATA.yml
                 next(file)
                 line = next(file)
-                mui_yml_header = '#' + mui_id + '\n---\n'
+                mui_yml_header = '\n---\nUID    : ' + mui_id + '\n'
                 while not MUI_HEADER_PATTERN.match(line):
                     mui_yml_header += line
                     line = next(file)

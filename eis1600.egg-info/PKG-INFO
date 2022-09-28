@@ -1,11 +1,26 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.1.0
+Version: 0.2.0
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
 Author-email: mischer.lisa@gmail.com
 License: MIT License
+Description: # EIS1600 Tools
+        
+        ## Installation
+        ```angular2html
+        pip install eis1600
+        ```
+        
+        ## Usage
+        
+        Execute inside the directory of a work which shall be disassembled into MUI files (this directory holds the .EIS1600 file)
+        
+        ```
+        $ cd <uri>
+        $ disassemble_into_mui_files.py <uri>.EIS1600
+        ```
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -13,7 +28,4 @@ Classifier: Operating System :: OS Independent
 Classifier: Development Status :: 1 - Planning
 Classifier: Intended Audience :: Science/Research
 Requires-Python: >=3.7
-License-File: LICENSE
-
-UNKNOWN
-
+Description-Content-Type: text/markdown

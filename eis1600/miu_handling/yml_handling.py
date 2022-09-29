@@ -1,4 +1,4 @@
-from eis1600.mui_handling.re_patterns import MUI_HEADER_PATTERN, MUI_NEWLINE_PATTERN
+from eis1600.miu_handling.re_patterns import MUI_HEADER_PATTERN, NEWLINES_PATTERN
 from importlib.resources import read_text
 
 
@@ -30,7 +30,7 @@ def extract_yml_header_and_text(mui_file, mui_id, is_header):
                 text += line
             # Replace new lines which separate YAML header from text
             if not is_header:
-                text, n = MUI_NEWLINE_PATTERN.subn('\n\n', text)
+                text, n = NEWLINES_PATTERN.subn('\n\n', text)
         return mui_yml_header, text
 
 

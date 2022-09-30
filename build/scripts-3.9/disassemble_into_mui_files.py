@@ -3,7 +3,7 @@
 import sys
 import os
 
-from eis1600.mui_handling import disassembling
+from eis1600.miu_handling import disassembling
 
 
 if __name__ == "__main__":

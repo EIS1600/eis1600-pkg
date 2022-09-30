@@ -1,4 +1,4 @@
-from eis1600.mui_handling.yml_handling import extract_yml_header_and_text
+from eis1600.miu_handling.yml_handling import extract_yml_header_and_text
 
 
 def reassemble_text(file_path, uri, verbose):

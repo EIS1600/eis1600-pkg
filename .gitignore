@@ -1,7 +1,7 @@
 # Ignore iOS files
 .DS_Store
 
-# Ignore develop environment
+# Ignore development environment
 .idea
 env/
 __pycache__/

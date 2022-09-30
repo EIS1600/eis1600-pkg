@@ -3,7 +3,7 @@ from random import randint
 from os.path import split, splitext
 
 from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
-    BELONGS_TO_PREV_PARAGRAPH_PATTERN, SPACES_AFTER_NEWLINES_PATTERN
+    BELONGS_TO_PREV_PARAGRAPH_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN
 
 
 def generate12ids(iterations):
@@ -25,12 +25,11 @@ def convert_to_eis1600(infile, output_dir, verbose):
     path, uri = split(infile)
     uri, ext = splitext(uri)
     if output_dir:
-        outfile = output_dir + '/' + uri + '.EIS1600'
+        outfile = output_dir + '/' + uri + '.EIS1600_tmp'
     else:
-        outfile = '.' + path + '/' + uri + '.EIS1600'
+        outfile = '.' + path + '/' + uri + '.EIS1600_tmp'
     if verbose:
         print(f'Convert {uri} from mARkdown to EIS1600 file')
-
 
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()
@@ -49,33 +48,31 @@ def convert_to_eis1600(infile, output_dir, verbose):
 
     text = SPACES_PATTERN.sub(' ', text)
 
+    # fix poetry
+    text, n = POETRY_PATTERN.subn(r'\1', text)
+
+    # fix page tag on newlines
+    text, n = PAGE_TAG_ON_NEWLINE_PATTERN.subn(r'\1', text)
+
     text = text.replace('\n###', '\n\n###')
     text = text.replace('\n# ', '\n\n')
 
     text = NEWLINES_PATTERN.sub('\n\n', text)
 
-    # fix poetry
-    text = POETRY_PATTERN.sub(r'\1\2', text)
-    text = POETRY_PATTERN.sub(r'\1\2', text)
-    text = POETRY_PATTERN.sub(r'\1\2', text)
-
     text = text.split('\n\n')
 
     text_updated = []
 
-    counter = 0
-    for m in text:
-        counter += 1
-        if m.startswith('### '):
-            m = m.replace('### ', '#%s ' % ids[counter])
-            text_updated.append(m)
-        elif '%~%' in m:
-            m = '%s ::POETRY:: ~\n' % ids[counter] + m
-            text_updated.append(m)
+    for paragraph in text:
+        if paragraph.startswith('### '):
+            text_updated.append(paragraph)
+        elif '%~%' in paragraph:
+            paragraph = '::POETRY:: ~\n' + paragraph
+            text_updated.append(paragraph)
         else:
-            m = wrap_paragraph(m, 60)
-            m = '%s ::UNDEFINED:: ~\n' % ids[counter] + m
-            text_updated.append(m)
+            paragraph = wrap_paragraph(paragraph, 60)
+            paragraph = '::UNDEFINED:: ~\n' + paragraph
+            text_updated.append(paragraph)
 
     text = '\n\n'.join(text_updated)
     text, n = BELONGS_TO_PREV_PARAGRAPH_PATTERN.subn(r' \1\n', text)

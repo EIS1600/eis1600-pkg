@@ -7,19 +7,20 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
+from eis1600.helper.repo import travers_eis1600_dir
 from eis1600.markdown.methods import convert_to_eis1600
 
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if os.path.isfile(input_arg):
+        if input_arg and os.path.isfile(input_arg):
             filepath, fileext = os.path.splitext(input_arg)
-            if fileext != 'mARkdown':
+            if fileext != '.mARkdown':
                 parser.error('You need to input a mARkdown file')
             else:
                 setattr(namespace, self.dest, input_arg)
         else:
-            setattr(namespace, self.dest, input_arg)
+            setattr(namespace, self.dest, None)
 
 
 if __name__ == '__main__':
@@ -29,9 +30,14 @@ if __name__ == '__main__':
 -----
 Give a single mARkdown file as input
 or 
-Give an input AND an output directory for batch processing.''')
+Give an input AND an output directory for batch processing.
+
+Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directory which have not been processed yet.
+''')
     arg_parser.add_argument('-v', '--verbose', action='store_true')
-    arg_parser.add_argument('input', type=str,
+    arg_parser.add_argument('-e', '--eis1600_repo', type=str,
+                            help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet')
+    arg_parser.add_argument('input', type=str, nargs='?',
                             help='MARkdown file to process or input directory with mARkdown files to process if an output directory is also given',
                             action=CheckFileEndingAction)
     arg_parser.add_argument('output', type=str, nargs='?',
@@ -41,7 +47,7 @@ Give an input AND an output directory for batch processing.''')
     verbose = args.verbose
 
     if args.input and not args.output:
-        infile = args.input
+        infile = './' + args.input
         convert_to_eis1600(infile, None, verbose)
 
     elif args.output:
@@ -63,9 +69,24 @@ Give an input AND an output directory for batch processing.''')
 
         with Pool() as p:
             p.starmap_async(convert_to_eis1600, params).get()
+    elif args.eis1600_repo:
+        input_dir = args.eis1600_repo
+
+        print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600_tmp file yet)')
+        infiles = travers_eis1600_dir(input_dir, '*.mARkdown', '*.EIS1600_tmp')
+        if not infiles:
+            print(
+                'There are no more mARkdown files to process')
+            sys.exit()
+
+        params = [(infile, None, verbose) for infile in infiles]
+
+        with Pool() as p:
+            p.starmap_async(convert_to_eis1600, params).get()
     else:
         print(
-            'Pass in a <uri.mARkdown> file to process a single file or enter an input and output directory to use batch processing')
+            'Pass in a <uri.mARkdown> file to process a single file or use the -e option for batch processing'
+        )
         sys.exit()
 
     print('Done')

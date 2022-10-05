@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.2.3',
+      version='0.2.4',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -13,6 +13,7 @@ setup(name='eis1600',
       author_email='mischer.lisa@gmail.com',
       license='MIT License',
       packages=['eis1600',
+                'eis1600.helper',
                 'eis1600.miu_handling',
                 'eis1600.markdown'],
       scripts=['eis1600/bin/disassemble_into_miu_files.py',

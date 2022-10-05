@@ -20,12 +20,15 @@ def wrap_paragraph(paragraph, len_symb):
 
 
 def convert_to_eis1600(infile, output_dir, verbose):
-    path, uri = split(infile)
-    uri, ext = splitext(uri)
     if output_dir:
+        path, uri = split(infile)
+        uri, ext = splitext(uri)
         outfile = output_dir + '/' + uri + '.EIS1600_tmp'
     else:
-        outfile = '.' + path + '/' + uri + '.EIS1600_tmp'
+        path, ext = splitext(infile)
+        outfile = path + '.EIS1600_tmp'
+        path, uri = split(infile)
+
     if verbose:
         print(f'Convert {uri} from mARkdown to EIS1600 file')
 
@@ -84,14 +87,17 @@ def convert_to_eis1600(infile, output_dir, verbose):
 
 
 def insert_uids(infile, output_dir, verbose):
-    path, uri = split(infile)
-    uri, ext = splitext(uri)
     if output_dir:
+        path, uri = split(infile)
+        uri, ext = splitext(uri)
         outfile = output_dir + '/' + uri + '.EIS1600'
     else:
-        outfile = '.' + path + '/' + uri + '.EIS1600'
+        path, ext = splitext(infile)
+        outfile = path + '.EIS1600'
+        path, uri = split(infile)
+
     if verbose:
-        print(f'Insert UIDS into {uri} and convert to final EIS1600 file')
+        print(f'Insert UIDs into {uri} and convert to final EIS1600 file')
 
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()

@@ -12,8 +12,8 @@ WORD = r'(?:\s' + AR_STR + ')'
 UID = r'#\$(?P<UID>\d{12})\$#?\s'
 UID_PATTERN = re.compile(UID)
 HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)')
-
 MUI_HEADER_PATTERN = re.compile(r'#MUI#Header#')
+PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
 
 # Fix mARkdown files
 SPACES_PATTERN = re.compile(r' +')

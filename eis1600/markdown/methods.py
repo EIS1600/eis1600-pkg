@@ -69,7 +69,7 @@ def convert_to_eis1600(infile, output_dir, verbose):
             paragraph = '::POETRY:: ~\n' + paragraph
             text_updated.append(paragraph)
         else:
-            paragraph = wrap_paragraph(paragraph, 60)
+            #paragraph = wrap_paragraph(paragraph, 60) # Not wrapping paragraphs for EIS1600 Kate/Gedit
             paragraph = '::UNDEFINED:: ~\n' + paragraph
             text_updated.append(paragraph)
 

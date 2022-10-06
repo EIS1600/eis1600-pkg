@@ -31,7 +31,7 @@ def write_to_readme(path, files):
     file_list.sort()
 
     def get_entry(file_name, checked):
-        x = 'x' if checked else ''
+        x = 'x' if checked else ' '
         return '- [' + x + '] ' + file_name
 
     with open(path + 'README.md', 'w', encoding='utf8') as readme_h:

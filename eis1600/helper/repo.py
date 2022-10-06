@@ -2,60 +2,90 @@ from glob import glob
 from os.path import split, splitext
 
 
-def write_to_readme(path, files):
-    if not path[-1] == '/':
-        path += '/'
+def write_to_readme(path, files, which):
     file_list = []
-    for file in files:
-        file_path, uri = split(file)
-        uri, ext = splitext(uri)
-        file_list.append((uri + '.EIS1600\n', False))
-    with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
-        out_file_start = ''
-        out_file_end = ''
-        line = next(readme_h)
-        while line != '# Texts converted into `.EIS1600`\n':
+    try:
+        with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
+            out_file_start = ''
+            out_file_end = ''
+            checked_boxes = False
+            line = next(readme_h)
+            while line != which:
+                out_file_start += line
+                line = next(readme_h)
             out_file_start += line
+            out_file_start += next(readme_h)
             line = next(readme_h)
-        out_file_start += line
-        out_file_start += next(readme_h)
-        line = next(readme_h)
-        while line != '\n':
-            md, file = str(line).split('] ')
-            file_list.append((file, md == '- [x'))
-            line = next(readme_h)
-        while line:
-            out_file_end += line
-            line = next(readme_h, None)
+            while line != '\n':
+                if line.startswith('- ['):
+                    checked_boxes = True
+                    md, file = line.split('] ')
+                    file_list.append((file, md == '- [x'))
+                    line = next(readme_h)
+                else:
+                    file_list.append(line[2:-1])
+                    line = next(readme_h)
+            while line:
+                out_file_end += line
+                line = next(readme_h, None)
 
-    file_list.sort()
+        for file in files:
+            file_path, uri = split(file)
+            uri, ext = splitext(uri)
+            if checked_boxes:
+                file_list.append((uri + '.EIS1600\n', False))
+            else:
+                file_list.append(uri + '.EIS1600\n')
 
-    def get_entry(file_name, checked):
-        x = 'x' if checked else ' '
-        return '- [' + x + '] ' + file_name
+        file_list.sort()
 
-    with open(path + 'README.md', 'w', encoding='utf8') as readme_h:
-        readme_h.write(out_file_start)
-        readme_h.writelines([get_entry(file, checked) for file, checked in file_list])
-        readme_h.write(out_file_end)
+        def get_entry(file_name, checked):
+            x = 'x' if checked else ' '
+            return '- [' + x + '] ' + file_name
+
+        with open(path + 'README.md', 'w', encoding='utf8') as readme_h:
+            readme_h.write(out_file_start)
+            if checked_boxes:
+                readme_h.writelines([get_entry(file, checked) for file, checked in file_list])
+            else:
+                readme_h.writelines(['- ' + file for file in file_list])
+            readme_h.write(out_file_end)
+    except StopIteration:
+        file_list = []
+        for file in files:
+            file_path, uri = split(file)
+            uri, ext = splitext(uri)
+            file_list.append(uri + '.EIS1600\n')
+        with open(path + 'FILE_LIST.log', 'w', encoding='utf8') as file_list_h:
+            file_list_h.writelines(file_list)
+
+        print(f'Could not write to the README file, check {path + "FILE_LIST.log"} for changed files')
 
 
-def get_files_from_eis1600_dir(path, file_ext_from, file_ext_to=None):
-    if not path[-1] == '/':
-        path += '/'
-
+def read_files_from_readme(path, which):
     file_list = []
-    with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
-        line = next(readme_h)
-        while line != '# Texts with fixed poetry\n':
+    try:
+        with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
             line = next(readme_h)
-        next(readme_h)
-        next(readme_h)
-        line = next(readme_h)
-        while line != '\n':
-            file_list.append(line[2:-1])
+            while line != which:
+                line = next(readme_h)
+            next(readme_h)
             line = next(readme_h)
+            while line != '\n':
+                if line.startswith('- ['):
+                    md, file = line.split('] ')
+                    file_list.append((file[:-1], md == '- [x'))
+                    line = next(readme_h)
+                else:
+                    file_list.append(line[2:-1])
+                    line = next(readme_h)
+    except StopIteration:
+        print(f'The README.md file does not seem to contain a "{which[:-1]}" section')
 
+    return file_list
+
+
+def get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to=None):
     path += 'data/'
     files = []
     for file in file_list:
@@ -76,8 +106,6 @@ def get_files_from_eis1600_dir(path, file_ext_from, file_ext_to=None):
 
 
 def travers_eis1600_dir(path, file_ext_from, file_ext_to=None):
-    if not path[-1] == '/':
-        path += '/'
     path += 'data/*/*/'
     in_files = glob(path + file_ext_from)
     if not file_ext_to:

@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir
+from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir
 from eis1600.markdown.methods import convert_to_eis1600
 
 
@@ -15,7 +15,7 @@ class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
         if input_arg and os.path.isfile(input_arg):
             filepath, fileext = os.path.splitext(input_arg)
-            if fileext != '.mARkdown':
+            if fileext not in ['.mARkdown', '.inProgess', '.completed']:
                 parser.error('You need to input a mARkdown file')
             else:
                 setattr(namespace, self.dest, input_arg)
@@ -53,10 +53,12 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
     elif args.output:
         input_dir = args.input
         output_dir = args.output
+        if not input_dir[-1] == '/':
+            input_dir += '/'
 
         print(f'Convert mARkdown files from {input_dir}, save resulting EIS1600_tmp files to {output_dir}')
 
-        infiles = glob(input_dir + '/*.mARkdown')
+        infiles = glob(input_dir + '*.mARkdown')
         if not infiles:
             print(
                 'The input directory does not contain any mARkdown files to process')
@@ -73,7 +75,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         input_dir = args.eis1600_repo
 
         print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600_tmp file yet)')
-        infiles = travers_eis1600_dir(input_dir, '*.mARkdown', '*.EIS1600_tmp')
+        infiles = get_files_from_eis1600_dir(input_dir, ['*.mARkdown', '*.inProcress', '*.completed'], '*.EIS1600*')
         if not infiles:
             print(
                 'There are no more mARkdown files to process')

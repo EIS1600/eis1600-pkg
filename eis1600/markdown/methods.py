@@ -1,3 +1,5 @@
+import os
+
 from textwrap import wrap
 from random import randint
 from os.path import split, splitext
@@ -45,7 +47,9 @@ def convert_to_eis1600(infile, output_dir, verbose):
 
     # text = re.sub(r'(#~:\w+: *)', r'\n\1\n\n', text)
 
-    text = SPACES_PATTERN.sub(' ', text)
+    # spaces
+    text, n = SPACES_AFTER_NEWLINES_PATTERN.subn('\n', text)
+    text, n = SPACES_PATTERN.subn(' ', text)
 
     # fix poetry
     text, n = POETRY_PATTERN.subn(r'\1', text)
@@ -74,10 +78,7 @@ def convert_to_eis1600(infile, output_dir, verbose):
             text_updated.append(paragraph)
 
     text = '\n\n'.join(text_updated)
-    text, n = BELONGS_TO_PREV_PARAGRAPH_PATTERN.subn(r' \1\n', text)
-
-    # spaces
-    text, n = SPACES_AFTER_NEWLINES_PATTERN.subn('\n', text)
+    # text, n = BELONGS_TO_PREV_PARAGRAPH_PATTERN.subn(r' \1\n', text)
 
     # reassemble text
     final = header + '\n\n' + text
@@ -112,10 +113,10 @@ def insert_uids(infile, output_dir, verbose):
 
     for paragraph in text:
         if paragraph.startswith('### '):
-            paragraph = paragraph.replace('###', f'#${next(ids_iter)}$')
+            paragraph = paragraph.replace('###', f'_ء_#={next(ids_iter)}=')
             text_updated.append(paragraph)
         elif PARAGRAPH_PATTERN.match(paragraph):
-            paragraph = f'${next(ids_iter)}$ ' + paragraph
+            paragraph = f'_ء_={next(ids_iter)}= ' + paragraph
             text_updated.append(paragraph)
 
     text = '\n\n'.join(text_updated)
@@ -125,3 +126,5 @@ def insert_uids(infile, output_dir, verbose):
 
     with open(outfile, 'w', encoding='utf8') as outfileh:
         outfileh.write(final)
+
+    os.remove(infile)

@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir
+from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir, write_to_readme
 from eis1600.markdown.methods import insert_uids
 
 
@@ -73,7 +73,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600_tmp files in the EIS1600 dire
         input_dir = args.eis1600_repo
 
         print(f'Insert UIDs into files from the EIS1600 repo (only if there is not an EIS1600 file yet)')
-        infiles = travers_eis1600_dir(input_dir, '*.EIS1600_tmp', '*.EIS1600')
+        infiles = get_files_from_eis1600_dir(input_dir, '*.EIS1600_tmp', '*.EIS1600')
         if not infiles:
             print(
                 'There are no more EIS1600_tmp files to process')
@@ -83,6 +83,8 @@ Use -e <EIS1600_repo> to batch process all EIS1600_tmp files in the EIS1600 dire
 
         with Pool() as p:
             p.starmap_async(insert_uids, params).get()
+
+        write_to_readme(input_dir, infiles)
     else:
         print(
             'Pass in a <uri.EIS1600_tmp> file to process a single file or use the -e option for batch processing'

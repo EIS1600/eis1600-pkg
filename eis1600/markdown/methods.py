@@ -5,14 +5,14 @@ from random import randint
 from os.path import split, splitext
 
 from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
-    BELONGS_TO_PREV_PARAGRAPH_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, PARAGRAPH_PATTERN
+    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, PARAGRAPH_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN
 
 
 def generate12ids_iterator(iterations):
     ids = []
     for i in range(0, iterations):
         ids.append(randint(400000000000, 999999999999))
-    ids = set(ids).__iter__()
+    ids = set(ids)
     return ids
 
 
@@ -45,8 +45,6 @@ def convert_to_eis1600(infile, output_dir, verbose):
     text = text.replace('~\n', '\n')
     text = text.replace('\n~~', ' ')
 
-    # text = re.sub(r'(#~:\w+: *)', r'\n\1\n\n', text)
-
     # spaces
     text, n = SPACES_AFTER_NEWLINES_PATTERN.subn('\n', text)
     text, n = SPACES_PATTERN.subn(' ', text)
@@ -73,12 +71,10 @@ def convert_to_eis1600(infile, output_dir, verbose):
             paragraph = '::POETRY:: ~\n' + paragraph
             text_updated.append(paragraph)
         else:
-            #paragraph = wrap_paragraph(paragraph, 60) # Not wrapping paragraphs for EIS1600 Kate/Gedit
             paragraph = '::UNDEFINED:: ~\n' + paragraph
             text_updated.append(paragraph)
 
     text = '\n\n'.join(text_updated)
-    # text, n = BELONGS_TO_PREV_PARAGRAPH_PATTERN.subn(r' \1\n', text)
 
     # reassemble text
     final = header + '\n\n' + text
@@ -106,10 +102,10 @@ def insert_uids(infile, output_dir, verbose):
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
-
-    ids_iter = generate12ids_iterator(3000000)
     text = text.split('\n\n')
     text_updated = []
+
+    ids_iter = generate12ids_iterator(3000000).__iter__()
 
     for paragraph in text:
         if paragraph.startswith('### '):
@@ -128,3 +124,49 @@ def insert_uids(infile, output_dir, verbose):
         outfileh.write(final)
 
     os.remove(infile)
+
+
+def update_uids(infile, verbose):
+    path, ext = splitext(infile)
+    outfile = path + '.EIS1600'
+    path, uri = split(infile)
+
+    if verbose:
+        print(f'Update UIDs in {uri}')
+
+    with open(infile, 'r', encoding='utf8') as infileh:
+        text = infileh.read()
+
+    header_and_text = HEADER_END_PATTERN.split(text)
+    header = header_and_text[0] + header_and_text[1]
+    text = header_and_text[2]
+    text = text.split('\n\n')
+    text_updated = []
+
+    used_ids = []
+
+    for paragraph in text:
+        if UID_PATTERN.match(paragraph):
+            used_ids.append(int(UID_PATTERN.match(paragraph).group('UID')))
+
+    new_ids = generate12ids_iterator(3000000)
+    ids = new_ids.difference(used_ids)
+    ids_iter = ids.__iter__()
+
+    for paragraph in text:
+        if HEADING_OR_BIO_PATTERN.match(paragraph):
+            paragraph = f'_ء_#={next(ids_iter)}= ' + paragraph
+            text_updated.append(paragraph)
+        elif not UID_PATTERN.match(paragraph):
+            paragraph = f'_ء_={next(ids_iter)}= ' + paragraph
+            text_updated.append(paragraph)
+        else:
+            text_updated.append(paragraph)
+
+    text = '\n\n'.join(text_updated)
+
+    # reassemble text
+    final = header + '\n\n' + text
+
+    with open(outfile, 'w', encoding='utf8') as outfileh:
+        outfileh.write(final)

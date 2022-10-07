@@ -9,11 +9,12 @@ AR_LETTERS_CHARSET = frozenset(u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
 AR_STR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']+'
 WORD = r'(?:\s' + AR_STR + ')'
 
-UID = r'#\$(?P<UID>\d{12})\$#?\s'
+UID = r'_ء_#?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
-HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)')
+HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
 MIU_HEADER_PATTERN = re.compile(r'#MIU#Header#')
 PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
+HEADING_OR_BIO_PATTERN = re.compile(r'[|$]+')
 
 # Fix mARkdown files
 SPACES_PATTERN = re.compile(r' +')

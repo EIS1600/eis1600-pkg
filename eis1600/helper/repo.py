@@ -23,7 +23,7 @@ def write_to_readme(path, files, which):
                     file_list.append((file, md == '- [x'))
                     line = next(readme_h)
                 else:
-                    file_list.append(line[2:-1])
+                    file_list.append(line[2])
                     line = next(readme_h)
             while line:
                 out_file_end += line
@@ -50,6 +50,7 @@ def write_to_readme(path, files, which):
             else:
                 readme_h.writelines(['- ' + file for file in file_list])
             readme_h.write(out_file_end)
+            
     except StopIteration:
         file_list = []
         for file in files:

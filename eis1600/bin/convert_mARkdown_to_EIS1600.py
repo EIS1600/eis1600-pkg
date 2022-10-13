@@ -26,7 +26,7 @@ class CheckFileEndingAction(Action):
 if __name__ == '__main__':
 
     arg_parser = ArgumentParser(prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
-                                description='''Script to convert mARkdown file(s) to EIS1600_tmp file(s).
+                                description='''Script to convert mARkdown file(s) to EIS1600TMP file(s).
 -----
 Give a single mARkdown file as input
 or 
@@ -56,7 +56,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         if not input_dir[-1] == '/':
             input_dir += '/'
 
-        print(f'Convert mARkdown files from {input_dir}, save resulting EIS1600_tmp files to {output_dir}')
+        print(f'Convert mARkdown files from {input_dir}, save resulting EIS1600TMP files to {output_dir}')
 
         infiles = glob(input_dir + '*.mARkdown')
         if not infiles:
@@ -76,7 +76,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         if not input_dir[-1] == '/':
             input_dir += '/'
 
-        print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600_tmp file yet)')
+        print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600TMP file yet)')
         files_list = read_files_from_readme(input_dir, '# Texts with fixed poetry\n')
         infiles = get_files_from_eis1600_dir(input_dir, files_list, ['*.mARkdown', '*.inProcress', '*.completed'],
                                              '*.EIS1600*')

@@ -26,10 +26,10 @@ def convert_to_eis1600(infile, output_dir, verbose):
     if output_dir:
         path, uri = split(infile)
         uri, ext = splitext(uri)
-        outfile = output_dir + '/' + uri + '.EIS1600_tmp'
+        outfile = output_dir + '/' + uri + '.EIS1600TMP'
     else:
         path, ext = splitext(infile)
-        outfile = path + '.EIS1600_tmp'
+        outfile = path + '.EIS1600TMP'
         path, uri = split(infile)
 
     if verbose:
@@ -73,7 +73,6 @@ def convert_to_eis1600(infile, output_dir, verbose):
             paragraph = '::POETRY:: ~\n' + paragraph
             text_updated.append(paragraph)
         else:
-            paragraph = '::UNDEFINED:: ~\n' + paragraph
             text_updated.append(paragraph)
 
     text = '\n\n'.join(text_updated)
@@ -117,7 +116,6 @@ def insert_uids(infile, output_dir, verbose):
             paragraph = paragraph.replace('###', f'_ء_#={next(ids_iter)}=')
             paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
             if next_p and PARAGRAPH_PATTERN.match(next_p):
-                print(paragraph)
                 heading_and_text = paragraph.split('\n', 1)
                 if len(heading_and_text) > 1:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={next(ids_iter)}= ::UNDEFINED:: ~\n' + \

@@ -5,7 +5,8 @@ from random import randint
 from os.path import split, splitext
 
 from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
-    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, PARAGRAPH_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN
+    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, PARAGRAPH_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
+    POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
 def generate12ids_iterator(iterations):
@@ -51,6 +52,7 @@ def convert_to_eis1600(infile, output_dir, verbose):
 
     # fix poetry
     text, n = POETRY_PATTERN.subn(r'\1', text)
+    text, n = POETRY_TO_PARAGRAPH.subn(r'\1\n\n\2', text)
 
     # fix page tag on newlines
     text, n = PAGE_TAG_ON_NEWLINE_PATTERN.subn(r' \1', text)
@@ -107,13 +109,25 @@ def insert_uids(infile, output_dir, verbose):
 
     ids_iter = generate12ids_iterator(3000000).__iter__()
 
-    for paragraph in text:
+    text_iter = text.__iter__()
+    paragraph = next(text_iter)
+    while paragraph:
+        next_p = next(text_iter, None)
         if paragraph.startswith('### '):
             paragraph = paragraph.replace('###', f'_ء_#={next(ids_iter)}=')
+            paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
+            if next_p and PARAGRAPH_PATTERN.match(next_p):
+                print(paragraph)
+                heading_and_text = paragraph.split('\n', 1)
+                if len(heading_and_text) > 1:
+                    paragraph = heading_and_text[0] + f'\n\n_ء_={next(ids_iter)}= ::UNDEFINED:: ~\n' + \
+                                heading_and_text[1]
             text_updated.append(paragraph)
         elif PARAGRAPH_PATTERN.match(paragraph):
             paragraph = f'_ء_={next(ids_iter)}= ' + paragraph
             text_updated.append(paragraph)
+
+        paragraph = next_p
 
     text = '\n\n'.join(text_updated)
 
@@ -158,7 +172,8 @@ def update_uids(infile, verbose):
             paragraph = f'_ء_#={next(ids_iter)}= ' + paragraph
             text_updated.append(paragraph)
         elif not UID_PATTERN.match(paragraph):
-            paragraph = f'_ء_={next(ids_iter)}= ' + paragraph
+            section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
+            paragraph = f'_ء_={next(ids_iter)}= {section_header}' + paragraph
             text_updated.append(paragraph)
         else:
             text_updated.append(paragraph)

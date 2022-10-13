@@ -1,8 +1,14 @@
 # EIS1600 Tools
 
 ## Installation
-```
+```shell
 $ pip install eis1600
+```
+
+In case you have an older version installed, use
+
+```shell
+$ pip install --upgrade eis1600
 ```
 
 ## Usage

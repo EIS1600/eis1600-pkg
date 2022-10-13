@@ -16,15 +16,15 @@ def write_to_readme(path, files, which):
             out_file_start += line
             out_file_start += next(readme_h)
             line = next(readme_h)
-            while line != '\n':
+            while line and line != '\n':
                 if line.startswith('- ['):
                     checked_boxes = True
                     md, file = line.split('] ')
                     file_list.append((file, md == '- [x'))
-                    line = next(readme_h)
+                    line = next(readme_h, None)
                 else:
                     file_list.append(line[2])
-                    line = next(readme_h)
+                    line = next(readme_h, None)
             while line:
                 out_file_end += line
                 line = next(readme_h, None)
@@ -72,14 +72,14 @@ def read_files_from_readme(path, which):
                 line = next(readme_h)
             next(readme_h)
             line = next(readme_h)
-            while line != '\n':
+            while line and line != '\n':
                 if line.startswith('- ['):
                     md, file = line.split('] ')
                     file_list.append((file[:-1], md == '- [x'))
-                    line = next(readme_h)
+                    line = next(readme_h, None)
                 else:
                     file_list.append(line[2:-1])
-                    line = next(readme_h)
+                    line = next(readme_h, None)
     except StopIteration:
         print(f'The README.md file does not seem to contain a "{which[:-1]}" section')
 

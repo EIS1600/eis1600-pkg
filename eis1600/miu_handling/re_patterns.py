@@ -1,3 +1,5 @@
+from re import MULTILINE
+
 import re
 
 AR_LETTERS_CHARSET = frozenset(u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
@@ -20,6 +22,10 @@ HEADING_OR_BIO_PATTERN = re.compile(r'[|$]+')
 SPACES_PATTERN = re.compile(r' +')
 NEWLINES_PATTERN = re.compile(r'\n{3,}')
 SPACES_AFTER_NEWLINES_PATTERN = re.compile(r'\n +')
-POETRY_PATTERN = re.compile(r'# (' + AR_STR + '(?: ' + AR_STR + ')* %~% ' + AR_STR + '(?: ' + AR_STR + ')*)')
+POETRY_PATTERN = re.compile(r'# (' + AR_STR + '(?: ' + AR_STR + ')* %~% ' + AR_STR + '(?: ' + AR_STR + r')*)')
+POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + r')* %~%)', MULTILINE)
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n(PageV\d{2}P\d{3}\n)')
+BIO_CHR_TO_NEWLINE_PATTERN = re.compile(r'([^' + u''.join(AR_LETTERS_CHARSET) + r'\n]+[$@](?: RAW)?(?: \d+)?) ((?:\( ?)?' + AR_STR + r')')
+
+print(BIO_CHR_TO_NEWLINE_PATTERN.__str__())

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.2.6
+Version: 0.2.7
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -9,8 +9,14 @@ License: MIT License
 Description: # EIS1600 Tools
         
         ## Installation
-        ```
+        ```shell
         $ pip install eis1600
+        ```
+        
+        In case you have an older version installed, use
+        
+        ```shell
+        $ pip install --upgrade eis1600
         ```
         
         ## Usage

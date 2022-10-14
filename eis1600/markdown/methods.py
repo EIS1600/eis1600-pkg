@@ -68,9 +68,8 @@ def convert_to_eis1600(infile, output_dir, verbose):
 
     for paragraph in text:
         if paragraph.startswith('### '):
-            text_updated.append(paragraph)
-        elif '%~%' in paragraph:
-            paragraph = '::POETRY:: ~\n' + paragraph
+            paragraph = paragraph.replace('###', '#')
+            paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
             text_updated.append(paragraph)
         else:
             text_updated.append(paragraph)
@@ -123,6 +122,9 @@ def insert_uids(infile, output_dir, verbose):
             text_updated.append(paragraph)
         elif PARAGRAPH_PATTERN.match(paragraph):
             paragraph = f'_ء_={next(ids_iter)}= ' + paragraph
+            text_updated.append(paragraph)
+        elif '%~%' in paragraph:
+            paragraph = '_ء_ ::POETRY:: ~\n' + paragraph
             text_updated.append(paragraph)
 
         paragraph = next_p

@@ -2,7 +2,7 @@ from glob import glob
 from os.path import split, splitext
 
 
-def write_to_readme(path, files, which):
+def write_to_readme(path, files, which, ext):
     file_list = []
     try:
         with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
@@ -31,11 +31,11 @@ def write_to_readme(path, files, which):
 
         for file in files:
             file_path, uri = split(file)
-            uri, ext = splitext(uri)
+            uri, _ = splitext(uri)
             if checked_boxes:
-                file_list.append((uri + '.EIS1600\n', False))
+                file_list.append((uri + ext + '\n', False))
             else:
-                file_list.append(uri + '.EIS1600\n')
+                file_list.append(uri + ext + '\n')
 
         file_list.sort()
 
@@ -95,7 +95,6 @@ def get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to=None)
         if file_ext_to and not glob(file_path + file_ext_to):
             if type(file_ext_from) == list:
                 for ext in file_ext_from:
-                    print(file_path + ext)
                     tmp = glob(file_path + ext)
                     if tmp:
                         files.extend(tmp)

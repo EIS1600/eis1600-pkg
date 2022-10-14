@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir, read_files_from_readme
+from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir, read_files_from_readme, write_to_readme
 from eis1600.markdown.methods import convert_to_eis1600
 
 
@@ -89,6 +89,8 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
 
         with Pool() as p:
             p.starmap_async(convert_to_eis1600, params).get()
+
+        write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
     else:
         print(
             'Pass in a <uri.mARkdown> file to process a single file or use the -e option for batch processing'

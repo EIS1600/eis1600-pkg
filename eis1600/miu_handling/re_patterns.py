@@ -16,7 +16,7 @@ UID_PATTERN = re.compile(UID)
 HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
 MIU_HEADER_PATTERN = re.compile(r'#MIU#Header#')
 PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
-HEADING_OR_BIO_PATTERN = re.compile(r'[|$]+')
+HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
 
 # Fix mARkdown files
 SPACES_PATTERN = re.compile(r' +')

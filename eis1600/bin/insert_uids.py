@@ -48,7 +48,10 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
 
     if args.input and not args.output:
         infile = './' + args.input
+        path = infile.split('data')[0]
         insert_uids(infile, None, verbose)
+        infiles = [infile.split('/')[-1]]
+        write_to_readme(path, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)
 
     elif args.output:
         input_dir = args.input
@@ -87,7 +90,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
         with Pool() as p:
             p.starmap_async(insert_uids, params).get()
 
-        write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600')
+        write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)
     else:
         print(
             'Pass in a <uri.EIS1600TMP> file to process a single file or use the -e option for batch processing'

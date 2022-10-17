@@ -2,7 +2,7 @@ from glob import glob
 from os.path import split, splitext
 
 
-def write_to_readme(path, files, which, ext):
+def write_to_readme(path, files, which, ext, checked=False):
     file_list = []
     try:
         with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
@@ -33,7 +33,7 @@ def write_to_readme(path, files, which, ext):
             file_path, uri = split(file)
             uri, _ = splitext(uri)
             if checked_boxes:
-                file_list.append((uri + ext + '\n', False))
+                file_list.append((uri + ext + '\n', checked))
             else:
                 file_list.append(uri + ext + '\n')
 

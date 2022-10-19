@@ -7,7 +7,8 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme, \
+    update_texts_fixed_poetry_readme
 from eis1600.markdown.methods import convert_to_eis1600
 
 
@@ -88,6 +89,10 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         input_dir = args.eis1600_repo
         if not input_dir[-1] == '/':
             input_dir += '/'
+
+        print(f'Update list of texts with automatically fixed poetry in the README')
+        update_texts_fixed_poetry_readme(input_dir, '# Texts with fixed poetry\n')
+        print(f'List of texts with automatically fixed poetry was successfully updated in the README')
 
         print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600TMP file yet)')
         files_list = read_files_from_readme(input_dir, '# Texts with fixed poetry\n')

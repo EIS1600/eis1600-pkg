@@ -27,3 +27,6 @@ POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + 
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n(PageV\d{2}P\d{3}\n)')
 BIO_CHR_TO_NEWLINE_PATTERN = re.compile(r'([^' + u''.join(AR_LETTERS_CHARSET) + r'\n]+[$@](?: RAW)?(?: \d+)?) ((?:\( ?)?' + AR_STR + r')')
+
+# Fixedd poetry old file path pattern
+FIXED_POETRY_OLD_PATH_PATTERN = re.compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')

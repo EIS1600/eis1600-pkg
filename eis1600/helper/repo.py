@@ -1,8 +1,15 @@
 from glob import glob
 from os.path import split, splitext
 
+from eis1600.miu_handling.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 
-def write_to_readme(path, files, which, ext, checked=False):
+
+def get_entry(file_name, checked_entry):
+    x = 'x' if checked_entry else ' '
+    return '- [' + x + '] ' + file_name
+
+
+def write_to_readme(path, files, which, ext=None, checked=False, remove_duplicates=False):
     file_list = []
     try:
         with open(path + 'README.md', 'r', encoding='utf8') as readme_h:
@@ -23,7 +30,7 @@ def write_to_readme(path, files, which, ext, checked=False):
                     file_list.append((file, md == '- [x'))
                     line = next(readme_h, None)
                 else:
-                    file_list.append(line[2])
+                    file_list.append(line[2:])
                     line = next(readme_h, None)
             while line:
                 out_file_end += line
@@ -31,17 +38,20 @@ def write_to_readme(path, files, which, ext, checked=False):
 
         for file in files:
             file_path, uri = split(file)
-            uri, _ = splitext(uri)
+            if ext:
+                uri, _ = splitext(uri)
+            else:
+                uri, ext = splitext(uri)
             if checked_boxes:
                 file_list.append((uri + ext + '\n', checked))
             else:
                 file_list.append(uri + ext + '\n')
 
+        print(f'{file_list}\n\n\n')
+        if remove_duplicates:
+            file_list = list(set(file_list))
         file_list.sort()
-
-        def get_entry(file_name, checked_entry):
-            x = 'x' if checked_entry else ' '
-            return '- [' + x + '] ' + file_name
+        print(f'{file_list}')
 
         with open(path + 'README.md', 'w', encoding='utf8') as readme_h:
             readme_h.write(out_file_start)
@@ -84,6 +94,15 @@ def read_files_from_readme(path, which):
         print(f'The README.md file does not seem to contain a "{which[:-1]}" section')
 
     return file_list
+
+
+def update_texts_fixed_poetry_readme(path, which):
+    with open(path + 'scripts/poetry_fixed.txt', 'r', encoding='utf8') as readme_h:
+        files_text = readme_h.read()
+    files_text, n = FIXED_POETRY_OLD_PATH_PATTERN.subn('', files_text)
+    file_list = files_text.split('\n')
+    print(f'{file_list}\n\n\n')
+    write_to_readme(path, file_list, which, None, False, True)
 
 
 def get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to=None):

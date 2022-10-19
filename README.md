@@ -16,12 +16,14 @@ $ pip install --upgrade eis1600
 ### Covert mARkdown to EIS1600 files
 
 Converts mARkdown file to EIS1600_tmp (without inserting UIDs).
-The .EIS1600_tmp file will be created next to the .mARkdown file.
+The .EIS1600_tmp file will be created next to the .mARkdown file (you can insert .inProcess or .completed files as well).
+This command can be run from anywhere within the text repo - use auto complete (`tab`) to get the correct path to the file.
 ```shell
 $ convert_mARkdown_to_Eis1600.py <uri>.mARkdown
 ```
 
 EIS1600_tmp files do not contain UIDs yet, to insert UIDs run insert_uids.py on the .EIS1600_tmp file.
+This command can be run from anywhere within the text repo - use auto complete (`tab`) to get the correct path to the file.
 ```shell
 $ insert_uids.py <uri>.EIS1600_tmp
 ```

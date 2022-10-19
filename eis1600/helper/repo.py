@@ -39,14 +39,14 @@ def write_to_readme(path, files, which, ext, checked=False):
 
         file_list.sort()
 
-        def get_entry(file_name, checked):
-            x = 'x' if checked else ' '
+        def get_entry(file_name, checked_entry):
+            x = 'x' if checked_entry else ' '
             return '- [' + x + '] ' + file_name
 
         with open(path + 'README.md', 'w', encoding='utf8') as readme_h:
             readme_h.write(out_file_start)
             if checked_boxes:
-                readme_h.writelines([get_entry(file, checked) for file, checked in file_list])
+                readme_h.writelines([get_entry(file, checked_entry) for file, checked_entry in file_list])
             else:
                 readme_h.writelines(['- ' + file for file in file_list])
             readme_h.write(out_file_end)

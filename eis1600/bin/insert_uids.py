@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
 from eis1600.markdown.methods import insert_uids
 
 
@@ -38,7 +38,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
     arg_parser.add_argument('-e', '--eis1600_repo', type=str,
                             help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet')
     arg_parser.add_argument('input', type=str, nargs='?',
-                            help='EIS1600TMP file to process or input directory with EIS1600TMP files to process if an output directory is also given',
+                            help='EIS1600TMP file to process, you need to run this command from inside text repo',
                             action=CheckFileEndingAction)
     arg_parser.add_argument('output', type=str, nargs='?',
                             help='Optional, if given batch processes all files from the input directory to the output directory')
@@ -48,7 +48,17 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
 
     if args.input and not args.output:
         infile = './' + args.input
-        path = infile.split('data')[0]
+        if 'data' in infile:
+            path = infile.split('data')[0]
+        else:
+            depth = len(infile.split('/'))
+            if depth == 2:
+                path = '../../../'
+            elif depth == 3:
+                path = '../../'
+            else:
+                path = '../'
+        print(f'Insert UIDs into {infile}')
         insert_uids(infile, None, verbose)
         infiles = [infile.split('/')[-1]]
         write_to_readme(path, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)

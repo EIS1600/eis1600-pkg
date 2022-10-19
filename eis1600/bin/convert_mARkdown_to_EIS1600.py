@@ -7,7 +7,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir, get_files_from_eis1600_dir, read_files_from_readme, write_to_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme
 from eis1600.markdown.methods import convert_to_eis1600
 
 
@@ -48,7 +48,20 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
 
     if args.input and not args.output:
         infile = './' + args.input
+        if 'data' in infile:
+            path = infile.split('data')[0]
+        else:
+            depth = len(infile.split('/'))
+            if depth == 2:
+                path = '../../../'
+            elif depth == 3:
+                path = '../../'
+            else:
+                path = '../'
+        print(f'Convert mARkdown file {infile} to EIS1600TMP file')
         convert_to_eis1600(infile, None, verbose)
+        infiles = [infile.split('/')[-1]]
+        write_to_readme(path, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
 
     elif args.output:
         input_dir = args.input

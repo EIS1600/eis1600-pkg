@@ -3,7 +3,7 @@ from random import randint
 from os.path import split, splitext
 
 from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
-    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, PARAGRAPH_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
+    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
     POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
@@ -20,7 +20,17 @@ def wrap_paragraph(paragraph, len_symb):
     return wrapped
 
 
-def convert_to_eis1600(infile, output_dir, verbose):
+def convert_to_eis1600_light(infile, output_dir=None, verbose=False):
+    """Coverts a file to EIS1600TMP for review process.
+
+    Converts mARkdown, inProgress, completed file to light EIS1600TMP for the review process. Creates the file with the
+    '.EIS1600TMP' extension.
+
+    :param str infile: Path of the file to convert.
+    :param str or None output_dir: Directory to write new file to (discontinued), defaults to None.
+    :param bool verbose: If True outputs a notification of the file which is currently processed, defaults to False.
+    :return: None.
+    """
     if output_dir:
         path, uri = split(infile)
         uri, ext = splitext(uri)
@@ -81,7 +91,16 @@ def convert_to_eis1600(infile, output_dir, verbose):
         outfileh.write(final)
 
 
-def insert_uids(infile, output_dir, verbose):
+def insert_uids(infile, output_dir=None, verbose=False):
+    """Insert UIDs into EIS1600TMP file and thereby convert it to EIS1600.
+
+
+    :param str infile: Path of the file to convert.
+    :param str or None output_dir: Directory to write new file to (discontinued), defaults to None.
+    :param bool verbose: If True outputs a notification of the file which is currently processed, defaults to False.
+    :return: None.
+    """
+
     if output_dir:
         path, uri = split(infile)
         uri, ext = splitext(uri)
@@ -136,6 +155,15 @@ def insert_uids(infile, output_dir, verbose):
 
 
 def update_uids(infile, verbose):
+    """
+
+    TODO not finished yet
+
+    :param str infile:
+    :param bool verbose:
+    :return:
+    """
+
     path, ext = splitext(infile)
     outfile = path + '.EIS1600'
     path, uri = split(infile)

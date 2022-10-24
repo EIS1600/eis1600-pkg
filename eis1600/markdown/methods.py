@@ -2,8 +2,8 @@ from textwrap import wrap
 from random import randint
 from os.path import split, splitext
 
-from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
-    SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
+from eis1600.miu_handling.re_patterns import HEADER_END_SPLIT_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, \
+    POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
     POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
@@ -20,7 +20,7 @@ def wrap_paragraph(paragraph, len_symb):
     return wrapped
 
 
-def convert_to_eis1600_light(infile, output_dir=None, verbose=False):
+def convert_to_eis1600_light(infile: str, output_dir: str = None, verbose: bool = False) -> None:
     """Coverts a file to EIS1600TMP for review process.
 
     Converts mARkdown, inProgress, completed file to light EIS1600TMP for the review process. Creates the file with the
@@ -46,7 +46,7 @@ def convert_to_eis1600_light(infile, output_dir=None, verbose=False):
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()
 
-    header_and_text = HEADER_END_PATTERN.split(text)
+    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
 
@@ -91,7 +91,7 @@ def convert_to_eis1600_light(infile, output_dir=None, verbose=False):
         outfileh.write(final)
 
 
-def insert_uids(infile, output_dir=None, verbose=False):
+def insert_uid(infile: str, output_dir: str = None, verbose: bool = False) -> None:
     """Insert UIDs into EIS1600TMP file and thereby convert it to EIS1600.
 
 
@@ -116,7 +116,7 @@ def insert_uids(infile, output_dir=None, verbose=False):
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()
 
-    header_and_text = HEADER_END_PATTERN.split(text)
+    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
     text = text.split('\n\n')
@@ -174,7 +174,7 @@ def update_uids(infile, verbose):
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()
 
-    header_and_text = HEADER_END_PATTERN.split(text)
+    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
     text = text.split('\n\n')

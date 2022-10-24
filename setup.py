@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.3.3',
+      version='0.3.4',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -21,7 +21,6 @@ setup(name='eis1600',
                'eis1600/bin/convert_mARkdown_to_EIS1600.py',
                'eis1600/bin/insert_uids.py',
                'eis1600/bin/update_uids.py'],
-      package_data={'eis1600.miu_handling': ['yaml_template.yml']},
       python_requires='>=3.7',
       classifiers=['Programming Language :: Python :: 3',
                    'License :: OSI Approved :: MIT License',

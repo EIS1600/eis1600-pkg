@@ -13,11 +13,12 @@ Functions:
 
 from glob import glob
 from os.path import split, splitext
+from typing import List
 
 from eis1600.miu_handling.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 
 
-def get_entry(file_name, checked_entry):
+def get_entry(file_name: str, checked_entry: bool) -> str:
     """Formats README entry for that file_name.
 
     Only used internally.
@@ -30,7 +31,8 @@ def get_entry(file_name, checked_entry):
     return '- [' + x + '] ' + file_name
 
 
-def write_to_readme(path, files, which, ext=None, checked=False, remove_duplicates=False):
+def write_to_readme(path: str, files: List[str], which: str, ext: str = None, checked: bool = False,
+        remove_duplicates: bool = False) -> None:
     """Write list of successfully processed files to the README.
 
     Write processed files to the respective section in the README, sorted into existing lists.
@@ -42,7 +44,6 @@ def write_to_readme(path, files, which, ext=None, checked=False, remove_duplicat
     :param bool checked: Indicator if the checkboxes of the files are ticked, defaults to False.
     :param bool remove_duplicates: If True duplicate entries will be removed (needed for the list of fixed poetry),
     defaults to False.
-    :return None:
     """
 
     file_list = []
@@ -113,7 +114,7 @@ def write_to_readme(path, files, which, ext=None, checked=False, remove_duplicat
         print(f'Could not write to the README file, check {path + "FILE_LIST.log"} for changed files')
 
 
-def read_files_from_readme(path, which):
+def read_files_from_readme(path: str, which: str) -> List[str]:
     """Get the list of files from the README to process further.
 
     Get the list of files from the README which are to be processed in further steps.
@@ -148,7 +149,7 @@ def read_files_from_readme(path, which):
     return file_list
 
 
-def update_texts_fixed_poetry_readme(path, which):
+def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
     """Update list of texts with fixed poetry in the README.
 
     Read list of texts with fixed poetry from the text file in the scipt folder and update the respective list in the
@@ -157,7 +158,6 @@ def update_texts_fixed_poetry_readme(path, which):
     :param str path: Path to the text directory root.
     :param str which: The section heading from the README indicating the section where the texts with fixed poetry
     are listed.
-    :return None:
     """
 
     # Read the list of files with fixed poetry from other file and write it to the README
@@ -169,7 +169,8 @@ def update_texts_fixed_poetry_readme(path, which):
     write_to_readme(path, file_list, which, None, False, True)
 
 
-def get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to):
+def get_files_from_eis1600_dir(path: str, file_list: List[str], file_ext_from: List[str] or str, file_ext_to: str) ->\
+        List[str]:
     """Get list of files to process from the EIS1600 text repo.
 
     Get list of the files with exact path from list of URIs. Do not select those files which have already been

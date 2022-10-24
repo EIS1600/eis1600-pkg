@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from eis1600.miu_handling.yml_handling import create_yml_header
-from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, UID_PATTERN
+from eis1600.miu_handling.re_patterns import HEADER_END_SPLIT_PATTERN, UID_PATTERN
 
 
 def disassemble_text(file_path, uri):
@@ -17,7 +17,7 @@ def disassemble_text(file_path, uri):
     with open(eis_file, 'r', encoding='utf8') as text:
         with open(ids_file, 'w', encoding='utf8') as ids_tree:
             for text_line in iter(text):
-                if HEADER_END_PATTERN.match(text_line):
+                if HEADER_END_SPLIT_PATTERN.match(text_line):
                     uid = 'header'
                     mui_text += text_line
                     with open(mui_uri + uid + '.EIS1600', 'w', encoding='utf8') as mui_file:

@@ -13,9 +13,15 @@ WORD = r'(?:\s' + AR_STR + ')'
 
 UID = r'_ء_#?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
-HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
-MIU_HEADER_PATTERN = re.compile(r'#MIU#Header#')
+MIU_UID_PATTERN = re.compile(r'_ء_#=(?P<UID>\d{12})= ')
+HEADER_END_SPLIT_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
+HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n')
+MIU_HEADER = r'#MIU#Header#'
+MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
 PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
+HEADING_PATTERN = re.compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
+
+# EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
 
 # Fix mARkdown files

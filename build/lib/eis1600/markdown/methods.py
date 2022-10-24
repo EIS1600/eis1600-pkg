@@ -2,7 +2,7 @@ from textwrap import wrap
 from random import randint
 from os.path import split, splitext
 
-from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
+from eis1600.miu_handling.re_patterns import HEADER_END_SPLIT_PATTERN, SPACES_PATTERN, NEWLINES_PATTERN, POETRY_PATTERN, \
     BELONGS_TO_PREV_PARAGRAPH_PATTERN, SPACES_AFTER_NEWLINES_PATTERN
 
 
@@ -35,7 +35,7 @@ def convert_to_eis1600(infile, output_dir, verbose):
     with open(infile, 'r', encoding='utf8') as infileh:
         text = infileh.read()
 
-    header_and_text = HEADER_END_PATTERN.split(text)
+    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
 

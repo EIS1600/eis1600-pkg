@@ -7,7 +7,7 @@ def reassemble_text(infile, verbose):
     path, uri = split(infile)
     uri, ext = splitext(uri)
     file_path = path + '/' + uri
-    ids = ['header', 'preface']
+    ids = []
 
     if verbose:
         print(f'Reassemble {uri}')

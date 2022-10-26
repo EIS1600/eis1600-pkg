@@ -139,21 +139,24 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
 
     text_iter = text.__iter__()
     paragraph = next(text_iter)
-    while paragraph:
+    while paragraph is not None:
         next_p = next(text_iter, None)
-        if paragraph.startswith('#'):
-            paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
-            if next_p and not next_p.startswith('#'):
-                heading_and_text = paragraph.split('\n', 1)
-                if len(heading_and_text) > 1:
-                    paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
-        elif '%~%' in paragraph:
-            paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n' + paragraph
-        else:
-            paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
 
-        text_updated.append(paragraph)
+        if paragraph:
+            # Only do this is paragraph is not empty
+            if paragraph.startswith('#'):
+                paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
+                if next_p and not next_p.startswith('#'):
+                    heading_and_text = paragraph.split('\n', 1)
+                    if len(heading_and_text) > 1:
+                        paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
+                                    heading_and_text[1]
+            elif '%~%' in paragraph:
+                paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n' + paragraph
+            else:
+                paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
+
+            text_updated.append(paragraph)
 
         paragraph = next_p
 
@@ -200,20 +203,24 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
     text_iter = text.__iter__()
     paragraph = next(text_iter)
-    while paragraph:
+    while paragraph is not None:
         next_p = next(text_iter, None)
-        if HEADING_OR_BIO_PATTERN.match(paragraph):
-            paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
-            if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
-                heading_and_text = paragraph.split('\n', 1)
-                if len(heading_and_text) > 1:
-                    paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
-        elif not UID_PATTERN.match(paragraph):
-            section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
-            paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
 
-        text_updated.append(paragraph)
+        if paragraph:
+            # Only do this is paragraph is not empty
+            if HEADING_OR_BIO_PATTERN.match(paragraph):
+                paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
+                if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
+                    heading_and_text = paragraph.split('\n', 1)
+                    if len(heading_and_text) > 1:
+                        paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
+                                    heading_and_text[1]
+            elif not UID_PATTERN.match(paragraph):
+                section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
+                paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
+
+            text_updated.append(paragraph)
+        paragraph = next_p
 
     text = '\n\n'.join(text_updated)
 

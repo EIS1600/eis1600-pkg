@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from os.path import split, splitext
-from re import subn
 
 from eis1600.markdown.UIDs import UIDs
 from typing import Optional
@@ -47,15 +46,11 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
         text = infile_h.read()
 
     text, n = BIO_CHR_TO_NEWLINE_PATTERN.subn(r'\1\n\2', text)
-    if verbose:
-        print(f'Update {n} lines in {uri}')
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
     text, n = NEWLINES_PATTERN.subn('\n\n', text)
     text = text.split('\n\n')
-    if verbose:
-        print(f'Header: {len(header)}, Text: {len(text)} in {uri}')
     text_updated = []
 
     used_ids = []
@@ -64,38 +59,34 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
         if UID_PATTERN.match(paragraph):
             used_ids.append(int(UID_PATTERN.match(paragraph).group('UID')))
 
-    if verbose:
-        print(f'Already {len(used_ids)} UIDs in {uri}')
     uids = UIDs(used_ids)
 
     text_iter = text.__iter__()
     paragraph = next(text_iter, None)
-    print(len(paragraph))
-    print(paragraph )
     while paragraph is not None:
         next_p = next(text_iter, None)
-        if HEADING_OR_BIO_PATTERN.match(paragraph):
-            paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
-            if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
-                heading_and_text = paragraph.split('\n', 1)
-                if len(heading_and_text) > 1:
-                    paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
-        elif not UID_PATTERN.match(paragraph):
-            section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
-            paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
 
-        text_updated.append(paragraph)
+        if paragraph:
+            # Only do this is paragraph is not empty
+            if HEADING_OR_BIO_PATTERN.match(paragraph):
+                paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
+                if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
+                    heading_and_text = paragraph.split('\n', 1)
+                    if len(heading_and_text) > 1:
+                        paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
+                                    heading_and_text[1]
+            elif not UID_PATTERN.match(paragraph):
+                section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
+                paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
 
-    if verbose:
-        print(f'Text updated: {len(text_updated)} in {uri}')
+            text_updated.append(paragraph)
+
+        paragraph = next_p
+
     text = '\n\n'.join(text_updated)
 
     # reassemble text
     final = header + '\n\n' + text
-
-    if verbose:
-        print(f'Update finished in {uri}, header: {len(header)}, text: {len(text)}')
 
     with open(outfile, 'w', encoding='utf8') as outfile_h:
         outfile_h.write(final)

@@ -1,6 +1,6 @@
 from eis1600.miu_handling.YAMLHandler import YAMLHandler
 
-from eis1600.miu_handling.re_patterns import MIU_HEADER_PATTERN, NEWLINES_PATTERN
+from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_PATTERN
 
 
 def create_yml_header(headings: dict) -> str:

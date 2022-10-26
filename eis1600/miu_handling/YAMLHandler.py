@@ -1,17 +1,15 @@
-from typing import Iterable
-
-from eis1600.miu_handling.re_patterns import MIU_HEADER
+from eis1600.markdown.re_patterns import MIU_HEADER
 
 
 class YAMLHandler:
     """A class to take care of the MIU YAML Headers
 
     :param bool reviewed: Indicating if this record has been manually reviewed. If True, the record will not be
-    changed by automated analysis.
+    changed by automated analysis, defaults to False.
     """
 
-    def __init__(self) -> None:
-        self.reviewed = False
+    def __init__(self, reviewed: bool = False) -> None:
+        self.reviewed = reviewed
 
     def __repr__(self) -> str:
         return str(self.__dict__)

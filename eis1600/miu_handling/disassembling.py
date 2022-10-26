@@ -1,13 +1,14 @@
 from os.path import splitext, split
+from typing import Optional
 
 from pathlib import Path
 
 from eis1600.miu_handling.HeadingTracker import HeadingTracker
 from eis1600.miu_handling.yml_handling import create_yml_header
-from eis1600.miu_handling.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, UID_PATTERN
+from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, UID_PATTERN
 
 
-def disassemble_text(infile: str, verbose: bool) -> None:
+def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
     """Disassemble text into MIU files.
 
     Retrieve MIU files by disassembling the text based on the EIS1600 mARkdown.

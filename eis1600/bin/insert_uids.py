@@ -104,7 +104,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
         # EIS1600
         print(f'Insert UIDs into files from the EIS1600 repo (only if there is not an EIS1600 file yet)')
         files_list = read_files_from_readme(input_dir, '# Texts converted into `.EIS1600TMP`\n')
-        infiles = get_files_from_eis1600_dir(input_dir, files_list, '*.EIS1600TMP', '*.EIS1600')
+        infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600TMP', 'EIS1600')
         if not infiles:
             print(
                     'There are no more EIS1600TMP files to process'

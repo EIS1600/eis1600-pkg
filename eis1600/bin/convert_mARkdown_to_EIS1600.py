@@ -26,8 +26,8 @@ class CheckFileEndingAction(Action):
 
 if __name__ == '__main__':
     arg_parser = ArgumentParser(
-        prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
-        description='''Script to convert mARkdown file(s) to EIS1600TMP file(s).
+            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            description='''Script to convert mARkdown file(s) to EIS1600TMP file(s).
 -----
 Give a single mARkdown file as input
 or 
@@ -35,22 +35,22 @@ Give an input AND an output directory for batch processing.
 
 Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directory which have not been processed yet.
 '''
-        )
+    )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
     arg_parser.add_argument(
-        '-e', '--eis1600_repo', type=str,
-        help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet'
-        )
+            '-e', '--eis1600_repo', type=str,
+            help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet'
+    )
     arg_parser.add_argument(
-        'input', type=str, nargs='?',
-        help='MARkdown file to process or input directory with mARkdown files to process if an output directory is '
-             'also given',
-        action=CheckFileEndingAction
-        )
+            'input', type=str, nargs='?',
+            help='MARkdown file to process or input directory with mARkdown files to process if an output directory is '
+                 'also given',
+            action=CheckFileEndingAction
+    )
     arg_parser.add_argument(
-        'output', type=str, nargs='?',
-        help='Optional, if given batch processes all files from the input directory to the output directory'
-        )
+            'output', type=str, nargs='?',
+            help='Optional, if given batch processes all files from the input directory to the output directory'
+    )
     args = arg_parser.parse_args()
 
     verbose = args.verbose
@@ -106,9 +106,8 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         print(f'Convert mARkdown files from the EIS1600 repo (only if there is not an EIS1600TMP file yet)')
         files_list = read_files_from_readme(input_dir, '# Texts with fixed poetry\n')
         infiles = get_files_from_eis1600_dir(
-            input_dir, files_list, ['*.mARkdown', '*.inProcress', '*.completed'],
-            '*.EIS1600*'
-            )
+                input_dir, files_list, ['mARkdown', 'inProcress', 'completed'], 'EIS1600*'
+        )
         if not infiles:
             print(
                     'There are no more mARkdown files to process'

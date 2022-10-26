@@ -2,10 +2,10 @@ class HeadingTracker:
     """A class to keep track of the super elements of a MIU.
 
     This class keeps track of the headings on different levels to keep this information in the MIU YAML header.
-    :param str level1: Level 1 heading.
-    :param str level2: Level 2 heading.
-    :param str level3: Level 3 heading.
-    :param str level4: Level 4 heading.
+    :ivar str level1: Level 1 heading.
+    :ivar str level2: Level 2 heading.
+    :ivar str level3: Level 3 heading.
+    :ivar str level4: Level 4 heading.
     """
 
     def __init__(self) -> None:

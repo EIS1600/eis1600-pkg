@@ -13,9 +13,9 @@ Functions:
 
 from glob import glob
 from os.path import split, splitext
-from typing import List
+from typing import List, Optional
 
-from eis1600.miu_handling.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
+from eis1600.markdown.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:
@@ -31,8 +31,10 @@ def get_entry(file_name: str, checked_entry: bool) -> str:
     return '- [' + x + '] ' + file_name
 
 
-def write_to_readme(path: str, files: List[str], which: str, ext: str = None, checked: bool = False,
-        remove_duplicates: bool = False) -> None:
+def write_to_readme(
+        path: str, files: List[str], which: str, ext: Optional[str] = None, checked: bool = False, remove_duplicates:
+        bool = False
+) -> None:
     """Write list of successfully processed files to the README.
 
     Write processed files to the respective section in the README, sorted into existing lists.
@@ -53,7 +55,7 @@ def write_to_readme(path: str, files: List[str], which: str, ext: str = None, ch
             out_file_end = ''
             checked_boxes = False
             line = next(readme_h)
-            # Find section in the README to write to
+            # Find section in the README to write to by finding the corresponding header line
             while line != which:
                 out_file_start += line
                 line = next(readme_h)
@@ -86,7 +88,7 @@ def write_to_readme(path: str, files: List[str], which: str, ext: str = None, ch
             else:
                 file_list.append(uri + ext + '\n')
 
-        # Duplicates only occure in the Fixed poetry section
+        # Duplicates only occur in the Fixed poetry section
         if remove_duplicates:
             file_list = list(set(file_list))
         # Sort list of all entries (old and new)
@@ -114,12 +116,13 @@ def write_to_readme(path: str, files: List[str], which: str, ext: str = None, ch
         print(f'Could not write to the README file, check {path + "FILE_LIST.log"} for changed files')
 
 
-def read_files_from_readme(path: str, which: str) -> List[str]:
+def read_files_from_readme(path: str, which: str, only_checked: Optional[bool] = True) -> List[str]:
     """Get the list of files from the README to process further.
 
     Get the list of files from the README which are to be processed in further steps.
     :param str path: The root of the text repo, path to the README
     :param str which: The section heading from the README indicating the section from which to read the file list from.
+    :param bool only_checked: If True, only read those lines with a ticked checkbox, defaults to True.
     :return list[str]: List of URIs from files to process further
     """
 
@@ -135,14 +138,18 @@ def read_files_from_readme(path: str, which: str) -> List[str]:
             # Read files from that section
             while line and line != '\n':
                 if line.startswith('- ['):
-                    # Only read those files which have been checked
-                    if line.startswith('- [x'):
+                    if only_checked:
+                        # Only read those files which have been checked
+                        if line.startswith('- [x'):
+                            md, file = line.split('] ')
+                            file_list.append(file[:-1])
+                    else:
                         md, file = line.split('] ')
                         file_list.append(file[:-1])
-                    line = next(readme_h, None)
                 else:
                     file_list.append(line[2:-1])
-                    line = next(readme_h, None)
+
+                line = next(readme_h, None)
     except StopIteration:
         print(f'The README.md file does not seem to contain a "{which[:-1]}" section')
 
@@ -165,12 +172,12 @@ def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
         files_text = readme_h.read()
     files_text, n = FIXED_POETRY_OLD_PATH_PATTERN.subn('', files_text)
     file_list = files_text.split('\n')
-    print(f'{file_list}\n\n\n')
     write_to_readme(path, file_list, which, None, False, True)
 
 
-def get_files_from_eis1600_dir(path: str, file_list: List[str], file_ext_from: List[str] or str, file_ext_to: str) ->\
-        List[str]:
+def get_files_from_eis1600_dir(
+        path: str, file_list: List[str], file_ext_from: List[str] or str, file_ext_to: Optional[str] = None
+) -> List[str]:
     """Get list of files to process from the EIS1600 text repo.
 
     Get list of the files with exact path from list of URIs. Do not select those files which have already been
@@ -179,7 +186,7 @@ def get_files_from_eis1600_dir(path: str, file_list: List[str], file_ext_from: L
     :param str path: Path to the text directory root.
     :param list[str] file_list: List of URIs of files.
     :param str or list[str] file_ext_from: File extension(s) the unprocessed files have.
-    :param str file_ext_to: File extension already processed files have.
+    :param str file_ext_to: File extension already processed files have, optional.
     :return list[str]: List of all files to process with exact path, not containing those files which have already
     been processed.
     """
@@ -188,7 +195,7 @@ def get_files_from_eis1600_dir(path: str, file_list: List[str], file_ext_from: L
     files = []
     for file in file_list:
         author, work, text = file.split('.')[:3]
-        file_path = path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])])
+        file_path = path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '.'
         if file_ext_to and not glob(file_path + file_ext_to):
             if type(file_ext_from) == list:
                 for ext in file_ext_from:

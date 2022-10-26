@@ -11,6 +11,7 @@ AR_LETTERS_CHARSET = frozenset(u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
 AR_STR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']+'
 WORD = r'(?:\s' + AR_STR + ')'
 
+# EIS1600 mARkdown
 UID = r'_ء_#?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
 MIU_UID_PATTERN = re.compile(r'_ء_#=(?P<UID>\d{12})= ')
@@ -18,11 +19,12 @@ HEADER_END_SPLIT_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
 HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
-PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
+# PARAGRAPH_PATTERN = re.compile(r'::[A-Z]+:: ~')
 HEADING_PATTERN = re.compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
+MIU_LIGHT_OR_EIS1600_PATTERN = re.compile(r'#|_ء_#')
 
 # Fix mARkdown files
 SPACES_PATTERN = re.compile(r' +')
@@ -32,7 +34,9 @@ POETRY_PATTERN = re.compile(r'# (' + AR_STR + '(?: ' + AR_STR + ')* %~% ' + AR_S
 POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + r')* %~%)', MULTILINE)
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n(PageV\d{2}P\d{3}\n)')
-BIO_CHR_TO_NEWLINE_PATTERN = re.compile(r'([^' + u''.join(AR_LETTERS_CHARSET) + r'\n]+[$@](?: RAW)?(?: \d+)?) ((?:\( ?)?' + AR_STR + r')')
+BIO_CHR_TO_NEWLINE_PATTERN = re.compile(r'(\n[^' + u''.join(AR_LETTERS_CHARSET) + r'\n]+[$@](?: RAW)?(?: \d+)?)(?: '
+                                                                                  r'-)? (('
+                                                                                r'?:\( ?)?' + AR_STR + r')')
 
-# Fixedd poetry old file path pattern
+# Fixed poetry old file path pattern
 FIXED_POETRY_OLD_PATH_PATTERN = re.compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')

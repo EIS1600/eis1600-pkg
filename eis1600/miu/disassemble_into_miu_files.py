@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
 from eis1600.helper.repo import read_files_from_readme, get_files_from_eis1600_dir, write_to_readme
-from eis1600.miu_handling.disassembling import disassemble_text
+from eis1600.miu.methods import disassemble_text
 
 
 class CheckFileEndingAction(Action):
@@ -21,7 +19,7 @@ class CheckFileEndingAction(Action):
             setattr(namespace, self.dest, None)
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = ArgumentParser(
         prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
         description='''Script to disassemble EIS1600 file(s) into MIU file(s).

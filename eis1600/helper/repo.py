@@ -170,7 +170,7 @@ def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
     # Read the list of files with fixed poetry from other file and write it to the README
     with open(path + 'scripts/poetry_fixed.txt', 'r', encoding='utf8') as readme_h:
         files_text = readme_h.read()
-    files_text, n = FIXED_POETRY_OLD_PATH_PATTERN.subn('', files_text)
+    files_text = FIXED_POETRY_OLD_PATH_PATTERN.sub('', files_text)
     file_list = files_text.split('\n')
     write_to_readme(path, file_list, which, None, False, True)
 

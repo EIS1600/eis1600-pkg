@@ -12,7 +12,7 @@ AR_STR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']+'
 WORD = r'(?:\s' + AR_STR + ')'
 
 # EIS1600 mARkdown
-UID = r'_ء_#?=(?P<UID>\d{12})= '
+UID = r'_ء_(#)?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
 MIU_UID_PATTERN = re.compile(r'_ء_#=(?P<UID>\d{12})= ')
 HEADER_END_SPLIT_PATTERN = re.compile(r'(#META#Header#End#)\n\n')

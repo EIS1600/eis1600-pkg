@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
@@ -21,7 +19,7 @@ class CheckFileEndingAction(Action):
             setattr(namespace, self.dest, None)
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = ArgumentParser(
             prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to insert UIDs in updated EIS1600 file(s).

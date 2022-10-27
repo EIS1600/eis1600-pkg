@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
@@ -45,11 +44,11 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     with open(infile, 'r', encoding='utf8') as infile_h:
         text = infile_h.read()
 
-    text, n = BIO_CHR_TO_NEWLINE_PATTERN.subn(r'\1\n\2', text)
+    text = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', text)
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
-    text, n = NEWLINES_PATTERN.subn('\n\n', text)
+    text = NEWLINES_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -92,7 +91,7 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
         outfile_h.write(final)
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = ArgumentParser(
             prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to insert UIDs in updated EIS1600 file(s).

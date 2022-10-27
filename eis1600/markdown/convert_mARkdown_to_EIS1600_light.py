@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from pathlib import Path
 
 import sys
@@ -24,7 +23,7 @@ class CheckFileEndingAction(Action):
             setattr(namespace, self.dest, None)
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = ArgumentParser(
             prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to convert mARkdown file(s) to EIS1600TMP file(s).

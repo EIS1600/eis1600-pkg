@@ -1,4 +1,4 @@
-from eis1600.miu_handling.YAMLHandler import YAMLHandler
+from eis1600.miu.YAMLHandler import YAMLHandler
 
 from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_PATTERN
 
@@ -47,9 +47,8 @@ def extract_yml_header_and_text(miu_file: str, miu_id: str, is_header: bool) -> 
                 text += line
             # Replace new lines which separate YAML header from text
             if not is_header:
-                text, n = NEWLINES_PATTERN.subn('\n\n', text)
+                text = NEWLINES_PATTERN.sub('\n\n', text)
 
-        # print(f'yml: \n{miu_yml_header}')
         return miu_yml_header, text
 
 

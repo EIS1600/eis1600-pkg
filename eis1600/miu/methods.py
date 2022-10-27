@@ -3,8 +3,8 @@ from typing import Optional
 
 from pathlib import Path
 
-from eis1600.miu_handling.HeadingTracker import HeadingTracker
-from eis1600.miu_handling.yml_handling import create_yml_header
+from eis1600.miu.HeadingTracker import HeadingTracker
+from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, UID_PATTERN
 
 
@@ -57,3 +57,24 @@ def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
             # last MIU needs to be written to file when the for-loop is finished
             with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
                 miu_file.write(miu_text)
+
+
+def reassemble_text(infile, verbose):
+    path, uri = split(infile)
+    uri, ext = splitext(uri)
+    file_path = path + '/' + uri
+    ids = []
+
+    if verbose:
+        print(f'Reassemble {uri}')
+
+    with open(file_path + '.IDs', 'r', encoding='utf-8') as ids_file:
+        ids.extend([line[:-1] for line in ids_file.readlines()])
+
+    with open(file_path + '.EIS1600', 'w', encoding='utf-8') as text_file:
+        with open(file_path + '.YMLDATA.yml', 'w', encoding='utf-8') as yml_data:
+            for i, miu_id in enumerate(ids):
+                miu_file_path = file_path + '/' + uri + '.' + miu_id + '.EIS1600'
+                yml_header, text = extract_yml_header_and_text(miu_file_path, miu_id, i == 0)
+                text_file.write(text)
+                yml_data.write(yml_header)

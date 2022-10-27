@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
 from eis1600.helper.repo import travers_eis1600_dir
-from eis1600.miu_handling.reassembling import reassemble_text
+from eis1600.miu.methods import reassemble_text
 
 
 class CheckFileEndingAction(Action):
@@ -21,8 +19,7 @@ class CheckFileEndingAction(Action):
             setattr(namespace, self.dest, None)
 
 
-if __name__ == '__main__':
-
+def main():
     arg_parser = ArgumentParser(prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
                                 description='''Script to reassemble EIS1600 file(s) from MIU file(s).
 -----

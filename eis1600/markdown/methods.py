@@ -1,37 +1,11 @@
-from typing import Optional, Set
+from typing import Optional
 
-from textwrap import wrap
-from random import randint
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
 from eis1600.markdown.re_patterns import HEADER_END_SPLIT_PATTERN, MIU_LIGHT_OR_EIS1600_PATTERN, SPACES_PATTERN, \
     NEWLINES_PATTERN, POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
-
-
-def generate12ids_iterator(iterations: int, existing_uids: Optional[Set[int]] = None) -> Set[int]:
-    """Generates UIDs which are used for the elements in the current file.
-
-    :param int iterations:
-    :param Set[int] existing_uids: Set of UIDs which are already used in the current document and therefore cannot be
-    given to new elements, optional.
-    :return Set[int]: A set of 12 digit UIDs ranging starting from 400000000000 (so they can be differentiated from
-    manually inserted UIDs).
-    """
-    ids = []
-    for i in range(0, iterations):
-        ids.append(randint(400000000000, 999999999999))
-    ids = set(ids)
-    if existing_uids:
-        ids = ids.difference(existing_uids)
-
-    return ids
-
-
-def wrap_paragraph(paragraph, len_symb):
-    wrapped = '\n'.join(wrap(paragraph, len_symb))
-    return wrapped
 
 
 def convert_to_eis1600_light(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
@@ -69,20 +43,20 @@ def convert_to_eis1600_light(infile: str, output_dir: Optional[str] = None, verb
     text = text.replace('\n~~', ' ')
 
     # spaces
-    text, n = SPACES_AFTER_NEWLINES_PATTERN.subn('\n', text)
-    text, n = SPACES_PATTERN.subn(' ', text)
+    text = SPACES_AFTER_NEWLINES_PATTERN.sub('\n', text)
+    text = SPACES_PATTERN.sub(' ', text)
 
     # fix poetry
-    text, n = POETRY_PATTERN.subn(r'\1', text)
-    text, n = POETRY_TO_PARAGRAPH.subn(r'\1\n\n\2', text)
+    text = POETRY_PATTERN.sub(r'\1', text)
+    text = POETRY_TO_PARAGRAPH.sub(r'\1\n\n\2', text)
 
     # fix page tag on newlines
-    text, n = PAGE_TAG_ON_NEWLINE_PATTERN.subn(r' \1', text)
+    text = PAGE_TAG_ON_NEWLINE_PATTERN.sub(r' \1', text)
 
     text = text.replace('\n###', '\n\n###')
     text = text.replace('\n# ', '\n\n')
 
-    text, n = NEWLINES_PATTERN.subn('\n\n', text)
+    text = NEWLINES_PATTERN.sub('\n\n', text)
 
     text = text.split('\n\n')
 
@@ -131,7 +105,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
-    text, n = NEWLINES_PATTERN.subn('\n\n', text)
+    text = NEWLINES_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -195,9 +169,19 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
     used_ids = []
 
-    for paragraph in text:
+    for idx, paragraph in enumerate(text):
         if UID_PATTERN.match(paragraph):
-            used_ids.append(int(UID_PATTERN.match(paragraph).group('UID')))
+            uid = int(UID_PATTERN.match(paragraph).group('UID'))
+            if uid not in used_ids:
+                used_ids.append(uid)
+            else:
+                # If in the review process an UID was accidentally inserted twice, just remove the second occurrence
+                # - this element will get a new UID in the next steps.
+                if UID_PATTERN.match(paragraph).group(1):
+                    # Python returns None for empty capturing groups which messes up the string
+                    text[idx] = UID_PATTERN.sub('\1', paragraph)
+                else:
+                    text[idx] = UID_PATTERN.sub('', paragraph)
 
     uids = UIDs(used_ids)
 

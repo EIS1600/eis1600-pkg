@@ -11,7 +11,7 @@ eis1600/helper/__init__.py
 eis1600/helper/repo.py
 eis1600/markdown/UIDs.py
 eis1600/markdown/__init__.py
-eis1600/markdown/convert_mARkdown_to_EIS1600_light.py
+eis1600/markdown/convert_mARkdown_to_EIS1600TMP.py
 eis1600/markdown/insert_uids.py
 eis1600/markdown/methods.py
 eis1600/markdown/re_patterns.py

@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.3.6',
+      version='0.3.7',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -18,7 +18,7 @@ setup(name='eis1600',
                 'eis1600.markdown'],
       entry_points={
           'console_scripts': [
-                  'convert_mARkdown_to_EIS1600_light = eis1600.markdown.convert_mARkdown_to_EIS1600_light:main',
+                  'convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main',
                   'insert_uids = eis1600.markdown.insert_uids:main',
                   'update_uids = eis1600.markdown.update_uids:main',
                   'xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main',

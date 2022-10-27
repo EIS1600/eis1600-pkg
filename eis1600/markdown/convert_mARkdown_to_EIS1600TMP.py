@@ -8,7 +8,7 @@ from multiprocessing import Pool
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme, \
     update_texts_fixed_poetry_readme
-from eis1600.markdown.methods import convert_to_eis1600_light
+from eis1600.markdown.methods import convert_to_EIS1600TMP
 
 
 class CheckFileEndingAction(Action):
@@ -67,7 +67,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
             else:
                 path = '../'
         print(f'Convert mARkdown file {infile} to EIS1600TMP file')
-        convert_to_eis1600_light(infile, None, verbose)
+        convert_to_EIS1600TMP(infile, None, verbose)
         infiles = [infile.split('/')[-1]]
         write_to_readme(path, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
 
@@ -92,7 +92,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         params = [(infile, output_dir, verbose) for infile in infiles]
 
         with Pool() as p:
-            p.starmap_async(convert_to_eis1600_light, params).get()
+            p.starmap_async(convert_to_EIS1600TMP, params).get()
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo
         if not input_dir[-1] == '/':
@@ -116,7 +116,7 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         params = [(infile, None, verbose) for infile in infiles]
 
         with Pool() as p:
-            p.starmap_async(convert_to_eis1600_light, params).get()
+            p.starmap_async(convert_to_EIS1600TMP, params).get()
 
         write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
     else:

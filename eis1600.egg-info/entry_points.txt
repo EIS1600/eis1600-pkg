@@ -1,5 +1,5 @@
 [console_scripts]
-convert_mARkdown_to_EIS1600_light = eis1600.markdown.convert_mARkdown_to_EIS1600_light:main
+convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 insert_uids = eis1600.markdown.insert_uids:main
 reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main

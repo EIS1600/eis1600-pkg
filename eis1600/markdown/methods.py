@@ -8,7 +8,7 @@ from eis1600.markdown.re_patterns import HEADER_END_SPLIT_PATTERN, MIU_LIGHT_OR_
     HEADING_OR_BIO_PATTERN, POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
-def convert_to_eis1600_light(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
+def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
     """Coverts a file to EIS1600TMP for review process.
 
     Converts mARkdown, inProgress, completed file to light EIS1600TMP for the review process. Creates the file with the

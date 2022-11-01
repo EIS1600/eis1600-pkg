@@ -55,7 +55,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
         files_list = read_files_from_readme(input_dir, '# Texts converted into `.EIS1600`\n')
         files_list_done = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')
         files_list = [file for file in files_list if file not in files_list_done]
-        infiles = get_files_from_eis1600_dir(input_dir, files_list, '*.EIS1600')
+        infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')
         if not infiles:
             print('There are no EIS1600 files to process')
             sys.exit()

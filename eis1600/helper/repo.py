@@ -31,10 +31,7 @@ def get_entry(file_name: str, checked_entry: bool) -> str:
     return '- [' + x + '] ' + file_name
 
 
-def write_to_readme(
-        path: str, files: List[str], which: str, ext: Optional[str] = None, checked: bool = False, remove_duplicates:
-        bool = False
-) -> None:
+def write_to_readme(path: str, files: List[str], which: str, ext: Optional[str] = None, checked: bool = False) -> None:
     """Write list of successfully processed files to the README.
 
     Write processed files to the respective section in the README, sorted into existing lists.
@@ -44,8 +41,6 @@ def write_to_readme(
     :param str which: The section heading from the README indicating the section to write the list of files to.
     :param str or None ext: File extension of the files at the end of the process, optional.
     :param bool checked: Indicator if the checkboxes of the files are ticked, defaults to False.
-    :param bool remove_duplicates: If True duplicate entries will be removed (needed for the list of fixed poetry),
-    defaults to False.
     """
 
     file_list = []
@@ -88,9 +83,8 @@ def write_to_readme(
             else:
                 file_list.append(uri + ext + '\n')
 
-        # Duplicates only occur in the Fixed poetry section
-        if remove_duplicates:
-            file_list = list(set(file_list))
+        # Remove duplicates
+        file_list = list(set(file_list))
         # Sort list of all entries (old and new)
         file_list.sort()
 
@@ -172,7 +166,7 @@ def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
         files_text = readme_h.read()
     files_text = FIXED_POETRY_OLD_PATH_PATTERN.sub('', files_text)
     file_list = files_text.split('\n')
-    write_to_readme(path, file_list, which, None, False, True)
+    write_to_readme(path, file_list, which)
 
 
 def get_files_from_eis1600_dir(
@@ -197,6 +191,7 @@ def get_files_from_eis1600_dir(
         author, work, text = file.split('.')[:3]
         file_path = path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '.'
         if file_ext_to and not glob(file_path + file_ext_to):
+            # Only do if the target file does not exist
             if type(file_ext_from) == list:
                 for ext in file_ext_from:
                     tmp = glob(file_path + ext)
@@ -205,6 +200,7 @@ def get_files_from_eis1600_dir(
             else:
                 files.extend(glob(file_path + file_ext_from))
         elif not file_ext_to:
+            # Do if file ending stays the same
             files.extend(glob(file_path + file_ext_from))
     return files
 

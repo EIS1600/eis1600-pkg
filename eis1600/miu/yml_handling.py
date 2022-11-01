@@ -1,9 +1,11 @@
+from typing import Optional
+
 from eis1600.miu.YAMLHandler import YAMLHandler
 
-from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_PATTERN
+from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
 
 
-def create_yml_header(headings: dict) -> str:
+def create_yml_header(headings: Optional[dict] = None) -> str:
     """Creates a YAML header for the current MIU file.
 
     :param dict headings: Dict of headings, which are the super elements of the current MIU.
@@ -31,7 +33,6 @@ def extract_yml_header_and_text(miu_file: str, miu_id: str, is_header: bool) -> 
     with open(miu_file, 'r', encoding='utf-8') as file:
         text = ''
         miu_yml_header = ''
-        print(MIU_HEADER_PATTERN)
         for line in iter(file):
             if MIU_HEADER_PATTERN.match(line):
                 # Omit the #MIU#Header# line as it is only needed inside the MIU.EIS1600 file, but not in YMLDATA.yml
@@ -47,7 +48,7 @@ def extract_yml_header_and_text(miu_file: str, miu_id: str, is_header: bool) -> 
                 text += line
             # Replace new lines which separate YAML header from text
             if not is_header:
-                text = NEWLINES_PATTERN.sub('\n\n', text)
+                text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
 
         return miu_yml_header, text
 

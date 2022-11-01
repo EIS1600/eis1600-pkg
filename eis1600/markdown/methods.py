@@ -3,8 +3,9 @@ from typing import Optional
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
-from eis1600.markdown.re_patterns import HEADER_END_SPLIT_PATTERN, MIU_LIGHT_OR_EIS1600_PATTERN, SPACES_PATTERN, \
-    NEWLINES_PATTERN, POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, \
+from eis1600.markdown.re_patterns import EMPTY_FRIST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
+    HEADER_END_SPLIT_PATTERN, MIU_LIGHT_OR_EIS1600_PATTERN, ONLY_PAGE_TAG_PATTERN, SPACES_CROWD_PATTERN, \
+    NEWLINES_CROWD_PATTERN, POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
@@ -38,25 +39,29 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
 
+    if text[0:2] == '#\n':
+        # Some texts start with a plain #, remove these
+        text = text[2:]
+
     # fix
     text = text.replace('~\n', '\n')
     text = text.replace('\n~~', ' ')
 
     # spaces
     text = SPACES_AFTER_NEWLINES_PATTERN.sub('\n', text)
-    text = SPACES_PATTERN.sub(' ', text)
+    text = SPACES_CROWD_PATTERN.sub(' ', text)
 
     # fix poetry
     text = POETRY_PATTERN.sub(r'\1', text)
     text = POETRY_TO_PARAGRAPH.sub(r'\1\n\n\2', text)
 
     # fix page tag on newlines
-    text = PAGE_TAG_ON_NEWLINE_PATTERN.sub(r' \1', text)
+    text = PAGE_TAG_ON_NEWLINE_PATTERN.sub(r' \1\n', text)
 
+    # fix new lines
     text = text.replace('\n###', '\n\n###')
     text = text.replace('\n# ', '\n\n')
-
-    text = NEWLINES_PATTERN.sub('\n\n', text)
+    text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
 
     text = text.split('\n\n')
 
@@ -68,9 +73,8 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
             paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
         text_updated.append(paragraph)
 
-    text = '\n\n'.join(text_updated)
-
     # reassemble text
+    text = '\n\n'.join(text_updated)
     final = header + '\n\n' + text
 
     with open(outfile, 'w', encoding='utf8') as outfile_h:
@@ -78,7 +82,7 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
 
 
 def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional[bool] = False) -> None:
-    """Insert UIDs into EIS1600TMP file and thereby convert it to EIS1600.
+    """Insert UIDs and EIS1600 tags into EIS1600TMP file and thereby convert it to EIS1600 format.
 
 
     :param str infile: Path of the file to convert.
@@ -102,10 +106,11 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     with open(infile, 'r', encoding='utf8') as infile_h:
         text = infile_h.read()
 
+    # disassemble text into paragraphs
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
-    text = NEWLINES_PATTERN.sub('\n\n', text)
+    text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -113,6 +118,8 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
 
     text_iter = text.__iter__()
     paragraph = next(text_iter)
+
+    # Insert UIDs and EIS1600 tags into the text
     while paragraph is not None:
         next_p = next(text_iter, None)
 
@@ -121,6 +128,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
             if paragraph.startswith('#'):
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
                 if next_p and not next_p.startswith('#'):
+                    # Insert a paragraph tag if there a multiple paragraphs in the current element
                     heading_and_text = paragraph.split('\n', 1)
                     if len(heading_and_text) > 1:
                         paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
@@ -134,9 +142,8 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
 
         paragraph = next_p
 
-    text = '\n\n'.join(text_updated)
-
     # reassemble text
+    text = '\n\n'.join(text_updated)
     final = header + '\n\n' + text
 
     with open(outfile, 'w', encoding='utf8') as outfile_h:
@@ -144,7 +151,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
 
 
 def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
-    """Updates a text with missing UIDs.
+    """Updates a text with missing UIDs and EIS1600 tags.
 
     :param str infile: Path of the file to update UIDs in.
     :param bool verbose: If True outputs a notification of the file which is currently processed, defaults to False.
@@ -161,14 +168,17 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     with open(infile, 'r', encoding='utf8') as infile_h:
         text = infile_h.read()
 
+    # disassemble text into paragraphs
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
+    text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
     used_ids = []
 
+    # Collect existing UIDs
     for idx, paragraph in enumerate(text):
         if UID_PATTERN.match(paragraph):
             uid = int(UID_PATTERN.match(paragraph).group('UID'))
@@ -187,14 +197,21 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
     text_iter = text.__iter__()
     paragraph = next(text_iter)
+
+    if EMPTY_FRIST_PARAGRAPH_PATTERN.fullmatch(paragraph):
+        # Some OpenITI texts start with a single # which causes a plain UID tag as first element - ignore those
+        paragraph = next(text_iter)
+
+    # Insert missing UIDs and EIS1600 tags into the text
     while paragraph is not None:
         next_p = next(text_iter, None)
 
         if paragraph:
-            # Only do this is paragraph is not empty
+            # Only do this if paragraph is not empty
             if HEADING_OR_BIO_PATTERN.match(paragraph):
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
                 if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
+                    # Insert a paragraph tag if there a multiple paragraphs in the current element
                     heading_and_text = paragraph.split('\n', 1)
                     if len(heading_and_text) > 1:
                         paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
@@ -203,12 +220,18 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
                 paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
 
-            text_updated.append(paragraph)
+            if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
+                # Add page tags to previous paragraph if there is no other information contained in the current
+                # paragraph
+                page_tag = ONLY_PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
+                text_updated[-1] += ' ' + page_tag
+            elif not EMPTY_PARAGRAPH_PATTERN.fullmatch(paragraph):
+                # Do not add empty paragraphs to the updated text
+                text_updated.append(paragraph)
         paragraph = next_p
 
-    text = '\n\n'.join(text_updated)
-
     # reassemble text
+    text = '\n\n'.join(text_updated)
     final = header + '\n\n' + text
 
     with open(outfile, 'w', encoding='utf8') as outfile_h:

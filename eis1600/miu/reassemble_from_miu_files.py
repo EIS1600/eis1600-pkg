@@ -3,7 +3,7 @@ import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
-from eis1600.helper.repo import travers_eis1600_dir
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, travers_eis1600_dir
 from eis1600.miu.methods import reassemble_text
 
 
@@ -42,9 +42,12 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
         reassemble_text(infile, verbose)
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo
+        if not input_dir[-1] == '/':
+            input_dir += '/'
 
         print(f'Reassemble EIS1600 files from the EIS1600 repo')
-        infiles = travers_eis1600_dir(input_dir, '*.EIS1600')
+        files_list = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')
+        infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')
         if not infiles:
             print('There are no EIS1600 files to process')
             sys.exit()

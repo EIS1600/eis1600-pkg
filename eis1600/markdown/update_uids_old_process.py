@@ -11,7 +11,7 @@ from multiprocessing import Pool
 from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
 from eis1600.markdown.re_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_SPLIT_PATTERN, HEADING_OR_BIO_PATTERN, \
     MIU_LIGHT_OR_EIS1600_PATTERN, \
-    NEWLINES_PATTERN, UID_PATTERN
+    NEWLINES_CROWD_PATTERN, UID_PATTERN
 
 
 class CheckFileEndingAction(Action):
@@ -48,7 +48,7 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2]
-    text = NEWLINES_PATTERN.sub('\n\n', text)
+    text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 

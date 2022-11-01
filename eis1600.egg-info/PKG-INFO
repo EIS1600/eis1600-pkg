@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.3.7
+Version: 0.3.8
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -26,6 +26,7 @@ Description: # EIS1600 Tools
         Converts mARkdown file to EIS1600TMP (without inserting UIDs).
         The .EIS1600TMP file will be created next to the .mARkdown file (you can insert .inProcess or .completed files as well).
         This command can be run from anywhere within the text repo - use auto complete (`tab`) to get the correct path to the file.
+        Alternative: open command line from the folder which contains the file which shall be converted.
         ```shell
         $ convert_mARkdown_to_EIS1600TMP <uri>.mARkdown
         ```

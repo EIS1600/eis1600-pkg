@@ -52,12 +52,11 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
             input_dir += '/'
 
         print(
-                f'Insert missing UIDs into checked files from the EIS1600 repo (only for EIS1600 files which have not '
-                f'been updated yet)'
+                f'Insert missing UIDs into checked files from the EIS1600 repo'
         )
         files_list = read_files_from_readme(
-            input_dir, '# Texts converted into `.EIS1600`\n', False
-            )
+                input_dir, '# Texts converted into `.EIS1600`\n', False
+        )
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')
         if not infiles:
             print(

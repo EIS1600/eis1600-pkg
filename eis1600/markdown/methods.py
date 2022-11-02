@@ -3,10 +3,11 @@ from typing import Optional
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
-from eis1600.markdown.re_patterns import EMPTY_FRIST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
-    HEADER_END_SPLIT_PATTERN, MIU_LIGHT_OR_EIS1600_PATTERN, ONLY_PAGE_TAG_PATTERN, SPACES_CROWD_PATTERN, \
-    NEWLINES_CROWD_PATTERN, POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, \
-    HEADING_OR_BIO_PATTERN, POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
+from eis1600.markdown.re_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, HEADER_END_PATTERN, \
+    MIU_LIGHT_OR_EIS1600_PATTERN, ONLY_PAGE_TAG_PATTERN, PAGE_TAG_PATTERN, SPACES_CROWD_PATTERN, \
+    NEWLINES_CROWD_PATTERN, \
+    POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
+    POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
 
 
 def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
@@ -35,9 +36,9 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
     with open(infile, 'r', encoding='utf8') as infile_h:
         text = infile_h.read()
 
-    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
+    header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2]
+    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
 
     if text[0:2] == '#\n':
         # Some texts start with a plain #, remove these
@@ -107,9 +108,9 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
         text = infile_h.read()
 
     # disassemble text into paragraphs
-    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
+    header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2]
+    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
@@ -129,16 +130,25 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
                 if next_p and not next_p.startswith('#'):
                     # Insert a paragraph tag if there a multiple paragraphs in the current element
-                    heading_and_text = paragraph.split('\n', 1)
+                    heading_and_text = paragraph.splitlines()
                     if len(heading_and_text) > 1:
                         paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
                                     heading_and_text[1]
+
+                text_updated.append(paragraph)
             elif '%~%' in paragraph:
                 paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n' + paragraph
+                text_updated.append(paragraph)
+            elif PAGE_TAG_PATTERN.fullmatch(paragraph):
+                page_tag = PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
+                if text_updated:
+                    text_updated[-1] += ' ' + page_tag
+                else:
+                    # Keep PageV00P000 at the beginning in an individual paragraph
+                    text_updated.append(paragraph)
             else:
                 paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
-
-            text_updated.append(paragraph)
+                text_updated.append(paragraph)
 
         paragraph = next_p
 
@@ -169,9 +179,9 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
         text = infile_h.read()
 
     # disassemble text into paragraphs
-    header_and_text = HEADER_END_SPLIT_PATTERN.split(text)
+    header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2]
+    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
@@ -198,7 +208,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     text_iter = text.__iter__()
     paragraph = next(text_iter)
 
-    if EMPTY_FRIST_PARAGRAPH_PATTERN.fullmatch(paragraph):
+    if EMPTY_FIRST_PARAGRAPH_PATTERN.fullmatch(paragraph):
         # Some OpenITI texts start with a single # which causes a plain UID tag as first element - ignore those
         paragraph = next(text_iter)
 
@@ -212,7 +222,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
                 if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
                     # Insert a paragraph tag if there a multiple paragraphs in the current element
-                    heading_and_text = paragraph.split('\n', 1)
+                    heading_and_text = paragraph.splitlines()
                     if len(heading_and_text) > 1:
                         paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
                                     heading_and_text[1]
@@ -224,7 +234,11 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 # Add page tags to previous paragraph if there is no other information contained in the current
                 # paragraph
                 page_tag = ONLY_PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
-                text_updated[-1] += ' ' + page_tag
+                if text_updated:
+                    text_updated[-1] += ' ' + page_tag
+                else:
+                    # Keep PageV00P000 at the beginning in an individual paragraph
+                    text_updated.append(paragraph)
             elif not EMPTY_PARAGRAPH_PATTERN.fullmatch(paragraph):
                 # Do not add empty paragraphs to the updated text
                 text_updated.append(paragraph)

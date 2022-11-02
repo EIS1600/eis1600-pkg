@@ -17,13 +17,12 @@ WORD = r'(?:\s' + AR_STR + ')'
 UID = r'_ء_(#)?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
 MIU_UID_PATTERN = re.compile(r'_ء_#=(?P<UID>\d{12})= ')
-HEADER_END_SPLIT_PATTERN = re.compile(r'(#META#Header#End#)\n\n')
 HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
 HEADING_PATTERN = re.compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
 EMPTY_PARAGRAPH_PATTERN = re.compile(UID + r'::UNDEFINED:: ~')
-EMPTY_FRIST_PARAGRAPH_PATTERN = re.compile(r'_ء_#=\d{12}=')
+EMPTY_FIRST_PARAGRAPH_PATTERN = re.compile(r'_ء_#=\d{12}=')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3})'
 PAGE_TAG_PATTERN = re.compile(PAGE_TAG)
 ONLY_PAGE_TAG_PATTERN = re.compile(UID + r'::UNDEFINED:: ~\n' + PAGE_TAG)
@@ -41,9 +40,7 @@ POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + 
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n' + PAGE_TAG)
 BIO_CHR_TO_NEWLINE_PATTERN = re.compile(
-    r'(\n[^' + u''.join(AR_LETTERS_CHARSET) + r'\n]+[$@](?: RAW)?(?: \d+)?)(?: '
-                                              r'-)? (('
-                                              r'?:\( ?)?' + AR_STR + r')'
+    r'(# [$@]+(?: RAW)?(?: \d+)?)(?: -)? ((?:\( ?)?' + AR_STR + r')'
     )
 
 # Fixed poetry old file path pattern

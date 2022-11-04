@@ -23,7 +23,7 @@ MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
 HEADING_PATTERN = re.compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
 EMPTY_PARAGRAPH_PATTERN = re.compile(UID + r'::UNDEFINED:: ~')
 EMPTY_FIRST_PARAGRAPH_PATTERN = re.compile(r'_ء_#=\d{12}=')
-PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3})'
+PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = re.compile(PAGE_TAG)
 ONLY_PAGE_TAG_PATTERN = re.compile(UID + r'::UNDEFINED:: ~\n' + PAGE_TAG)
 

@@ -143,9 +143,10 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 page_tag = PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
                 if text_updated:
                     text_updated[-1] += ' ' + page_tag
-                else:
-                    # Keep PageV00P000 at the beginning in an individual paragraph
-                    text_updated.append(paragraph)
+                # else:
+                    # Remove PageV00P000 at the beginning in an individual paragraph
+                    # text_updated.append(paragraph)
+                    # pass
             else:
                 paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
                 text_updated.append(paragraph)
@@ -236,9 +237,10 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 page_tag = ONLY_PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
                 if text_updated:
                     text_updated[-1] += ' ' + page_tag
-                else:
-                    # Keep PageV00P000 at the beginning in an individual paragraph
-                    text_updated.append(paragraph)
+                # else:
+                    # Remove PageV00P000 at the beginning in an individual paragraph
+                    # text_updated.append(paragraph)
+                    # pass
             elif not EMPTY_PARAGRAPH_PATTERN.fullmatch(paragraph):
                 # Do not add empty paragraphs to the updated text
                 text_updated.append(paragraph)

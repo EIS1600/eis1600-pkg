@@ -1,14 +1,15 @@
-from typing import Optional
+from typing import Type
 
+from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
 
 from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
 
 
-def create_yml_header(headings: Optional[dict] = None) -> str:
-    """Creates a YAML header for the current MIU file.
+def create_yml_header(headings: Type[HeadingTracker]) -> str:
+    """Creates a YAML header for the current MIU file and returns it as yamlfied string.
 
-    :param dict headings: Dict of headings, which are the super elements of the current MIU.
+    :param Type[HeadingsTracker] headings: HeadingTracker with the super elements of the current MIU.
     :return str: YAML header for the current MIU.
     """
 
@@ -49,6 +50,8 @@ def extract_yml_header_and_text(miu_file: str, miu_id: str, is_header: bool) -> 
             # Replace new lines which separate YAML header from text
             if not is_header:
                 text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
+
+        yml_header = YAMLHandler()
 
         return miu_yml_header, text
 

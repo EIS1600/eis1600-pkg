@@ -82,6 +82,6 @@ def reassemble_text(infile, verbose):
         with open(file_path + uri + '.YAMLDATA.yml', 'w', encoding='utf-8') as yml_data:
             for i, miu_id in enumerate(ids):
                 miu_file_path = file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'
-                yml_header, text = extract_yml_header_and_text(miu_file_path, miu_id, i == 0)
+                yml_header, text = extract_yml_header_and_text(miu_file_path, i == 0)
                 text_file.write(text)
-                yml_data.write(yml_header)
+                yml_data.write('#' + miu_id + '\n---\n' + yml_header + '\n\n')

@@ -1,5 +1,3 @@
-from re import MULTILINE
-
 import re
 
 AR_LETTERS_CHARSET = frozenset(
@@ -17,7 +15,8 @@ WORD = r'(?:\s' + AR_STR + ')'
 # EIS1600 mARkdown
 UID = r'_ء_(#)?=(?P<UID>\d{12})= '
 UID_PATTERN = re.compile(UID)
-MIU_UID_PATTERN = re.compile(r'_ء_#=(?P<UID>\d{12})= ')
+MIU_UID = r'_ء_#=(?P<UID>\d{12})= '
+MIU_UID_PATTERN = re.compile(MIU_UID)
 HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
@@ -35,6 +34,12 @@ PAGE_TAG_IN_BETWEEN_PATTERN = re.compile(
         AR_STR
 )
 
+MIU_TAG_PATTERN = re.compile(r'(' + MIU_UID + r'[^\n]+)')
+SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
+SECTION_PATTERN = re.compile(SECTION_TAG)
+SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n')
+TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG)
+
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
 MIU_LIGHT_OR_EIS1600_PATTERN = re.compile(r'#|_ء_#')
@@ -44,11 +49,11 @@ SPACES_CROWD_PATTERN = re.compile(r' +')
 NEWLINES_CROWD_PATTERN = re.compile(r'\n{3,}')
 SPACES_AFTER_NEWLINES_PATTERN = re.compile(r'\n +')
 POETRY_PATTERN = re.compile(
-    r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +
-    AR_STR_AND_TAGS +
-    r')*) ?'
-    )
-POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + r')* %~%)', MULTILINE)
+        r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +
+        AR_STR_AND_TAGS +
+        r')*) ?'
+)
+POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + r')* %~%)', re.MULTILINE)
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n' + PAGE_TAG)
 PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(

@@ -5,12 +5,14 @@ from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 from eis1600.markdown.re_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
 
 
-def preprocess(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]:
-    """
+def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]:
+    """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
 
+    Takes an MIU text and returns a zip object of three sparse columns: sections, tokens, lists of tags. Elements can
+    be None because of sparsity.
     :param text: MIU text content to process.
-    :return Iterator: Returns a zip object containing three columns: sections, tokens, lists of tags. Elements can be
-    None.
+    :return Iterator: Returns a zip object containing three sparse columns: sections, tokens, lists of tags. Elements
+    can be None because of sparsity.
     """
     text_and_heading = MIU_TAG_PATTERN.split(text)
     heading = text_and_heading[1]
@@ -54,11 +56,16 @@ def preprocess(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[st
     return zip(sections, ar_tokens, tags)
 
 
-def reconstruct_text_with_tags(text_and_tags: Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]) -> str:
-    """
-    
-    :param text_and_tags:
-    :return:
+def reconstruct_miu_text_with_tags(
+        text_and_tags: Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]
+) -> str:
+    """Reconstruct the MIU text from a zip object containing three columns: sections, tokens, lists of tags.
+
+    Reconstructs the MIU text with the tags contained in the list of tags. Tags are inserted BEFORE the token.
+    Section headers are inserted after an empty line ('\n\n'), followed by the text on the next line.
+    :param Iterator[Tuple[Union[str, None], str, Union[List[str], None]]] text_and_tags: zip object containing three
+    sparse columns: sections, tokens, lists of tags.
+    :return str: The reconstructed MIU text containing all the tags.
     """
     text_and_tags_iter = text_and_tags.__iter__()
     heading, _, _ = next(text_and_tags_iter)

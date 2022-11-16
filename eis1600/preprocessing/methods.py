@@ -1,4 +1,7 @@
+from eis1600.miu.yml_handling import extract_yml_header_and_text
 from typing import Iterator, List, Tuple, Union
+
+import pandas as pd
 
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
@@ -56,8 +59,17 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
     return zip(sections, ar_tokens, tags)
 
 
+def get_yml_and_MIU_df(path: str) -> (str, pd.DataFrame):
+    yml_str, text = extract_yml_header_and_text(path, False)
+    # TODO yml = YAMLHandler().from_yml_str(yml_str)
+    zipped = tokenize_miu_text(text)
+    df = pd.DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
+
+    return yml_str, df
+
+
 def reconstruct_miu_text_with_tags(
-        text_and_tags: Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]
+        text_and_tags: Union[Iterator[Tuple[Union[str, None], str, Union[List[str], None]]], pd.DataFrame]
 ) -> str:
     """Reconstruct the MIU text from a zip object containing three columns: sections, tokens, lists of tags.
 
@@ -67,7 +79,10 @@ def reconstruct_miu_text_with_tags(
     sparse columns: sections, tokens, lists of tags.
     :return str: The reconstructed MIU text containing all the tags.
     """
-    text_and_tags_iter = text_and_tags.__iter__()
+    if type(text_and_tags) is pd.DataFrame:
+        text_and_tags_iter = text_and_tags.itertuples(index=False)
+    else:
+        text_and_tags_iter = text_and_tags.__iter__()
     heading, _, _ = next(text_and_tags_iter)
     reconstructed_text = heading
     for section, token, tags in text_and_tags_iter:
@@ -84,3 +99,11 @@ def reconstruct_miu_text_with_tags(
     reconstructed_text += '\n\n'
     reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n')
     return reconstructed_text
+
+
+def write_updated_miu_to_file(path: str, yml_str: str, df: pd.DataFrame) -> None:
+    updated_text = reconstruct_miu_text_with_tags(df)
+    # TODO yml_str = yml.get_yamlfied()
+
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(yml_str + updated_text)

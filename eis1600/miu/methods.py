@@ -9,17 +9,19 @@ from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MI
     UID_PATTERN
 
 
-def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
+def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
     """Disassemble text into MIU files.
 
     Retrieve MIU files by disassembling the text based on the EIS1600 mARkdown.
     :param str infile: Path to the file which is to be disassembled.
+    :param str out_path: Path to the MIU repo.
     :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
     """
 
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
+    path = out_path + '/' + path
     ids_file = path + '/' + uri + '.IDs'
     miu_dir = Path(path + '/MIUs/')
     uid = ''
@@ -28,7 +30,7 @@ def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
     if verbose:
         print(f'Disassemble {uri}')
 
-    miu_dir.mkdir(exist_ok=True)
+    miu_dir.mkdir(parents=True, exist_ok=True)
     miu_uri = miu_dir.__str__() + '/' + uri + '.'
 
     with open(infile, 'r', encoding='utf8') as text:

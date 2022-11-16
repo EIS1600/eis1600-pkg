@@ -1,4 +1,5 @@
-from typing import Type
+from __future__ import annotations
+from typing import Optional, Type
 
 from eis1600.markdown.re_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -12,9 +13,15 @@ class YAMLHandler:
     :ivar Typing[HeadingTracker] headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker
     """
 
-    def __init__(self, reviewed: bool = False) -> None:
+    def __init__(self, reviewed: str = 'NOT REVIEWED', reviewer: Optional[str] = None) -> None:
         self.reviewed = reviewed
+        self.reviewer = reviewer
         self.headings = None
+
+    @classmethod
+    def from_yml_str(cls, yml_str: str) -> Type[YAMLHandler]:
+        # TODO
+        return cls()
 
     def set_headings(self, headings: Type[HeadingTracker]):
         self.headings = headings

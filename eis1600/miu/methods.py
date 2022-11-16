@@ -1,9 +1,10 @@
 from os.path import splitext, split
 from typing import Optional
-
 from pathlib import Path
 
 from eis1600.miu.HeadingTracker import HeadingTracker
+from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
+from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, PAGE_TAG_PATTERN, \
     UID_PATTERN
@@ -87,3 +88,37 @@ def reassemble_text(infile, verbose):
                 yml_header, text = extract_yml_header_and_text(miu_file_path, i == 0)
                 text_file.write(text)
                 yml_data.write('#' + miu_id + '\n---\n' + yml_header + '\n\n')
+
+
+def annotate_miu_file(path: str, tsv_path=None, output_path=None):
+    def merge_tagslists(lst1, lst2):
+        if lst1 is not None:
+            if lst2 != '':
+                lst1.append(lst2)
+        else:
+            if lst2 != '':
+                lst1 = [lst2]
+        return lst1
+
+    if output_path is None:
+        output_path = path
+    if tsv_path is None:
+        tsv_path = path.replace('.EIS1600', '.tsv')
+
+    # 1. open miu file and diassemble the file to its parts
+    yml_header, df = get_yml_and_MIU_df(path)
+
+    # 2. annotate NEs and lemmatize
+    df['NER_LABELS'], df['LEMMAS'] = annotate_miu_text(df)
+
+    # 3. convert cameltools labels format to markdown format
+    df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
+
+    # 4. save csv file
+    df.to_csv(tsv_path, index=False, sep='\t')
+
+    # 5. merge NER tags with file tags
+    df['TAGS_LISTS+NER_TAGS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['NER_TAGS']), axis=1)
+
+    # 6. reconstruct the text and save it to the output file
+    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS+NER_TAGS']])

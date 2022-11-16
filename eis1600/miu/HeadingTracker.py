@@ -1,7 +1,7 @@
 from __future__ import annotations
 import copy
 
-from typing import Type
+from typing import Dict, Optional, Type
 
 
 class HeadingTracker:
@@ -15,13 +15,17 @@ class HeadingTracker:
     :ivar str h4: Level 4 heading, optional.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, headings_dict: Optional[Dict] = None) -> None:
         """Constructor which sets attributes to empty strings."""
 
         self.h1 = None
         self.h2 = None
         self.h3 = None
         self.h4 = None
+
+        if headings_dict:
+            for key, val in headings_dict.items():
+                self.__setattr__(key, val)
 
     def get_curr_state(self) -> Type[HeadingTracker]:
         """Get current state of the tacker as deepcopy.

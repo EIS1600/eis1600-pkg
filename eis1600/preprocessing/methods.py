@@ -1,3 +1,5 @@
+from eis1600.miu.YAMLHandler import YAMLHandler
+
 from eis1600.miu.yml_handling import extract_yml_header_and_text
 from typing import Iterator, List, Tuple, Union
 
@@ -61,11 +63,11 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
 
 def get_yml_and_MIU_df(path: str) -> (str, pd.DataFrame):
     yml_str, text = extract_yml_header_and_text(path, False)
-    # TODO yml = YAMLHandler().from_yml_str(yml_str)
+    yml = YAMLHandler().from_yml_str(yml_str)
     zipped = tokenize_miu_text(text)
     df = pd.DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
-    return yml_str, df
+    return yml, df
 
 
 def reconstruct_miu_text_with_tags(
@@ -101,9 +103,22 @@ def reconstruct_miu_text_with_tags(
     return reconstructed_text
 
 
-def write_updated_miu_to_file(path: str, yml_str: str, df: pd.DataFrame) -> None:
-    updated_text = reconstruct_miu_text_with_tags(df)
-    # TODO yml_str = yml.get_yamlfied()
+def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> None:
+    """
+
+    :param str path: Path to the MIU file to write
+    :param YAMLHandler yml: The YAMLHandler of the MIU.
+    :param df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
+    :return None:
+    """
+
+    df_subset = None
+    if not yml.is_reviewed() and 'ÜTAGS_LISTS' in df.columns:
+        # TODO MERGE TAGS_LISTS and ÜTAGS_LISTS
+        pass
+    else:
+        df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
+    updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     with open(path, 'w', encoding='utf-8') as fh:
-        fh.write(yml_str + updated_text)
+        fh.write(str(yml) + updated_text)

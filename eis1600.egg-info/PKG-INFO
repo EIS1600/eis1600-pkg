@@ -82,5 +82,5 @@ Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
 Classifier: Development Status :: 1 - Planning
 Classifier: Intended Audience :: Science/Research
-Requires-Python: >=3.7
+Requires-Python: >=3.7, <3.9
 Description-Content-Type: text/markdown

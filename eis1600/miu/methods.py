@@ -2,7 +2,6 @@ from os.path import splitext, split
 from typing import Optional
 from pathlib import Path
 
-from eis1600.helper.repo import get_path_to_other_repo
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
 from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
@@ -11,18 +10,18 @@ from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MI
     UID_PATTERN
 
 
-def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
+def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
     """Disassemble text into MIU files.
 
     Retrieve MIU files by disassembling the text based on the EIS1600 mARkdown.
     :param str infile: Path to the file which is to be disassembled.
+    :param str out_path: Path to the MIU repo.
     :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
     """
 
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
-    out_path = get_path_to_other_repo(infile, 'MIU')
     ids_file = out_path + uri + '.IDs'
     yml_file = out_path + uri + '.STATUS.yml'
     miu_dir = Path(out_path + 'MIUs/')
@@ -73,16 +72,16 @@ def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
         status_file.write('STATUS   : DISASSEMBLED')
 
 
-def reassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
+def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
     """Reassemble text from MIU files.
 
     Reassemble text from MIU files.
     :param str infile: Path to the IDs file of the text to reassemble from MIU files.
+    :param str out_path: Path to the TEXT repo.
     :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
     """
     path, uri = split(infile)
     uri, ext = splitext(uri)
-    out_path = get_path_to_other_repo(infile, 'TEXT')
     file_path = path + '/'
     ids = []
 

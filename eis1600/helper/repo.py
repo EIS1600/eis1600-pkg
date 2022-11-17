@@ -212,32 +212,33 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
     :param Literal which: Indicating which repo you want to get the path to, accepts 'MIU' or 'TEXT'.
     :return str: path to the same URI in the requested repo
     """
-    out_path = ''
+    out_path = '../'
 
     if 'data' in infile:
-        out_path = '../' + infile.split('data')[0][2:]
+        out_path += infile.split('data')[0][2:]
+    elif infile == './':
+        pass
     else:
         depth = len(infile.split('/'))
         print(depth)
         if depth == 1:
-            out_path = '../../../../'
+            out_path += '../../../'
         elif depth == 2:
-            out_path = '../../../'
+            out_path += '../../'
         elif depth == 3:
-            out_path = '../../'
+            out_path += '../'
         else:
-            out_path = '../'
+            out_path += '../'
 
     path, uri = split(infile)
     uri, ext = splitext(uri)
     author, work, text = uri.split('.')
 
     if which == 'MIU':
-        out_path = out_path + 'OpenITI_EIS1600_MIUs/data/'
-        out_path = out_path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '/'
+        out_path += 'OpenITI_EIS1600_MIUs/data/'
+        out_path += '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '/'
     else:
-        out_path = out_path + 'OpenITI_EIS1600_Texts/data/'
-        out_path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
+        out_path += 'OpenITI_EIS1600_Texts/data/'
+        out_path += '/'.join([author, '.'.join([author, work])]) + '/'
 
     return out_path
-

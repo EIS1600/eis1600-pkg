@@ -73,7 +73,13 @@ def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
         status_file.write('STATUS   : DISASSEMBLED')
 
 
-def reassemble_text(infile, verbose):
+def reassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
+    """Reassemble text from MIU files.
+
+    Reassemble text from MIU files.
+    :param str infile: Path to the IDs file of the text to reassemble from MIU files.
+    :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
+    """
     path, uri = split(infile)
     uri, ext = splitext(uri)
     out_path = get_path_to_other_repo(infile, 'TEXT')
@@ -96,15 +102,6 @@ def reassemble_text(infile, verbose):
 
 
 def annotate_miu_file(path: str, tsv_path=None, output_path=None):
-    def merge_tagslists(lst1, lst2):
-        if lst1 is not None:
-            if lst2 != '':
-                lst1.append(lst2)
-        else:
-            if lst2 != '':
-                lst1 = [lst2]
-        return lst1
-
     if output_path is None:
         output_path = path
     if tsv_path is None:
@@ -122,8 +119,5 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None):
     # 4. save csv file
     df.to_csv(tsv_path, index=False, sep='\t')
 
-    # 5. merge NER tags with file tags
-    df['TAGS_LISTS+NER_TAGS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['NER_TAGS']), axis=1)
-
-    # 6. reconstruct the text and save it to the output file
-    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS+NER_TAGS']])
+    # 5. reconstruct the text and save it to the output file
+    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS']])

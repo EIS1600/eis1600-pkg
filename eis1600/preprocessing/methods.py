@@ -110,6 +110,16 @@ def reconstruct_miu_text_with_tags(
     return reconstructed_text
 
 
+def merge_tagslists(lst1, lst2):
+    if lst1 is not None:
+        if lst2 != '':
+            lst1.append(lst2)
+    else:
+        if lst2 != '':
+            lst1 = [lst2]
+    return lst1
+
+
 def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> None:
     """Write MIU file with annotations.
 
@@ -121,10 +131,11 @@ def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> 
 
     df_subset = None
     if not yml.is_reviewed() and 'ÜTAGS_LISTS' in df.columns:
-        # TODO MERGE TAGS_LISTS and ÜTAGS_LISTS
-        pass
+        df['TAGS_LISTS+NER_TAGS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['NER_TAGS']), axis=1)
+        df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS+NER_TAGS']]
     else:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
+
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     with open(path, 'w', encoding='utf-8') as fh:

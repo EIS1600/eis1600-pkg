@@ -13,7 +13,7 @@ Functions:
 
 from glob import glob
 from os.path import split, splitext
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from eis1600.markdown.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 
@@ -205,27 +205,39 @@ def get_files_from_eis1600_dir(
     return files
 
 
-def travers_eis1600_dir(path, file_ext_from, file_ext_to):
+def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
     """
 
-    TODO is this still needed?
-
-    :param path:
-    :param file_ext_from:
-    :param file_ext_to:
-    :return:
+    :param str infile: file which gives URI of the text.
+    :param Literal which: Indicating which repo you want to get the path to, accepts 'MIU' or 'TEXT'.
+    :return str: path to the same URI in the requested repo
     """
-    path += 'data/*/*/'
-    in_files = glob(path + file_ext_from)
-    if not file_ext_to:
-        return in_files
+    out_path = ''
+
+    if 'data' in infile:
+        out_path = '../' + infile.split('data')[0][2:]
     else:
-        exclude_files = glob(path + file_ext_to)
-        files = []
+        depth = len(infile.split('/'))
+        print(depth)
+        if depth == 1:
+            out_path = '../../../../'
+        elif depth == 2:
+            out_path = '../../../'
+        elif depth == 3:
+            out_path = '../../'
+        else:
+            out_path = '../'
 
-        for file in in_files:
-            path, ext = splitext(file)
-            if not path + '.' + file_ext_to in exclude_files:
-                files.append(file)
+    path, uri = split(infile)
+    uri, ext = splitext(uri)
+    author, work, text = uri.split('.')
 
-        return files
+    if which == 'MIU':
+        out_path = out_path + 'OpenITI_EIS1600_MIUs/data/'
+        out_path = out_path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '/'
+    else:
+        out_path = out_path + 'OpenITI_EIS1600_Texts/data/'
+        out_path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
+
+    return out_path
+

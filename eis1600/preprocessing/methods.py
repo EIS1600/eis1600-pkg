@@ -39,11 +39,13 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
             tag = None
             for t in tokens:
                 if TAG_PATTERN.match(t):
-                    # There might be multiple tags in front of a token - Page, NEWLINE, NER tag, ...
-                    if tag:
-                        tag.append(t)
-                    else:
-                        tag = [t]
+                    if not t.startswith('Ü'):
+                        # Do not add automated tags to the list - they come from the csv anyway
+                        # There might be multiple tags in front of a token - Page, NEWLINE, NER tag, ...
+                        if tag:
+                            tag.append(t)
+                        else:
+                            tag = [t]
                 else:
                     sections.append(section)
                     section = None
@@ -62,6 +64,11 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
 
 
 def get_yml_and_MIU_df(path: str) -> (str, pd.DataFrame):
+    """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
+
+    :param str path: Path of the MIU file.
+    :return DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
+    """
     yml_str, text = extract_yml_header_and_text(path, False)
     yml = YAMLHandler().from_yml_str(yml_str)
     zipped = tokenize_miu_text(text)
@@ -104,7 +111,7 @@ def reconstruct_miu_text_with_tags(
 
 
 def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> None:
-    """
+    """Write MIU file with annotations.
 
     :param str path: Path to the MIU file to write
     :param YAMLHandler yml: The YAMLHandler of the MIU.

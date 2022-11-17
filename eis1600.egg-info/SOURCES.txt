@@ -6,8 +6,10 @@ eis1600.egg-info/PKG-INFO
 eis1600.egg-info/SOURCES.txt
 eis1600.egg-info/dependency_links.txt
 eis1600.egg-info/entry_points.txt
+eis1600.egg-info/requires.txt
 eis1600.egg-info/top_level.txt
 eis1600/helper/__init__.py
+eis1600/helper/ar_normalization.py
 eis1600/helper/repo.py
 eis1600/markdown/UIDs.py
 eis1600/markdown/__init__.py

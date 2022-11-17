@@ -3,27 +3,28 @@ from typing import Optional
 
 from pathlib import Path
 
+from eis1600.helper.repo import get_path_to_other_repo
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, PAGE_TAG_PATTERN, \
     UID_PATTERN
 
 
-def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
+def disassemble_text(infile: str, verbose: Optional[bool] = None) -> None:
     """Disassemble text into MIU files.
 
     Retrieve MIU files by disassembling the text based on the EIS1600 mARkdown.
     :param str infile: Path to the file which is to be disassembled.
-    :param str out_path: Path to the MIU repo.
     :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
     """
 
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
-    path = out_path + '/' + path
-    ids_file = path + '/' + uri + '.IDs'
-    miu_dir = Path(path + '/MIUs/')
+    out_path = get_path_to_other_repo(infile, 'MIU')
+    ids_file = out_path + uri + '.IDs'
+    yml_file = out_path + uri + '.STATUS.yml'
+    miu_dir = Path(out_path + 'MIUs/')
     uid = ''
     miu_text = ''
 
@@ -67,10 +68,14 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                 miu_file.write(miu_text + '\n')
                 ids_tree.write(uid + '\n')
 
+    with open(yml_file, 'w', encoding='utf8') as status_file:
+        status_file.write('STATUS   : DISASSEMBLED')
+
 
 def reassemble_text(infile, verbose):
     path, uri = split(infile)
     uri, ext = splitext(uri)
+    out_path = get_path_to_other_repo(infile, 'TEXT')
     file_path = path + '/'
     ids = []
 
@@ -80,7 +85,7 @@ def reassemble_text(infile, verbose):
     with open(file_path + uri + '.IDs', 'r', encoding='utf-8') as ids_file:
         ids.extend([line[:-1] for line in ids_file.readlines()])
 
-    with open(file_path + uri + '.EIS1600', 'w', encoding='utf-8') as text_file:
+    with open(out_path + uri + '.EIS1600', 'w', encoding='utf-8') as text_file:
         with open(file_path + uri + '.YAMLDATA.yml', 'w', encoding='utf-8') as yml_data:
             for i, miu_id in enumerate(ids):
                 miu_file_path = file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'

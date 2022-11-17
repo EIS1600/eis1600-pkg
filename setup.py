@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.4.1',
+      version='0.4.2',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -27,7 +27,7 @@ setup(name='eis1600',
           ],
       },
       python_requires='>=3.7',
-      install_requires=['openiti'],
+      install_requires=['openiti', 'pandas'],
       classifiers=['Programming Language :: Python :: 3',
                    'License :: OSI Approved :: MIT License',
                    'Operating System :: OS Independent',

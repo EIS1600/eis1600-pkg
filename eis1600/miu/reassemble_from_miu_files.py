@@ -46,6 +46,7 @@ Use -e <EIS1600_repo> to batch process all files in the EIS1600 directory.
     if args.input:
         infile = './' + args.input
         out_path = get_path_to_other_repo(infile, 'TEXT')
+        print(f'Reassemble {infile}')
         reassemble_text(infile, out_path, verbose)
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo

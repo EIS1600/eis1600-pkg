@@ -1,5 +1,6 @@
+from glob import glob
 from os.path import splitext, split
-from typing import Optional
+from typing import List, Optional
 from pathlib import Path
 
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -22,9 +23,11 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
+    author, work, text = uri.split('.')
+    path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
     ids_file = out_path + uri + '.IDs'
     yml_file = out_path + uri + '.STATUS.yml'
-    miu_dir = Path(out_path + 'MIUs/')
+    miu_dir = Path(path + 'MIUs/')
     uid = ''
     miu_text = ''
 
@@ -80,9 +83,11 @@ def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) 
     :param str out_path: Path to the TEXT repo.
     :param bool verbose: If True outputs a notification of the file which is currently processed, optional.
     """
-    path, uri = split(infile)
+    file_path, uri = split(infile)
+    file_path += '/'
     uri, ext = splitext(uri)
-    file_path = path + '/'
+    author, work, text = uri.split('.')
+    path = out_path + '/'.join([author, '.'.join([author, work])]) + '/' + uri
     ids = []
 
     if verbose:
@@ -91,13 +96,34 @@ def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) 
     with open(file_path + uri + '.IDs', 'r', encoding='utf-8') as ids_file:
         ids.extend([line[:-1] for line in ids_file.readlines()])
 
-    with open(out_path + uri + '.EIS1600', 'w', encoding='utf-8') as text_file:
+    with open(path + '.EIS1600', 'w', encoding='utf-8') as text_file:
         with open(file_path + uri + '.YAMLDATA.yml', 'w', encoding='utf-8') as yml_data:
             for i, miu_id in enumerate(ids):
                 miu_file_path = file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'
                 yml_header, text = extract_yml_header_and_text(miu_file_path, i == 0)
                 text_file.write(text)
                 yml_data.write('#' + miu_id + '\n---\n' + yml_header + '\n\n')
+
+
+def get_mius(infile: str) -> List[str]:
+    """Get a list of paths to all MIU files from the infile text (including the HEADER MIU)
+
+    :param infile: URI of text for which all MIU files are retrieved
+    :return List[str]: A List of path to all the MIU files from the text
+    """
+    file_path, uri = split(infile)
+    uri, ext = splitext(uri)
+    file_path += '/'
+    ids = []
+    mius = []
+
+    with open(infile, 'r', encoding='utf-8') as ids_file:
+        ids.extend([line[:-1] for line in ids_file.readlines()])
+
+    for i, miu_id in enumerate(ids):
+        mius.extend(glob(file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'))
+
+    return mius
 
 
 def annotate_miu_file(path: str, tsv_path=None, output_path=None):

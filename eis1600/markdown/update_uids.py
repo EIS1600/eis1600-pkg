@@ -45,7 +45,20 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
 
     if args.input:
         infile = './' + args.input
+        if 'data' in infile:
+            path = infile.split('data')[0]
+        else:
+            depth = len(infile.split('/'))
+            if depth == 2:
+                path = '../../../'
+            elif depth == 3:
+                path = '../../'
+            else:
+                path = '../'
+        print(f'Update UIDs in {infile}')
         update_uids(infile, verbose)
+        infiles = [infile.split('/')[-1]]
+        write_to_readme(path, infiles, '# Texts updated with missing UIDs\n')
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo
         if not input_dir[-1] == '/':

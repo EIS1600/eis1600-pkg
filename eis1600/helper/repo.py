@@ -230,15 +230,9 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
         else:
             out_path += '../'
 
-    path, uri = split(infile)
-    uri, ext = splitext(uri)
-    author, work, text = uri.split('.')
-
     if which == 'MIU':
         out_path += 'OpenITI_EIS1600_MIUs/data/'
-        out_path += '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '/'
     else:
         out_path += 'OpenITI_EIS1600_Texts/data/'
-        out_path += '/'.join([author, '.'.join([author, work])]) + '/'
 
     return out_path

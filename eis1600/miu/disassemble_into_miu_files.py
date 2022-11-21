@@ -47,7 +47,11 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
     if args.input:
         infile = './' + args.input
         out_path = get_path_to_other_repo(infile, 'MIU')
+        print(f'Disassemble {infile}')
         disassemble_text(infile, out_path, verbose)
+        infiles = [infile.split('/')[-1]]
+        path = out_path.split('data')[0]
+        write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo
         if not input_dir[-1] == '/':
@@ -68,7 +72,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
         with Pool() as p:
             p.starmap_async(disassemble_text, params).get()
 
-        write_to_readme(input_dir, infiles, '# Texts disassembled into MIU files\n')
+        write_to_readme(out_path, infiles, '# Texts disassembled into MIU files\n')
     else:
         print(
                 'Pass in a <uri.EIS1600> file to process a single file or use the -e option for batch processing'

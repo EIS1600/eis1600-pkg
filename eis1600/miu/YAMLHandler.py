@@ -35,7 +35,7 @@ class YAMLHandler:
         yml = {}
         level = []
         dict_elem = {}
-        print(yml_str)
+        # print(yml_str)
         for line in yml_str.splitlines():
             if not line.startswith('#'):
                 intend = (len(line) - len(line.lstrip())) / 4

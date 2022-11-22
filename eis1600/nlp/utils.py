@@ -43,25 +43,24 @@ def camel2md_as_list(labels: list) -> List[str]:
             converted_tokens.append(default_str)
         else:
             # Check if the first letter of the label is 'o' or 'B' a Begining of an NE
-            if _label[0] in ['O', 'B']:
+            if _label[0] in ['O', 'B', '_']:
                 if len(temp_tokens) > 0 and temp_class is not None:
                     converted_tokens.append(f"{types_mapping.get(temp_class, 'ÜM')}{len(temp_tokens)}")  # e.g. ÜP3
                     converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
                     # reset temp variables
                     temp_tokens, temp_class = [], None
 
-                if _label == 'O':
+                if _label in ['O', '_']:
                     converted_tokens.append(default_str)
                 else:
-                    temp_tokens.append('')
+                    temp_tokens.append(_label)
                     temp_class = _label[2:]
 
-            elif _label[0] == 'I':
-                if _label[2:] == temp_class:
-                    temp_tokens.append(default_str)
             else:
-                converted_tokens.append(default_str)
-
+                if temp_class is not None:
+                    temp_tokens.append(_label)
+                else:
+                    converted_tokens.append(default_str)
     if len(temp_tokens) > 0 and temp_class is not None:
         converted_tokens.append(f"{types_mapping.get(temp_class, 'ÜM')}{len(temp_tokens)}")
         converted_tokens.extend([default_str] * (len(temp_tokens) - 1))

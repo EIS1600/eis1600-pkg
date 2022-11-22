@@ -1,5 +1,5 @@
 from glob import glob
-from os.path import splitext, split
+from os.path import splitext, split, exists
 from typing import List, Optional
 from pathlib import Path
 
@@ -126,13 +126,17 @@ def get_mius(infile: str) -> List[str]:
     return mius
 
 
-def annotate_miu_file(path: str, tsv_path=None, output_path=None):
+def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotation=False):
     if output_path is None:
         output_path = path
     if tsv_path is None:
         tsv_path = path.replace('.EIS1600', '.tsv')
 
-    # 1. open miu file and diassemble the file to its parts
+    # if the file is already annotated, do nothing
+    if exists(tsv_path) and not force_annotation:
+        return
+
+    # 1. open miu file and disassemble the file to its parts
     yml_header, df = get_yml_and_MIU_df(path)
 
     # 2. annotate NEs and lemmatize

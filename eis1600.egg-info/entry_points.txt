@@ -2,6 +2,7 @@
 convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 insert_uids = eis1600.markdown.insert_uids:main
+miu_random_revisions = eis1600.helper.miu_random_revisions:main
 reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main
 update_uids = eis1600.markdown.update_uids:main
 xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main

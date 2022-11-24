@@ -7,7 +7,7 @@ from eis1600.markdown.re_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PA
     MIU_LIGHT_OR_EIS1600_PATTERN, ONLY_PAGE_TAG_PATTERN, PAGE_TAG_IN_BETWEEN_PATTERN, PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
     POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_PATTERN, HEADING_OR_BIO_PATTERN, \
-    POETRY_TO_PARAGRAPH, BIO_CHR_TO_NEWLINE_PATTERN
+    BIO_CHR_TO_NEWLINE_PATTERN
 
 
 def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
@@ -55,7 +55,6 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
 
     # fix poetry
     text = POETRY_PATTERN.sub(r'\1', text)
-    text = POETRY_TO_PARAGRAPH.sub(r'\1\n\n\2', text)
 
     # fix page tag on newlines
     text = PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN.sub(r'\1 \2 \3', text)

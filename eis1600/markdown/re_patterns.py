@@ -28,10 +28,7 @@ PAGE_TAG_PATTERN = re.compile(PAGE_TAG)
 ONLY_PAGE_TAG = UID + r'::UNDEFINED:: ~\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = re.compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = re.compile(
-        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= '
-                                                             r'::UNDEFINED:: '
-                                                             r'~\n' +
-        AR_STR
+        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
 
 MIU_TAG_PATTERN = re.compile(r'(' + MIU_UID + r'[^\n]+)')
@@ -53,7 +50,6 @@ POETRY_PATTERN = re.compile(
         AR_STR_AND_TAGS +
         r')*) ?'
 )
-POETRY_TO_PARAGRAPH = re.compile(r'(\n[^%\n]+)\n(' + AR_STR + '(?: ' + AR_STR + r')* %~%)', re.MULTILINE)
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
 PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n' + PAGE_TAG)
 PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(

@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.4.3',
+      version='0.4.4',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -23,7 +23,8 @@ setup(name='eis1600',
                   'update_uids = eis1600.markdown.update_uids:main',
                   'xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main',
                   'disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main',
-                  'reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main'
+                  'reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main',
+                  'miu_random_revisions = eis1600.helper.miu_random_revisions:main'
           ],
       },
       python_requires='>=3.7, <3.9',

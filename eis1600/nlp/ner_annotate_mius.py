@@ -1,8 +1,8 @@
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
-from multiprocessing import Pool
 
+from p_tqdm import p_uimap
 from tqdm import tqdm
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
@@ -13,7 +13,7 @@ class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
         if input_arg and os.path.isfile(input_arg):
             filepath, fileext = os.path.splitext(input_arg)
-            if fileext != '.IDs' or fileext != '.EIS1600':
+            if fileext != '.IDs' and fileext != '.EIS1600':
                 parser.error('You need to input an IDs file or a single MIU file')
             else:
                 setattr(namespace, self.dest, input_arg)
@@ -32,10 +32,10 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
 '''
         )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
-    # TODO Parallel processing arg_parser.add_argument('-p', '--pool', help='Parallel processing', action='store_true')
+    arg_parser.add_argument('-p', '--parallel', help='parallel processing', action='store_true')
     arg_parser.add_argument(
         '-e', '--eis1600_repo', type=str,
-        help='Takes a path to the MIU file repo and batch processes all files'
+        help='takes a path to the MIU file repo and batch processes all files'
         )
     arg_parser.add_argument(
         'input', type=str, nargs='?',
@@ -52,11 +52,15 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
         if fileext == '.IDs':
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             print(f'NER annotate MIUs of {infile}')
-            for miu in tqdm(mius):
-                try:
-                    annotate_miu_file(miu)
-                except Exception as e:
-                    print(miu, e)
+            if args.parallel:
+                res = []
+                res += p_uimap(annotate_miu_file, mius)
+            else:
+                for miu in tqdm(mius):
+                    try:
+                        annotate_miu_file(miu)
+                    except Exception as e:
+                        print(miu, e)
         else:
             print(f'NER annotate {infile}')
             annotate_miu_file(infile)
@@ -77,11 +81,15 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
                 print(f'NER annotate MIUs of {infile}')
 
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
-            for miu in tqdm(mius):
-                try:
-                    annotate_miu_file(miu)
-                except Exception as e:
-                    print(miu, e)
+            if args.parallel:
+                res = []
+                res += p_uimap(annotate_miu_file, mius)
+            else:
+                for miu in tqdm(mius):
+                    try:
+                        annotate_miu_file(miu)
+                    except Exception as e:
+                        print(miu, e)
     else:
         print(
                 'Pass in a <uri.IDs> file or an individual MIU file to process a single file or use the -e option for '

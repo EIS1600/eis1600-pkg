@@ -4,6 +4,7 @@ from eis1600.miu.yml_handling import extract_yml_header_and_text
 from typing import Iterator, List, Tuple, Union
 
 import pandas as pd
+pd.options.mode.chained_assignment = None
 
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
@@ -34,7 +35,8 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
         else:
             # Encode \n with NEWLINE as they will be removed by the simple_word_tokenize method
             # NEWLINE is treated like a tag
-            text_wo_new_lines = paragraph.replace('\n', ' NEWLINE ')
+            text_wo_new_lines = paragraph.replace('\n_ء_', ' NEWLINE ')
+            text_wo_new_lines = text_wo_new_lines.replace('\n', ' NEWLINE ')
             tokens = simple_word_tokenize(text_wo_new_lines)
             tag = None
             for t in tokens:
@@ -96,7 +98,7 @@ def reconstruct_miu_text_with_tags(
     reconstructed_text = heading
     for section, token, tags in text_and_tags_iter:
         if section:
-            reconstructed_text += '\n\n' + section + '\n'
+            reconstructed_text += '\n\n' + section + '\n_ء_'
         if tags:
             reconstructed_text += ' ' + ' '.join(tags)
         if token:
@@ -106,7 +108,7 @@ def reconstruct_miu_text_with_tags(
                 reconstructed_text += ' ' + token
 
     reconstructed_text += '\n\n'
-    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n')
+    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_')
     return reconstructed_text
 
 

@@ -36,6 +36,10 @@ SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
 SECTION_PATTERN = re.compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n')
 TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG)
+TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
+        r'(_ء_#=\d{12}= [$@]+(?: RAW)?(?: \d+)?)(?: -)? ((?:\( ?)?' + AR_STR + r')'
+)
+MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+(?: RAW)?(?: \d+)?)\n(' + AR_STR + r')')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')

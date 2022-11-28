@@ -42,12 +42,12 @@ MONTHS = {'محرم': 1, 'شهر الله المحرم': 1, 'صفر': 2, 'صفر
           'ذو قعدة': 11, 'ذو الحجة': 12, 'ذو حجة': 12, 'اخر': -1}
 MONTHS_NOR = normalize_set(MONTHS)
 
-AR_MONTHS = '|'.join(['(?:' + r'\s'.join(denormalize(key.split())) + ')' for key in MONTHS.keys()])
-AR_ONES = '|'.join(denormalize(ONES.keys()))
-AR_TEN = '|'.join(denormalize(TEN.keys()))
-AR_HUNDRED = '|'.join(['(?:' + r'\s'.join(denormalize(key.split())) + ')' for key in HUNDRED.keys()])
-AR_ONES_DAY = '|'.join(denormalize(DAY_ONES.keys()))
-AR_TEN_DAY = '|'.join(denormalize(DAY_TEN.keys()))
+AR_MONTHS = '|'.join(['(?:' + r'\s'.join(denormalize(key).split()) + ')' for key in MONTHS.keys()])
+AR_ONES = '|'.join([denormalize(key) for key in ONES.keys()])
+AR_TEN = '|'.join([denormalize(key) for key in TEN.keys()])
+AR_HUNDRED = '|'.join(['(?:' + r'\s'.join(denormalize(key).split()) + ')' for key in HUNDRED.keys()])
+AR_ONES_DAY = '|'.join([denormalize(key) for key in DAY_ONES.keys()])
+AR_TEN_DAY = '|'.join([denormalize(key) for key in DAY_TEN.keys()])
 AR_WEEKDAY = '|'.join(['(?:' + r'\s'.join(key.split()) + ')' for key in WEEKDAYS.keys()])
 DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
@@ -62,6 +62,7 @@ MONTH_PATTERN = re.compile(AR_MONTHS)
 
 DATE_CATEGORIES = {'ولد': 'B', 'مولده': 'B', 'مات': 'D', 'موته': 'D', 'توفي': 'D', 'وفاته': 'D', 'حخ': 'H',
                    'سمع': 'K', 'قرا': 'K', 'استقر': 'P', 'اجاز': 'K', 'انفصل': 'P', 'لقي': 'M'}
+DATE_CATEGORIES_NOR = normalize_set(DATE_CATEGORIES)
 
-AR_DATE_CATEGORIES = '|'.join(denormalize(DATE_CATEGORIES.keys()))
+AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES.keys()])
 DATE_CATEGORY_PATTERN = re.compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')[تا]?')

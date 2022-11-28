@@ -133,7 +133,7 @@ def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> 
 
     df_subset = None
     if not yml.is_reviewed():
-        columns_of_automated_tags = ['NER_TAGS']    # TODO 'DATE_TAGS'
+        columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS']
         df['ÜTAGS'] = df['TAGS_LISTS']
         for col in columns_of_automated_tags:
             if col in df.columns:

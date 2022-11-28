@@ -34,7 +34,7 @@ PAGE_TAG_IN_BETWEEN_PATTERN = re.compile(
 MIU_TAG_PATTERN = re.compile(r'(' + MIU_UID + r'[^\n]+)')
 SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
 SECTION_PATTERN = re.compile(SECTION_TAG)
-SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n')
+SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
 TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG)
 TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
         r'(_ء_#=\d{12}= [$@]+(?: RAW)?(?: \d+)?)(?: -)? ((?:\( ?)?' + AR_STR + r')'

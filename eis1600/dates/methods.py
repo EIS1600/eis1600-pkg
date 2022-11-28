@@ -1,9 +1,15 @@
+from camel_tools.tokenizers.word import simple_word_tokenize
+from pandas import DataFrame
+from typing import List
+
 from openiti.helper.ara import normalize_ara_heavy
 
 from eis1600.dates.Date import Date
-from eis1600.dates.date_patterns import DATE_CATEGORIES, DATE_CATEGORY_PATTERN, DATE_PATTERN, DAY_ONES_NOR, \
+from eis1600.dates.date_patterns import DATE_CATEGORIES, DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
+    DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
     WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
+from eis1600.markdown.re_patterns import TAG_PATTERN
 
 
 def tag_dates(text):
@@ -18,7 +24,7 @@ def tag_dates(text):
 
         if DATE_CATEGORY_PATTERN.search(m.group('context')):
             last = DATE_CATEGORY_PATTERN.findall(m.group('context'))[-1]
-            date_category = DATE_CATEGORIES.get(last)
+            date_category = DATE_CATEGORIES_NOR.get(normalize_ara_heavy(last))
         else:
             date_category = 'X'
 
@@ -58,3 +64,25 @@ def tag_dates(text):
         m = DATE_PATTERN.search(text_updated, m.end('sana') + len(date.get_tag()))
 
     return text_updated
+
+
+def date_annotate_miu_text(ner_df: DataFrame) -> List:
+    ner_df.mask(ner_df == '', None, inplace=True)
+    tokens = ner_df['TOKENS'].dropna()
+    ar_text = ' '.join(tokens)
+
+    tagged_text = tag_dates(ar_text)
+    tokens = simple_word_tokenize(tagged_text)
+    ar_tokens, tags = [], []
+    tag = None
+    for t in tokens:
+        if TAG_PATTERN.match(t):
+            tag = t
+        else:
+            ar_tokens.append(t)
+            tags.append(tag)
+            tag = None
+
+    ner_df.loc[ner_df['TOKENS'].notna(), 'DATE_TAGS'] = tags
+
+    return ner_df['DATE_TAGS'].fillna('').tolist()

@@ -3,6 +3,7 @@ from os.path import splitext, split, exists
 from typing import List, Optional
 from pathlib import Path
 
+from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
 from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
@@ -145,8 +146,12 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
     # 3. convert cameltools labels format to markdown format
     df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
 
-    # 4. save csv file
+    # 4. annotate dates
+    df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']])
+
+    # 5. save csv file
     df.to_csv(tsv_path, index=False, sep='\t')
 
-    # 5. reconstruct the text and save it to the output file
-    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS']])
+    # 6. reconstruct the text and save it to the output file
+    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
+                                                           'DATE_TAGS']])

@@ -1,9 +1,10 @@
 from eis1600.miu.YAMLHandler import YAMLHandler
 
 from eis1600.miu.yml_handling import extract_yml_header_and_text
-from typing import Iterator, List, Tuple, Union
+from typing import Iterator, List, TextIO, Tuple, Union
 
 import pandas as pd
+
 pd.options.mode.chained_assignment = None
 
 from camel_tools.tokenizers.word import simple_word_tokenize
@@ -65,13 +66,13 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
     return zip(sections, ar_tokens, tags)
 
 
-def get_yml_and_MIU_df(path: str) -> (str, pd.DataFrame):
+def get_yml_and_MIU_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
-    :param str path: Path of the MIU file.
-    :return DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
+    :param TextIO miu_file_object: File object of the MIU file.
+    :return pd.DataFrame DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
     """
-    yml_str, text = extract_yml_header_and_text(path, False)
+    yml_str, text = extract_yml_header_and_text(miu_file_object, False)
     yml = YAMLHandler().from_yml_str(yml_str)
     zipped = tokenize_miu_text(text)
     df = pd.DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
@@ -122,15 +123,14 @@ def merge_tagslists(lst1, lst2):
     return lst1
 
 
-def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> None:
+def write_updated_miu_to_file(miu_file_object: TextIO, yml: YAMLHandler, df: pd.DataFrame) -> None:
     """Write MIU file with annotations.
 
-    :param str path: Path to the MIU file to write
+    :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml: The YAMLHandler of the MIU.
-    :param df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
+    :param pd.DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
     :return None:
     """
-
     df_subset = None
     if not yml.is_reviewed():
         columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS']
@@ -144,5 +144,6 @@ def write_updated_miu_to_file(path: str, yml: YAMLHandler, df: pd.DataFrame) -> 
 
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
-    with open(path, 'w', encoding='utf-8') as fh:
-        fh.write(str(yml) + updated_text)
+    miu_file_object.seek(0)
+    miu_file_object.write(str(yml) + updated_text)
+    miu_file_object.truncate()

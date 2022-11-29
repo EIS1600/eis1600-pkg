@@ -101,7 +101,8 @@ def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) 
         with open(file_path + uri + '.YAMLDATA.yml', 'w', encoding='utf-8') as yml_data:
             for i, miu_id in enumerate(ids):
                 miu_file_path = file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'
-                yml_header, text = extract_yml_header_and_text(miu_file_path, i == 0)
+                with open(miu_file_path, 'r', encoding='utf-8') as miu_file_object:
+                    yml_header, text = extract_yml_header_and_text(miu_file_object, i == 0)
                 text_file.write(text)
                 yml_data.write('#' + miu_id + '\n---\n' + yml_header + '\n\n')
 
@@ -137,21 +138,31 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
     if exists(tsv_path) and not force_annotation:
         return
 
-    # 1. open miu file and disassemble the file to its parts
-    yml_header, df = get_yml_and_MIU_df(path)
+    with open(path, 'r+', encoding='utf-8') as miu_file_object:
+        # 1. open miu file and disassemble the file to its parts
+        yml_header, df = get_yml_and_MIU_df(miu_file_object)
 
-    # 2. annotate NEs and lemmatize
-    df['NER_LABELS'], df['LEMMAS'] = annotate_miu_text(df)
+        # 2. annotate NEs and lemmatize
+        df['NER_LABELS'], df['LEMMAS'] = annotate_miu_text(df)
 
-    # 3. convert cameltools labels format to markdown format
-    df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
+        # 3. convert cameltools labels format to markdown format
+        df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
 
-    # 4. annotate dates
-    df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']])
+        # 4. annotate dates
+        df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']])
 
-    # 5. save csv file
-    df.to_csv(tsv_path, index=False, sep='\t')
+        # 5. save csv file
+        df.to_csv(tsv_path, index=False, sep='\t')
 
-    # 6. reconstruct the text and save it to the output file
-    write_updated_miu_to_file(output_path, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                           'DATE_TAGS']])
+        # 6. reconstruct the text and save it to the output file
+        if output_path == path:
+            write_updated_miu_to_file(
+                miu_file_object, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
+                                                 'DATE_TAGS']]
+                )
+        else:
+            with open(output_path, 'w', encoding='utf-8') as out_file_object:
+                write_updated_miu_to_file(
+                        out_file_object, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
+                                                         'DATE_TAGS']]
+                )

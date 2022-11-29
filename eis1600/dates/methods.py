@@ -12,7 +12,12 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES, DATE_CATEGORIES_NOR, DA
 from eis1600.markdown.re_patterns import TAG_PATTERN
 
 
-def tag_dates(text):
+def tag_dates(text: str) -> str:
+    """Inserts date tags in the arabic text and returns the text with the tags.
+
+    :param str text: arabic text.
+    :return: arabic text with date tags.
+    """
     text_updated = text
     m = DATE_PATTERN.search(text_updated)
     while m:
@@ -20,7 +25,8 @@ def tag_dates(text):
         year = 0
         day = 0
         weekday = None
-        length = 0
+        # Length is one because sana is definitely recognized
+        length = 1
 
         if DATE_CATEGORY_PATTERN.search(m.group('context')):
             last = DATE_CATEGORY_PATTERN.findall(m.group('context'))[-1]
@@ -28,15 +34,15 @@ def tag_dates(text):
         else:
             date_category = 'X'
 
-        if m.group('weekday'):
-            weekday = WEEKDAYS_NOR.get(normalize_ara_heavy(m.group('weekday')))
-        if m.group('day_ones'):
-            day += DAY_ONES_NOR.get(normalize_ara_heavy(m.group('day_ones')))
-        if m.group('day_ten'):
-            day += DAY_TEN_NOR.get(normalize_ara_heavy(m.group('day_ten')))
-        if m.group('month'):
-            month_str = normalize_ara_heavy(m.group('month'))
-            month = MONTHS_NOR.get(month_str)
+        # if m.group('weekday'):
+        #     weekday = WEEKDAYS_NOR.get(normalize_ara_heavy(m.group('weekday')))
+        # if m.group('day_ones'):
+        #     day += DAY_ONES_NOR.get(normalize_ara_heavy(m.group('day_ones')))
+        # if m.group('day_ten'):
+        #     day += DAY_TEN_NOR.get(normalize_ara_heavy(m.group('day_ten')))
+        # if m.group('month'):
+        #     month_str = normalize_ara_heavy(m.group('month'))
+        #     month = MONTHS_NOR.get(month_str)
         # else:
         #     mm = MONTH_PATTERN.search(m[0])
         #     if mm:
@@ -52,12 +58,12 @@ def tag_dates(text):
             year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
             length += 1
 
-        if day == 0:
-            day = None
+        # if day == 0:
+        #     day = None
         if year == 0:
             year = None
 
-        date = Date(year, month, day, weekday, length, date_category)
+        date = Date(year, length, date_category)
         pos = m.start('sana')
         text_updated = text_updated[:pos] + date.get_tag() + text_updated[pos:]
 
@@ -67,6 +73,11 @@ def tag_dates(text):
 
 
 def date_annotate_miu_text(ner_df: DataFrame) -> List:
+    """Annotate dates in the MIU text, returns a list of tag per token.
+
+    :param DataFrame ner_df: df containing the 'TOKENS' column.
+    :return List: List of date tags per token, which can be added as additional column to the df.
+    """
     ner_df.mask(ner_df == '', None, inplace=True)
     tokens = ner_df['TOKENS'].dropna()
     ar_text = ' '.join(tokens)

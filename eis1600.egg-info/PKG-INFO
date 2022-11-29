@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.4.6
+Version: 0.4.7
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -39,7 +39,7 @@ Description: # EIS1600 Tools
         
         #### Batch processing of mARkdown files
         
-        Use the -e option to process all files from the EIS1600 repo.
+        Use the `-e` option to process all files from the EIS1600 repo.
         ```shell
         $ convert_mARkdown_to_EIS1600 -e <EIS1600_repo>
         $ insert_uids -e <EIS1600_repo>
@@ -54,26 +54,46 @@ Description: # EIS1600 Tools
         
         ### Disassembling
         
-        The MIU directory will be created next to the EIS1600 file.
+        Disassemble files into the MIU repo. MIU repo has to be next to TEXT repo.
         ```shell
         $ disassemble_into_miu_files <uri>.EIS1600
         ```
         
-        Use the -e option to process all files from the EIS1600 repo.
+        Use the `-e` option to process all EIS1600 files from the TEXT repo. Must be run from the root of TEXT repo.
         ```shell
-        $ disassemble_into_miu_files -e <EIS1600_repo>
+        $ disassemble_into_miu_files -e <TEXT_repo>
         ```
         
         ### Reassembling
         
-        The MIU directory has to be next to the EIS1600 file.
+        Run inside MIU repo. Reassemble files into the TEXT repo, therefore, TEXT repo has to be next to MIU repo.
         ```shell
-        $ reassemble_from_miu_files <uri>.EIS1600
+        $ reassemble_from_miu_files <uri>.IDs
         ```
         
-        Use the -e option to process all files from the EIS1600 repo.
+        Use the `-e` option to process all files from the MIU repo. Must be run from the root of MIU repo.
         ```shell
-        $ reassemble_from_miu_files -e <EIS1600_repo>
+        $ reassemble_from_miu_files -e <MIU_repo>
+        ```
+        
+        ### NER Annotation
+        
+        NER annotation for persons, toponyms, misc and dates.
+        
+        To annotate all MIU files of a text give the IDs file as argument.
+        Can be used with `-p` option to run in parallel.
+        ```shell
+        $ ner_annotate_mius <uri>.IDs
+        ```
+        
+        To annotate an individual MIU file, give MIU file as argument.
+        ```shell
+        $ ner_annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
+        ```
+        
+        Use the `-e` option to process all files from the MIU repo. Can be used with `-p` option for parallelization.
+        ```shell
+        $ ner_annotate_mius -p -e <MIU_repo>
         ```
         
 Platform: UNKNOWN

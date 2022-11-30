@@ -36,8 +36,11 @@ SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
 SECTION_PATTERN = re.compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
 TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG)
+NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
-        r'(_ء_#=\d{12}= [$@]+(?: RAW)?(?: \d+)?)(?: -)? ((?:\( ?)?' + AR_STR + r')'
+        r'(_ء_#=\d{12}= [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ('
+                                                                                                               r'(?:\( ?)?' +
+        AR_STR + r')'
 )
 MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+(?: RAW)?(?: \d+)?)\n(' + AR_STR + r')')
 
@@ -61,7 +64,8 @@ PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(
         ')'
 )
 BIO_CHR_TO_NEWLINE_PATTERN = re.compile(
-        r'(# [$@]+(?: RAW)?(?: \d+)?)(?: -)? ((?:\( ?)?' + AR_STR + r')'
+        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:\( ?)?'
+        + AR_STR + r')'
 )
 
 # Fixed poetry old file path pattern

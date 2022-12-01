@@ -27,3 +27,7 @@ eis1600/miu/disassemble_into_miu_files.py
 eis1600/miu/methods.py
 eis1600/miu/reassemble_from_miu_files.py
 eis1600/miu/yml_handling.py
+eis1600/nlp/__init__.py
+eis1600/nlp/cameltools.py
+eis1600/nlp/ner_annotate_mius.py
+eis1600/nlp/utils.py

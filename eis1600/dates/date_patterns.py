@@ -60,8 +60,8 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
 DATE_PATTERN = re.compile(DATE)
 MONTH_PATTERN = re.compile(AR_MONTHS)
 
-DATE_CATEGORIES = {'ولد': 'B', 'مولده': 'B', 'مات': 'D', 'موته': 'D', 'توفي': 'D', 'وفاته': 'D', 'حخ': 'H',
-                   'سمع': 'K', 'قرا': 'K', 'استقر': 'P', 'اجاز': 'K', 'انفصل': 'P', 'لقي': 'M'}
+DATE_CATEGORIES = {'ولد': 'B', 'مولده': 'B', 'مات': 'D', 'موته': 'D', 'توفي': 'D', 'وفاته': 'D', 'حج': 'P',
+                   'سمع': 'K', 'قرا': 'K', 'استقر': 'O', 'اجاز': 'K', 'انفصل': 'O', 'لقي': 'M'}
 DATE_CATEGORIES_NOR = normalize_set(DATE_CATEGORIES)
 
 AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES.keys()])

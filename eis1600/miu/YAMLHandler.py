@@ -16,6 +16,7 @@ class YAMLHandler:
     'NOT REVIEWED'.
     :ivar str reviewer: Initials of the reviewer if the file was already manually reviewed, defaults to None.
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
+    :iver List dates: List of dates contained in headings and text
     """
 
     @staticmethod
@@ -65,6 +66,7 @@ class YAMLHandler:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = None
         self.headings = None
+        self.dates = None
 
         if yml:
             for key, val in yml.items():
@@ -81,15 +83,28 @@ class YAMLHandler:
         self.headings = headings
 
     def get_yamlfied(self) -> str:
-        yaml_str = MIU_HEADER + '\n\n'
+        yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():
-            yaml_str += key + '    : ' + str(val) + '\n'
-        yaml_str += '\n' + MIU_HEADER + '\n\n'
+            if key == 'dates' and val is not None:
+                yaml_str += key + '    : ['
+                for date in val:
+                    yaml_str += '"' + date + '",'
+                yaml_str = yaml_str[:-1]
+                yaml_str += ']\n'
+            else:
+                yaml_str += key + '    : ' + str(val) + '\n'
+        yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
 
         return yaml_str
 
     def is_reviewed(self) -> bool:
         return self.reviewed == 'REVIEWED'
+
+    def add_date(self, date_tag: str):
+        if self.dates:
+            self.dates.append(date_tag)
+        else:
+            self.dates = [date_tag]
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

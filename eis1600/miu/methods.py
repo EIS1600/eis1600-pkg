@@ -149,7 +149,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
 
         # 4. annotate dates
-        df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']])
+        df['DATE_TAGS'], yml_header = date_annotate_miu_text(df[['TOKENS']], yml_header)
 
         # 5. save csv file
         df.to_csv(tsv_path, index=False, sep='\t')

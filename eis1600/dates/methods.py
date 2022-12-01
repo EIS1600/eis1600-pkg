@@ -1,6 +1,7 @@
 from camel_tools.tokenizers.word import simple_word_tokenize
+from eis1600.miu.YAMLHandler import YAMLHandler
 from pandas import DataFrame
-from typing import List
+from typing import List, Tuple
 
 from openiti.helper.ara import normalize_ara_heavy
 
@@ -12,7 +13,28 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES, DATE_CATEGORIES_NOR, DA
 from eis1600.markdown.re_patterns import TAG_PATTERN
 
 
-def tag_dates(text: str) -> str:
+def tag_dates_headings(yml: YAMLHandler) -> YAMLHandler:
+    headings = yml.headings
+    for key, val in headings:
+        if DATE_PATTERN.search(val):
+            m = DATE_PATTERN.search(val)
+            year = 0
+            length = 1
+            if m.group('ones'):
+                year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
+                length += 1
+            if m.group('ten'):
+                year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
+                length += 1
+            if m.group('hundred'):
+                year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
+                length += 1
+            yml.add_date(Date(year, length, 'H').get_tag())
+
+    return yml
+
+
+def tag_dates_fulltext(text: str) -> str:
     """Inserts date tags in the arabic text and returns the text with the tags.
 
     :param str text: arabic text.
@@ -72,23 +94,26 @@ def tag_dates(text: str) -> str:
     return text_updated
 
 
-def date_annotate_miu_text(ner_df: DataFrame) -> List:
+def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Tuple[List, YAMLHandler]:
     """Annotate dates in the MIU text, returns a list of tag per token.
 
     :param DataFrame ner_df: df containing the 'TOKENS' column.
-    :return List: List of date tags per token, which can be added as additional column to the df.
+    :param YAMLHandler yml: yml_header to collect date tags in.
+    :return Tuple[List, YAMLHandler]: List of date tags per token, which can be added as additional column to the df,
+    and modified yml.
     """
     ner_df.mask(ner_df == '', None, inplace=True)
     tokens = ner_df['TOKENS'].dropna()
     ar_text = ' '.join(tokens)
 
-    tagged_text = tag_dates(ar_text)
+    tagged_text = tag_dates_fulltext(ar_text)
     tokens = simple_word_tokenize(tagged_text)
     ar_tokens, tags = [], []
     tag = None
     for t in tokens:
         if TAG_PATTERN.match(t):
             tag = t
+            yml.add_date(t)
         else:
             ar_tokens.append(t)
             tags.append(tag)
@@ -96,4 +121,4 @@ def date_annotate_miu_text(ner_df: DataFrame) -> List:
 
     ner_df.loc[ner_df['TOKENS'].notna(), 'DATE_TAGS'] = tags
 
-    return ner_df['DATE_TAGS'].fillna('').tolist()
+    return ner_df['DATE_TAGS'].fillna('').tolist(), yml

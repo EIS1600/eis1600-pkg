@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import re
-
 from typing import Any, Dict, Optional, Type
 
 from eis1600.markdown.re_patterns import AR_STR_AND_TAGS, MIU_HEADER
@@ -16,7 +14,7 @@ class YAMLHandler:
     'NOT REVIEWED'.
     :ivar str reviewer: Initials of the reviewer if the file was already manually reviewed, defaults to None.
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
-    :iver List dates: List of dates contained in headings and text
+    :iver List[str] dates: List of dates contained in headings and text
     """
 
     @staticmethod
@@ -28,6 +26,12 @@ class YAMLHandler:
             return True
         elif val == 'False':
             return False
+        elif val == 'None':
+            return None
+        elif val.startswith('['):
+            val_list = val.strip('[]')
+            val_list = val_list.replace('"', '')
+            return val_list.split(',')
         else:
             return val
 

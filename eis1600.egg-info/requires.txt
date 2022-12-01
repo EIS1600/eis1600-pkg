@@ -1,3 +1,5 @@
 camel-tools
 openiti
+p_tqdm
 pandas
+tqdm

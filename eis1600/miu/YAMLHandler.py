@@ -19,8 +19,9 @@ class YAMLHandler:
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
-        val = val.strip('"\'')
-        if val.isdigit():
+        if val.startswith('"\''):
+            return val.strip('"\'')
+        elif val.isdigit():
             return int(val)
         elif val == 'True':
             return True
@@ -28,7 +29,7 @@ class YAMLHandler:
             return False
         elif val == 'None':
             return None
-        elif val.startswith('['):
+        elif val.startswith('["'):
             val_list = val.strip('[]')
             val_list = val_list.replace('"', '')
             return val_list.split(',')

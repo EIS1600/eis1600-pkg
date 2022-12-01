@@ -143,7 +143,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         yml_header, df = get_yml_and_MIU_df(miu_file_object)
 
         # 2. annotate NEs and lemmatize
-        df['NER_LABELS'], df['LEMMAS'] = annotate_miu_text(df)
+        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'] = annotate_miu_text(df)
 
         # 3. convert cameltools labels format to markdown format
         df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())

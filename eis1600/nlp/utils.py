@@ -4,7 +4,7 @@ from eis1600.nlp.cameltools import lemmatize_and_tag_ner
 
 
 def annotate_miu_text(df):
-    lemmas, ner_tags = ['_'], ['_']
+    lemmas, ner_tags, pos_tags = ['_'], ['_'], ['_']
     section_id, temp_tokens = None, []
     for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].to_list()))[1:]:
         _section, _token = entry[0], entry[1]
@@ -13,9 +13,10 @@ def annotate_miu_text(df):
             if len(temp_tokens) > 0:
                 # 1. process the previous section
                 _labels = lemmatize_and_tag_ner(temp_tokens)
-                _, _ner_tags, _lemmas, _dediac_lemmas = zip(*_labels)
+                _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags = zip(*_labels)
                 ner_tags.extend(_ner_tags)
                 lemmas.extend(_dediac_lemmas)
+                pos_tags.extend(_pos_tags)
 
                 # 2. reset variables
                 section_id, temp_tokens = None, []
@@ -25,10 +26,11 @@ def annotate_miu_text(df):
 
     if len(temp_tokens) > 0:
         _labels = lemmatize_and_tag_ner(temp_tokens)
-        _, _ner_tags, _lemmas, _dediac_lemmas = zip(*_labels)
+        _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags = zip(*_labels)
         ner_tags.extend(_ner_tags)
         lemmas.extend(_dediac_lemmas)
-    return ner_tags, lemmas
+        pos_tags.extend(_pos_tags)
+    return ner_tags, lemmas, pos_tags
 
 
 def camel2md_as_list(labels: list) -> List[str]:

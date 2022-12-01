@@ -141,7 +141,6 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
     with open(path, 'r+', encoding='utf-8') as miu_file_object:
         # 1. open miu file and disassemble the file to its parts
         yml_header, df = get_yml_and_MIU_df(miu_file_object)
-        print(yml_header)
 
         # 2. annotate NEs and lemmatize
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'] = annotate_miu_text(df)

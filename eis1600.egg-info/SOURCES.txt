@@ -8,6 +8,10 @@ eis1600.egg-info/dependency_links.txt
 eis1600.egg-info/entry_points.txt
 eis1600.egg-info/requires.txt
 eis1600.egg-info/top_level.txt
+eis1600/dates/Date.py
+eis1600/dates/__init__.py
+eis1600/dates/date_patterns.py
+eis1600/dates/methods.py
 eis1600/helper/__init__.py
 eis1600/helper/ar_normalization.py
 eis1600/helper/miu_random_revisions.py

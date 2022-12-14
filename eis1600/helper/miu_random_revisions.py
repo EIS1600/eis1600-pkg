@@ -146,9 +146,8 @@ def main():
                     lineToRun = f"{pathToKate} {dictionary[f]}"
                     os.system(lineToRun)
                 elif osVar == "win":
-                    # open on windows
-                    # start path_to_app path_to_file
-                    pass
+                    lineToRun = f"Start-Process -FilePath \"{pathToKate}\" {dictionary[f]}"
+                    os.system(lineToRun)
                 else:
                     print("Operating system is incorrect. Use: mac, lin, or win")
                     sys.exit()

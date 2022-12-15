@@ -42,7 +42,7 @@ TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
                                                                                                                r'(?:\( ?)?' +
         AR_STR + r')'
 )
-MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+(?: RAW)?(?: \d+)?)\n(' + AR_STR + r')')
+MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+(?: RAW)?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')

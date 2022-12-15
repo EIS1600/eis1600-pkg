@@ -38,6 +38,7 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
             # NEWLINE is treated like a tag
             text_wo_new_lines = paragraph.replace('\n_ء_', ' NEWLINE ')
             text_wo_new_lines = text_wo_new_lines.replace('\n', ' NEWLINE ')
+            text_wo_new_lines = text_wo_new_lines.replace('%~%', 'HEMISTICH')
             tokens = simple_word_tokenize(text_wo_new_lines)
             tag = None
             for t in tokens:
@@ -110,6 +111,7 @@ def reconstruct_miu_text_with_tags(
 
     reconstructed_text += '\n\n'
     reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_')
+    reconstructed_text = reconstructed_text.replace('HEMISTICH', '%~%')
     return reconstructed_text
 
 

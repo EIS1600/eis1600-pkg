@@ -26,6 +26,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     uri, ext = splitext(uri)
     author, work, text = uri.split('.')
     path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
+    # TODO fix ids file path
     ids_file = out_path + uri + '.IDs'
     yml_file = out_path + uri + '.STATUS.yml'
     miu_dir = Path(path + 'MIUs/')

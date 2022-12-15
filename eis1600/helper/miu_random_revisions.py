@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import random
+import subprocess
 
 
 readme = """
@@ -30,7 +31,7 @@ def readCustomYML(text):
     dic = {}
 
     for t in text:
-        t = t.split(":")
+        t = t.split(":", maxsplit=1)
         key = t[0]
         val = re.sub("#.*$", "", t[1]).strip()
 
@@ -139,15 +140,17 @@ def main():
                 # NOW OPENING IN KATE FOR REVIEW
                 if osVar == "mac":
                     # open on mac
-                    lineToRun = "open -a %s %s" % (pathToKate, dictionary[f])
-                    os.system(lineToRun)
+                    # lineToRun = "open -a %s %s" % (pathToKate, dictionary[f])
+                    # os.system(lineToRun)
+                    subprocess.run([pathToKate, dictionary[f]])
 
                 elif osVar == "lin":
-                    lineToRun = f"{pathToKate} {dictionary[f]}"
-                    os.system(lineToRun)
+                    subprocess.run([pathToKate, dictionary[f]])
                 elif osVar == "win":
-                    lineToRun = f"Start-Process -FilePath \"{pathToKate}\" {dictionary[f]}"
-                    os.system(lineToRun)
+                    print(pathToKate)
+                    print(os.path.isfile(pathToKate))
+                    print(os.access(pathToKate, os.X_OK))
+                    subprocess.run([pathToKate, dictionary[f]])
                 else:
                     print("Operating system is incorrect. Use: mac, lin, or win")
                     sys.exit()

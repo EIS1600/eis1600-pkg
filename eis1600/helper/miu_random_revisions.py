@@ -142,20 +142,16 @@ def main():
                     # open on mac
                     # lineToRun = "open -a %s %s" % (pathToKate, dictionary[f])
                     # os.system(lineToRun)
-                    subprocess.run([pathToKate, dictionary[f]])
-
+                    subprocess.run(['open', '-a', pathToKate, dictionary[f]])
                 elif osVar == "lin":
                     subprocess.run([pathToKate, dictionary[f]])
                 elif osVar == "win":
-                    print(pathToKate)
-                    print(os.path.isfile(pathToKate))
-                    print(os.access(pathToKate, os.X_OK))
                     subprocess.run([pathToKate, dictionary[f]])
                 else:
                     print("Operating system is incorrect. Use: mac, lin, or win")
                     sys.exit()
 
-                print("\t- ", f)
+                print(','.join([f, reviewer, 'in progress']))
 
                 counter -= 1
                 if counter == 0:

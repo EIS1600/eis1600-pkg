@@ -15,6 +15,7 @@ eis1600/dates/methods.py
 eis1600/helper/__init__.py
 eis1600/helper/ar_normalization.py
 eis1600/helper/miu_random_revisions.py
+eis1600/helper/miu_review.py
 eis1600/helper/repo.py
 eis1600/markdown/UIDs.py
 eis1600/markdown/__init__.py

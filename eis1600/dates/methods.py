@@ -78,7 +78,7 @@ def tag_dates_fulltext(text: str) -> str:
             length += 1
         if m.group('hundred'):
             year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
-            length += 1
+            length += len(m.group('hundred').split())
 
         # if day == 0:
         #     day = None

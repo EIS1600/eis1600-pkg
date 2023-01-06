@@ -110,7 +110,7 @@ def reconstruct_miu_text_with_tags(
                 reconstructed_text += ' ' + token
 
     reconstructed_text += '\n\n'
-    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_')
+    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')
     reconstructed_text = reconstructed_text.replace('HEMISTICH', '%~%')
     return reconstructed_text
 

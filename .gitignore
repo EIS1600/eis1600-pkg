@@ -9,3 +9,6 @@ __pycache__/
 
 # Ignore dist
 dist/
+
+# Ignore test notebooks
+eis1600/dates/test_regex.ipynb

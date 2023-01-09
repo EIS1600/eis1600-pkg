@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type
 
-from eis1600.markdown.re_patterns import AR_STR_AND_TAGS, MIU_HEADER
+from eis1600.markdown.re_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
 
 
@@ -19,8 +19,9 @@ class YAMLHandler:
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
-        if val.startswith('"\''):
-            return val.strip('"\'')
+        print(f'val: {val}')
+        if val.startswith('"'):
+            return val.strip('"')
         elif val.isdigit():
             return int(val)
         elif val == 'True':
@@ -107,7 +108,8 @@ class YAMLHandler:
 
     def add_date(self, date_tag: str):
         if self.dates:
-            self.dates.append(date_tag)
+            if date_tag not in self.dates:
+                self.dates.append(date_tag)
         else:
             self.dates = [date_tag]
 

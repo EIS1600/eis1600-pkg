@@ -19,7 +19,6 @@ class YAMLHandler:
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
-        print(f'val: {val}')
         if val.startswith('"'):
             return val.strip('"')
         elif val.isdigit():
@@ -72,6 +71,7 @@ class YAMLHandler:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = None
         self.headings = None
+        self.dates_headings = None
         self.dates = None
 
         if yml:
@@ -91,7 +91,7 @@ class YAMLHandler:
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():
-            if key == 'dates' and val is not None:
+            if key.startswith('dates') and val is not None:
                 yaml_str += key + '    : ['
                 for date in val:
                     yaml_str += '"' + date + '",'
@@ -112,6 +112,13 @@ class YAMLHandler:
                 self.dates.append(date_tag)
         else:
             self.dates = [date_tag]
+
+    def add_date_headings(self, date_tag: str):
+        if self.dates_headings:
+            if date_tag not in self.dates_headings:
+                self.dates_headings.append(date_tag)
+        else:
+            self.dates_headings = [date_tag]
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

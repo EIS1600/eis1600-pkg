@@ -26,9 +26,8 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     uri, ext = splitext(uri)
     author, work, text = uri.split('.')
     path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
-    # TODO fix ids file path
-    ids_file = out_path + uri + '.IDs'
-    yml_file = out_path + uri + '.STATUS.yml'
+    ids_file = path + uri + '.IDs'
+    yml_file = path + uri + '.STATUS.yml'
     miu_dir = Path(path + 'MIUs/')
     uid = ''
     miu_text = ''
@@ -57,7 +56,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                         heading_text = m.group('heading')
                         if PAGE_TAG_PATTERN.search(heading_text):
                             heading_text = PAGE_TAG_PATTERN.sub('', heading_text)
-                        heading_tracker.track(len(m.group('level')), heading_text)
+                        heading_tracker.track_headings(len(m.group('level')), heading_text)
                     if miu_text:
                         # Do not create a preface MIU file if there is no preface
                         with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
@@ -68,6 +67,10 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                     miu_text += text_line
                 else:
                     miu_text += text_line
+
+                if PAGE_TAG_PATTERN.search(text_line):
+                    heading_tracker.track_pages(PAGE_TAG_PATTERN.search(text_line).group(0))
+
             # last MIU needs to be written to file when the for-loop is finished
             with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
                 miu_file.write(miu_text + '\n')

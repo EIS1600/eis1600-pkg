@@ -22,10 +22,16 @@ class HeadingTracker:
         self.h2 = None
         self.h3 = None
         self.h4 = None
+        self.page_tag = None
 
         if headings_dict:
             for key, val in headings_dict.items():
                 self.__setattr__(key, val)
+
+    def __iter__(self):
+        for key, val in self.__dict__.items():
+            if key.startswith('h'):
+                yield key, val
 
     def get_curr_state(self) -> Type[HeadingTracker]:
         """Get current state of the tacker as deepcopy.
@@ -54,9 +60,14 @@ class HeadingTracker:
                 if self.h4 is not None:
                     heading_tracker_str += '    - h4    : "' + self.h4 + '"\n'
 
-        return heading_tracker_str[:-1]     # Return without last newline
+        if self.page_tag:
+            heading_tracker_str += '    - page_tag    : "' + self.page_tag + '"'
+        else:
+            heading_tracker_str = heading_tracker_str[:-1]
 
-    def track(self, level: int, heading: str) -> None:
+        return heading_tracker_str
+
+    def track_headings(self, level: int, heading: str) -> None:
         """Checks which of the levels changed and sets all sub levels to None (some headings are just an empty string).
 
         :param int level: The level of the heading indicated by the number of leading `|`.
@@ -77,6 +88,9 @@ class HeadingTracker:
             self.h4 = None
         else:
             self.h4 = heading
+
+    def track_pages(self, page_Tag: str) -> None:
+        self.page_tag = page_Tag.strip()
 
     def __repr__(self) -> str:
         return str(self.__dict__)

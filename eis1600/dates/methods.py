@@ -1,37 +1,41 @@
 from camel_tools.tokenizers.word import simple_word_tokenize
 from eis1600.miu.YAMLHandler import YAMLHandler
 from pandas import DataFrame
-from typing import List, Tuple
+from typing import List, Match, Tuple
 
 from openiti.helper.ara import normalize_ara_heavy
 
 from eis1600.dates.Date import Date
-from eis1600.dates.date_patterns import DATE_CATEGORIES, DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
+from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
     DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
     WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
 from eis1600.markdown.re_patterns import TAG_PATTERN
 
 
-def tag_dates_headings(yml: YAMLHandler) -> YAMLHandler:
+def parse_year(m: Match[str]) -> (int, int):
+    year = 0
+    length = 1  # word sana
+    if m.group('ones'):
+        year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
+        length += 1
+    if m.group('ten'):
+        year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
+        length += 1
+    if m.group('hundred'):
+        year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
+        length += len(m.group('hundred').split())
+
+    return year, length
+
+
+def get_dates_headings(yml: YAMLHandler) -> None:
     headings = yml.headings
     for key, val in headings:
         if DATE_PATTERN.search(val):
             m = DATE_PATTERN.search(val)
-            year = 0
-            length = 1
-            if m.group('ones'):
-                year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
-                length += 1
-            if m.group('ten'):
-                year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
-                length += 1
-            if m.group('hundred'):
-                year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
-                length += 1
-            yml.add_date(Date(year, length, 'H').get_tag())
-
-    return yml
+            year, length = parse_year(m)
+            yml.add_date_headings(Date(year, length, 'H').get_tag()[:-1])   # Cut of trailing whitespace
 
 
 def tag_dates_fulltext(text: str) -> str:
@@ -44,11 +48,10 @@ def tag_dates_fulltext(text: str) -> str:
     m = DATE_PATTERN.search(text_updated)
     while m:
         month = None
-        year = 0
         day = 0
         weekday = None
         # Length is one because sana is definitely recognized
-        length = 1
+        year, length = parse_year(m)
 
         if DATE_CATEGORY_PATTERN.search(m.group('context')):
             last = DATE_CATEGORY_PATTERN.findall(m.group('context'))[-1]
@@ -70,15 +73,6 @@ def tag_dates_fulltext(text: str) -> str:
         #     if mm:
         #         month_str = mm[0]
         #         month = MONTHS.get(month_str)
-        if m.group('ones'):
-            year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
-            length += 1
-        if m.group('ten'):
-            year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
-            length += 1
-        if m.group('hundred'):
-            year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
-            length += len(m.group('hundred').split())
 
         # if day == 0:
         #     day = None
@@ -102,6 +96,8 @@ def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Tuple[List, Y
     :return Tuple[List, YAMLHandler]: List of date tags per token, which can be added as additional column to the df,
     and modified yml.
     """
+    get_dates_headings(yml)
+
     ner_df.mask(ner_df == '', None, inplace=True)
     tokens = ner_df['TOKENS'].dropna()
     ar_text = ' '.join(tokens)

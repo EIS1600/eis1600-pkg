@@ -37,6 +37,7 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
         '-e', '--eis1600_repo', type=str,
         help='takes a path to the MIU file repo and batch processes all files'
         )
+    arg_parser.add_argument('-f', '--force', help='force re-annotation', action='store_true')
     arg_parser.add_argument(
         'input', type=str, nargs='?',
         help='IDs or MIU file to process',
@@ -45,6 +46,7 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
     args = arg_parser.parse_args()
 
     verbose = args.verbose
+    force = args.force
 
     if args.input:
         infile = './' + args.input
@@ -63,7 +65,7 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
                         print(miu, e)
         else:
             print(f'NER annotate {infile}')
-            annotate_miu_file(infile)
+            annotate_miu_file(infile, force_annotation=force)
     elif args.eis1600_repo:
         input_dir = args.eis1600_repo
         if not input_dir[-1] == '/':

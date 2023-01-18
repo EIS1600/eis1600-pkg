@@ -1,10 +1,10 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.7.2',
+      version='0.7.3',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -12,12 +12,7 @@ setup(name='eis1600',
       author='Lisa Mischer',
       author_email='mischer.lisa@gmail.com',
       license='MIT License',
-      packages=['eis1600',
-                'eis1600.dates',
-                'eis1600.helper',
-                'eis1600.markdown',
-                'eis1600.miu',
-                'eis1600.nlp'],
+      packages=find_packages(include=['eis1600', 'eis1600.*'], exclude=['excluded']),
       entry_points={
           'console_scripts': [
                   'convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main',

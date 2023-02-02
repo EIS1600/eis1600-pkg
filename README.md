@@ -1,5 +1,13 @@
 # EIS1600 Tools
 
+## Process
+
+1. Convert from mARkdown to EIS1600TMP with `convert_mARkdown_to_EIS1600`
+2. Check EIS1600TMP
+3. Run `insert_uids`
+4. Check again. If anything was changed in the EIS1600 file, run `update_uids`
+5. Run `disassemble_into_miu_files`
+
 ## Installation
 ```shell
 $ pip install eis1600

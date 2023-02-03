@@ -1,5 +1,14 @@
 # EIS1600 Tools
 
+## Workflow
+
+(*so that we do not forget again...*)
+
+1. Double-check text in the Google Spreadsheet; “tag” is as “double-checked” (Column **PREPARED**);
+2. These double-checked files must be converted to `*.EIS1600` format
+3. The names of these files are then collected into `AUTOREPORT.md` under **DOUBLE-CHECKED Files (XX) - ready for MIU**.
+4. After that these files can be disassembled into MIUs, to be sotred in the MIU repository.
+
 ## Process
 
 1. Convert from mARkdown to EIS1600TMP with `convert_mARkdown_to_EIS1600`

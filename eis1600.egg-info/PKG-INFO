@@ -1,12 +1,29 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.7.3
+Version: 0.7.5
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
 Author-email: mischer.lisa@gmail.com
 License: MIT License
 Description: # EIS1600 Tools
+        
+        ## Workflow
+        
+        (*so that we do not forget again...*)
+        
+        1. Double-check text in the Google Spreadsheet; “tag” is as “double-checked” (Column **PREPARED**);
+        2. These double-checked files must be converted to `*.EIS1600` format
+        3. The names of these files are then collected into `AUTOREPORT.md` under **DOUBLE-CHECKED Files (XX) - ready for MIU**.
+        4. After that these files can be disassembled into MIUs, to be sotred in the MIU repository.
+        
+        ## Process
+        
+        1. Convert from mARkdown to EIS1600TMP with `convert_mARkdown_to_EIS1600`
+        2. Check EIS1600TMP
+        3. Run `insert_uids`
+        4. Check again. If anything was changed in the EIS1600 file, run `update_uids`
+        5. Run `disassemble_into_miu_files`
         
         ## Installation
         ```shell

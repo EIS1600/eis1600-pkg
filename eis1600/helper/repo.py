@@ -10,7 +10,7 @@ Functions:
 :function get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to):
 :function travers_eis1600_dir(path, file_ext_from, file_ext_to): Discontinued
 """
-
+import re
 from glob import glob
 from os.path import split, splitext
 from typing import List, Literal, Optional
@@ -150,6 +150,37 @@ def read_files_from_readme(path: str, which: str, only_checked: Optional[bool] =
     return file_list
 
 
+def read_files_from_autoreport(path: str) -> List[str]:
+    """Get the list of files from the README to process further.
+
+    Get the list of files from the README which are to be processed in further steps.
+    :param str path: The root of the text repo, path to the README
+    :param str which: The section heading from the README indicating the section from which to read the file list from.
+    :param bool only_checked: If True, only read those lines with a ticked checkbox, defaults to True.
+    :return list[str]: List of URIs from files to process further
+    """
+
+    which_pattern = re.compile('## DOUBLE-CHECKED Files \(\d+\) - ready for MIU\n')
+    file_list = []
+
+    try:
+        with open(path + 'AUTOREPORT.md', 'r', encoding='utf8') as autoreport_h:
+            line = next(autoreport_h)
+            # Find section in the AUTOREPORT to read from
+            while not which_pattern.match(line):
+                line = next(autoreport_h)
+            next(autoreport_h)
+            line = next(autoreport_h)
+            # Read files from that section
+            while line and line != '\n':
+                file_list.append(line[4:-19])
+                line = next(autoreport_h, None)
+    except StopIteration:
+        print(f'Something went wrong with reading the AUTOREPORT')
+
+    return file_list
+
+
 def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
     """Update list of texts with fixed poetry in the README.
 
@@ -222,11 +253,11 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
         depth = len(infile.split('/'))
         print(depth)
         if depth == 1:
-            out_path += '../../../'
+            out_path += '../../../../'
         elif depth == 2:
-            out_path += '../../'
+            out_path += '../../../'
         elif depth == 3:
-            out_path += '../'
+            out_path += '../../'
         else:
             out_path += '../'
 

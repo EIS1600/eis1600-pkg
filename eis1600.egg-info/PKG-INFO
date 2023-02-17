@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.7.5
+Version: 0.7.6
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -72,13 +72,13 @@ Description: # EIS1600 Tools
         ### Disassembling
         
         Disassemble files into the MIU repo. MIU repo has to be next to TEXT repo.
+        Must be run from the root of TEXT repo, this will disassemble all files from the AUTOREPORT.
+        ```shell
+        $ disassemble_into_miu_files
+        ```
+        Give the relative path to a file to disassemble a singe file.
         ```shell
         $ disassemble_into_miu_files <uri>.EIS1600
-        ```
-        
-        Use the `-e` option to process all EIS1600 files from the TEXT repo. Must be run from the root of TEXT repo.
-        ```shell
-        $ disassemble_into_miu_files -e <TEXT_repo>
         ```
         
         ### Reassembling

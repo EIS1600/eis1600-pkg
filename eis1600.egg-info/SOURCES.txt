@@ -38,3 +38,6 @@ eis1600/nlp/ner_annotate_mius.py
 eis1600/nlp/utils.py
 eis1600/preprocessing/__init__.py
 eis1600/preprocessing/methods.py
+eis1600/stats/__init__.py
+eis1600/stats/methods.py
+eis1600/stats/miu_stats.py

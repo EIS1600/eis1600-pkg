@@ -14,7 +14,9 @@ class YAMLHandler:
     'NOT REVIEWED'.
     :ivar str reviewer: Initials of the reviewer if the file was already manually reviewed, defaults to None.
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
-    :iver List[str] dates: List of dates contained in headings and text
+    :ivar List[str] dates_headings: List of dates contained in headings
+    :ivar List[str] dates: List of dates contained in text
+    :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
 
     @staticmethod
@@ -73,6 +75,7 @@ class YAMLHandler:
         self.headings = None
         self.dates_headings = None
         self.dates = None
+        self.category = None
 
         if yml:
             for key, val in yml.items():
@@ -85,7 +88,10 @@ class YAMLHandler:
         """Return instance with attr set from the yml_str."""
         return cls(YAMLHandler.__parse_yml(yml_str))
 
-    def set_headings(self, headings: Type[HeadingTracker]):
+    def set_category(self, category: str) -> None:
+        self.category = category
+
+    def set_headings(self, headings: Type[HeadingTracker]) -> None:
         self.headings = headings
 
     def get_yamlfied(self) -> str:
@@ -97,6 +103,8 @@ class YAMLHandler:
                     yaml_str += '"' + date + '",'
                 yaml_str = yaml_str[:-1]
                 yaml_str += ']\n'
+            elif key == 'category':
+                yaml_str += key + '    : "' + val + '"\n'
             else:
                 yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'

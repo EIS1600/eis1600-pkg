@@ -64,13 +64,13 @@ $ insert_uids <input_dir> <output_dir>
 ### Disassembling
 
 Disassemble files into the MIU repo. MIU repo has to be next to TEXT repo.
+Must be run from the root of TEXT repo, this will disassemble all files from the AUTOREPORT.
+```shell
+$ disassemble_into_miu_files
+```
+Give the relative path to a file to disassemble a singe file.
 ```shell
 $ disassemble_into_miu_files <uri>.EIS1600
-```
-
-Use the `-e` option to process all EIS1600 files from the TEXT repo. Must be run from the root of TEXT repo.
-```shell
-$ disassemble_into_miu_files -e <TEXT_repo>
 ```
 
 ### Reassembling

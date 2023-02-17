@@ -8,8 +8,8 @@ from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
 from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.markdown.re_patterns import HEADER_END_PATTERN, HEADING_PATTERN, MIU_UID_PATTERN, PAGE_TAG_PATTERN, \
-    UID_PATTERN
+from eis1600.markdown.re_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
+    MIU_UID_PATTERN, PAGE_TAG_PATTERN
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
@@ -27,10 +27,12 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     author, work, text = uri.split('.')
     path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
     ids_file = path + uri + '.IDs'
-    yml_file = path + uri + '.STATUS.yml'
+    yml_status = path + uri + '.STATUS.yml'
+    yml_data = path + uri + '.YAMLDATA.yml'
     miu_dir = Path(path + 'MIUs/')
     uid = ''
     miu_text = ''
+    yml_header = ''
 
     if verbose:
         print(f'Disassemble {uri}')
@@ -38,45 +40,62 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     miu_dir.mkdir(parents=True, exist_ok=True)
     miu_uri = miu_dir.__str__() + '/' + uri + '.'
 
+    mal_formatted = []
+
     with open(infile, 'r', encoding='utf8') as text:
         with open(ids_file, 'w', encoding='utf8') as ids_tree:
-            for text_line in iter(text):
-                if HEADER_END_PATTERN.match(text_line):
-                    uid = 'header'
-                    miu_text += text_line
-                    with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
-                        miu_file.write(miu_text + '\n')
-                        ids_tree.write(uid + '\n')
-                    miu_text = ''
-                    uid = 'preface'
-                    next(text)  # Skip empty line after header
-                elif MIU_UID_PATTERN.match(text_line):
-                    if HEADING_PATTERN.match(text_line):
-                        m = HEADING_PATTERN.match(text_line)
-                        heading_text = m.group('heading')
-                        if PAGE_TAG_PATTERN.search(heading_text):
-                            heading_text = PAGE_TAG_PATTERN.sub('', heading_text)
-                        heading_tracker.track_headings(len(m.group('level')), heading_text)
-                    if miu_text:
-                        # Do not create a preface MIU file if there is no preface
+            with open(yml_data, 'w', encoding='utf-8') as yml_data_fh:
+                for text_line in iter(text):
+                    if HEADER_END_PATTERN.match(text_line):
+                        uid = 'header'
+                        miu_text += text_line
                         with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
                             miu_file.write(miu_text + '\n')
                             ids_tree.write(uid + '\n')
-                    uid = UID_PATTERN.match(text_line).group('UID')
-                    miu_text = create_yml_header(heading_tracker.get_curr_state())
-                    miu_text += text_line
-                else:
-                    miu_text += text_line
+                        miu_text = ''
+                        uid = 'preface'
+                        next(text)  # Skip empty line after header
+                    elif MIU_UID_PATTERN.match(text_line):
+                        if HEADING_PATTERN.match(text_line):
+                            m = HEADING_PATTERN.match(text_line)
+                            heading_text = m.group('heading')
+                            if PAGE_TAG_PATTERN.search(heading_text):
+                                heading_text = PAGE_TAG_PATTERN.sub('', heading_text)
+                            heading_tracker.track_headings(len(m.group('level')), heading_text)
+                        if miu_text:
+                            # Do not create a preface MIU file if there is no preface
+                            with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
+                                miu_file.write(miu_text + '\n')
+                                ids_tree.write(uid + '\n')
+                            yml_data_fh.write('#' + uid + '\n---\n' + yml_header)
+                        m = MIU_TAG_PATTERN.match(text_line)
+                        uid = m.group('UID')
+                        try:
+                            category = CATEGORY_PATTERN.search(m.group('category')).group(0)
+                        except AttributeError:
+                            mal_formatted.append(m.group('category'))
+                        yml_header = create_yml_header(category, heading_tracker.get_curr_state())
+                        miu_text = yml_header
+                        miu_text += text_line
+                    else:
+                        miu_text += text_line
 
-                if PAGE_TAG_PATTERN.search(text_line):
-                    heading_tracker.track_pages(PAGE_TAG_PATTERN.search(text_line).group(0))
+                    if PAGE_TAG_PATTERN.search(text_line):
+                        heading_tracker.track_pages(PAGE_TAG_PATTERN.search(text_line).group(0))
 
-            # last MIU needs to be written to file when the for-loop is finished
-            with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
-                miu_file.write(miu_text + '\n')
-                ids_tree.write(uid + '\n')
+                # last MIU needs to be written to file when the for-loop is finished
+                with open(miu_uri + uid + '.EIS1600', 'w', encoding='utf8') as miu_file:
+                    miu_file.write(miu_text + '\n')
+                    ids_tree.write(uid + '\n')
+                yml_data_fh.write('#' + uid + '\n---\n' + yml_header + '\n\n')
 
-    with open(yml_file, 'w', encoding='utf8') as status_file:
+                if mal_formatted:
+                    print('Something seems to be mal-formatted, check:')
+                    print(infile + '\n')
+                    for elem in mal_formatted:
+                        print(elem)
+
+    with open(yml_status, 'w', encoding='utf8') as status_file:
         status_file.write('STATUS   : DISASSEMBLED')
 
 

@@ -6,13 +6,15 @@ from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
 
 
-def create_yml_header(headings: Type[HeadingTracker]) -> str:
+def create_yml_header(category: str, headings: Optional[Type[HeadingTracker]] = None) -> str:
     """Creates a YAML header for the current MIU file and returns it as yamlfied string.
 
-    :param Type[HeadingsTracker] headings: HeadingTracker with the super elements of the current MIU.
+    :param str category: Category of the entry.
+    :param Type[HeadingsTracker] headings: HeadingTracker with the super elements of the current MIU, optional.
     :return str: YAML header for the current MIU.
     """
     yml_header = YAMLHandler()
+    yml_header.set_category(category)
     if headings:
         yml_header.set_headings(headings)
 

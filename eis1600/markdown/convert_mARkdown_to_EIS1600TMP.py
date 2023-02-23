@@ -1,10 +1,13 @@
+from functools import partial
+
+from tqdm import tqdm
+from p_tqdm import p_uimap
 from pathlib import Path
 
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
-from multiprocessing import Pool
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme, \
     update_texts_fixed_poetry_readme
@@ -32,14 +35,10 @@ Give a single mARkdown file as input
 or 
 Give an input AND an output directory for batch processing.
 
-Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directory which have not been processed yet.
+Run without input arg to batch process all mARkdown files in the EIS1600 directory which have not been processed yet.
 '''
     )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
-    arg_parser.add_argument(
-            '-e', '--eis1600_repo', type=str,
-            help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet'
-    )
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='MARkdown file to process or input directory with mARkdown files to process if an output directory is '
@@ -89,14 +88,18 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
         # Check if output directory exists else create that directory
         Path(output_dir).mkdir(exist_ok=True, parents=True)
 
-        params = [(infile, output_dir, verbose) for infile in infiles]
+        if verbose:
+            for infile in tqdm(infiles):
+                try:
+                    convert_to_EIS1600TMP(infile, output_dir, verbose)
+                except Exception as e:
+                    print(infile, e)
+        else:
+            res = []
+            res += p_uimap(partial(convert_to_EIS1600TMP, output_dir=output_dir), infiles)
 
-        with Pool() as p:
-            p.starmap_async(convert_to_EIS1600TMP, params).get()
-    elif args.eis1600_repo:
-        input_dir = args.eis1600_repo
-        if not input_dir[-1] == '/':
-            input_dir += '/'
+    else:
+        input_dir = './'
 
         print(f'Update list of texts with automatically fixed poetry in the README')
         update_texts_fixed_poetry_readme(input_dir, '# Texts with fixed poetry\n')
@@ -113,16 +116,16 @@ Use -e <EIS1600_repo> to batch process all mARkdown files in the EIS1600 directo
             )
             sys.exit()
 
-        params = [(infile, None, verbose) for infile in infiles]
-
-        with Pool() as p:
-            p.starmap_async(convert_to_EIS1600TMP, params).get()
+        if verbose:
+            for infile in tqdm(infiles):
+                try:
+                    convert_to_EIS1600TMP(infile, None, verbose)
+                except Exception as e:
+                    print(infile, e)
+        else:
+            res = []
+            res += p_uimap(convert_to_EIS1600TMP, infiles)
 
         write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
-    else:
-        print(
-                'Pass in a <uri.mARkdown> file to process a single file or use the -e option for batch processing'
-        )
-        sys.exit()
 
     print('Done')

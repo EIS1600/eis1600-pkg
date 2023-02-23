@@ -1,3 +1,5 @@
+from tqdm import tqdm
+from p_tqdm import p_uimap
 from pathlib import Path
 
 import sys
@@ -32,14 +34,10 @@ Give a single EIS1600TMP file as input
 or 
 Give an input AND an output directory for batch processing.
 
-Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 directory which have not been processed yet.
+Run without input arg to batch process all EIS1600TMP files in the EIS1600 directory which have not been processed yet.
 '''
             )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
-    arg_parser.add_argument(
-            '-e', '--eis1600_repo', type=str,
-            help='Takes a path to the EIS1600 file repo and batch processes all files which have not been processed yet'
-            )
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600TMP file to process, you need to run this command from inside text repo',
@@ -94,10 +92,8 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
             p.starmap_async(insert_uids, params).get()
 
     # If this script is run with -e option on the EIS1600 text repo
-    elif args.eis1600_repo:
-        input_dir = args.eis1600_repo
-        if not input_dir[-1] == '/':
-            input_dir += '/'
+    else:
+        input_dir = './'
 
         # Get EIS1600TMP files which are marked as ready to process in the README and have not yet been converted to
         # EIS1600
@@ -111,14 +107,17 @@ Use -e <EIS1600_repo> to batch process all EIS1600TMP files in the EIS1600 direc
             sys.exit()
 
         # Insert UIDs in the selected files, runs in parallel
-        params = [(infile, None, verbose) for infile in infiles]
-        with Pool() as p:
-            p.starmap_async(insert_uids, params).get()
+        if verbose:
+            for infile in tqdm(infiles):
+                try:
+                    insert_uids(infile, None, verbose)
+                except Exception as e:
+                    print(infile, e)
+        else:
+            res = []
+            res += p_uimap(insert_uids, infiles)
 
         # Write list of processed files to the README
         write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)
-    else:
-        print('Pass in a <uri.EIS1600TMP> file to process a single file or use the -e option for batch processing')
-        sys.exit()
 
     print('Done')

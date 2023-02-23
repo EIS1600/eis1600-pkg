@@ -3,13 +3,11 @@ from functools import partial
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
-from multiprocessing import Pool
 
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, read_files_from_readme, \
-    get_files_from_eis1600_dir, \
+from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, get_files_from_eis1600_dir, \
     write_to_readme
 from eis1600.miu.methods import disassemble_text
 
@@ -66,8 +64,15 @@ Run without input arg to batch process all EIS1600 files in the EIS1600 director
             print('There are no EIS1600 files to process')
             sys.exit()
 
-        res = []
-        res += p_uimap(partial(disassemble_text, out_path=out_path, verbose=verbose), infiles)
+        if verbose:
+            for infile in tqdm(infiles):
+                try:
+                    disassemble_text(infile, out_path, verbose)
+                except Exception as e:
+                    print(infile, e)
+        else:
+            res = []
+            res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)
 
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')

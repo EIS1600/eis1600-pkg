@@ -5,17 +5,17 @@
 (*so that we do not forget again...*)
 
 1. Double-check text in the Google Spreadsheet; “tag” is as “double-checked” (Column **PREPARED**);
-2. These double-checked files must be converted to `*.EIS1600` format
-3. The names of these files are then collected into `AUTOREPORT.md` under **DOUBLE-CHECKED Files (XX) - ready for MIU**.
-4. After that these files can be disassembled into MIUs, to be sotred in the MIU repository.
+  - These double-checked files have been converted to `*.EIS1600` format
+2. The names of these files are then collected into `AUTOREPORT.md` under **DOUBLE-CHECKED Files (XX) - ready for MIU**.
+3. Running `disassemble_into_mius` takes the list from `AUTOREPORT.md` and disassembles these files into MIUs and stores them in the MIU repo.
 
 ## Process
 
 1. Convert from mARkdown to EIS1600TMP with `convert_mARkdown_to_EIS1600`
-2. Check EIS1600TMP
-3. Run `insert_uids`
+2. Check the `.EIS1600TMP`
+3. Run `insert_uids` on the checked `.EIS1600TMP`
 4. Check again. If anything was changed in the EIS1600 file, run `update_uids`
-5. Run `disassemble_into_miu_files`
+5. After double-check, the file can be disassembled by `disassemble_into_miu_files data/<author>/<text>/<edition>.EIS1600`
 
 ## Installation
 ```shell
@@ -27,6 +27,34 @@ In case you have an older version installed, use
 ```shell
 $ pip install --upgrade eis1600
 ```
+
+## Set Up Virtual Environment and Install the EIS1600 PKG there
+
+To not mess with other python installations, we recommend installing the package in a virual environment.
+To create a new virtual environment with python, run:
+```shell
+python3 -m venv eis1600_env
+```
+
+This package can be run with Python 3.7 or 3.8, as these are version required by CAMeL-Tools.
+
+After creation of the environment it can be activated by:
+```shell
+source eis1600_env/bin/activate
+```
+
+The environment is now activated and the eis1600 package can be installed into that environment with pip:
+```shell
+$ pip install eis1600
+```
+This command installs all dependencies as well.
+You can now use the commands listed in this README.
+
+To use the environment, you have to activate it for **every session**, by:
+```shell
+source eis1600_env/bin/activate
+```
+After successful activation, your user has the pre-text `(eis1600_env)`.
 
 ## Usage
 
@@ -70,7 +98,7 @@ $ disassemble_into_miu_files
 ```
 Give the relative path to a file to disassemble a singe file.
 ```shell
-$ disassemble_into_miu_files <uri>.EIS1600
+$ disassemble_into_miu_files data/<author>/<text>/<edition>.EIS1600
 ```
 
 ### Reassembling

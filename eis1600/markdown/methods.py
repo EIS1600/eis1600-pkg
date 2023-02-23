@@ -4,13 +4,33 @@ from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
 from eis1600.markdown.re_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, HEADER_END_PATTERN, \
-    MIU_LIGHT_OR_EIS1600_PATTERN, MIU_TAG_AND_TEXT_PATTERN, ONLY_PAGE_TAG_PATTERN, PAGE_TAG_IN_BETWEEN_PATTERN, \
+    MIU_LIGHT_OR_EIS1600_PATTERN, MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
+    PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
     POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, \
     BIO_CHR_TO_NEWLINE_PATTERN
+
+
+def normalize_bio_chr_md(paragraph: str) -> str:
+    md = NORMALIZE_BIO_CHR_MD_PATTERN.match(paragraph).group(0)
+    if md == '$BIO_MAN$':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# $', paragraph)
+    elif md == '$BIO_WOM$':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# $$', paragraph)
+    elif md == '$BIO_REF$':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# $$$', paragraph)
+    elif md == '$CHR_EVE$':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# @', paragraph)
+    elif md == '$CHR_RAW$':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# @@@', paragraph)
+    elif md == '@ RAW':
+        return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# @@@', paragraph)
+    else:
+        print(md)
+        return paragraph
 
 
 def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose: bool = False) -> None:
@@ -76,6 +96,8 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
     for paragraph in text:
         if paragraph.startswith('### '):
             paragraph = paragraph.replace('###', '#')
+            if NORMALIZE_BIO_CHR_MD_PATTERN.match(paragraph):
+                paragraph = normalize_bio_chr_md(paragraph)
             paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
         text_updated.append(paragraph)
 

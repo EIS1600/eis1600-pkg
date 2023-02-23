@@ -43,7 +43,7 @@ TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
                                                                                                                r'(?:\( ?)?' +
         AR_STR + r')'
 )
-MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+(?: RAW)?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
@@ -64,8 +64,9 @@ PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(
         '(' + AR_STR + ' ?)' + r'\n\n' + PAGE_TAG + r'\n\n' + '(' + AR_STR +
         ')'
 )
+NORMALIZE_BIO_CHR_MD_PATTERN = re.compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
 BIO_CHR_TO_NEWLINE_PATTERN = re.compile(
-        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:\( ?)?'
+        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:(?:\(|\[) ?)?'
         + AR_STR + r')'
 )
 

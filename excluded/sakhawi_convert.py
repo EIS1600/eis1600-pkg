@@ -17,6 +17,7 @@ FIX_POETRY_MD_PATTERN = re.compile(r'%~% ([^%\n]+%~%[^%\n]+) %~%')
 FIX_POETRY_MD_2_PATTERN = re.compile(r'(%~% [^%\n]+) %~%')
 FIX_POETRY_QALA_PATTERN = re.compile(r'(\n\n[وف](?:قال|قوله|منه) ?:)(?: ?' + PAGE_TAG +r')? ?\n\n')
 
+
 if __name__ == "__main__":
     path = '../../OpenITI_EIS1600_Texts/data/0902Sakhawi/0902Sakhawi.DawLamic/0902Sakhawi.DawLamic.ITO20230111-ara1'
     with open(path + '.mARkdown', 'r', encoding='utf-8') as fh:

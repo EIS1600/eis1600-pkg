@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.7.7
+Version: 0.7.8
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -63,6 +63,11 @@ Description: # EIS1600 Tools
         source eis1600_env/bin/activate
         ```
         After successful activation, your user has the pre-text `(eis1600_env)`.
+        
+        Probably, you want to create an alias for the source command in the `~.bash_aliases` by adding the following line:
+        ```shell
+        alias eis="source eis1600_env/bin/activate"
+        ```
         
         ## Usage
         

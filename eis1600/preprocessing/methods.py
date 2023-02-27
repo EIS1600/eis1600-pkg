@@ -22,8 +22,9 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[
     can be None because of sparsity.
     """
     text_and_heading = MIU_TAG_PATTERN.split(text)
+    # The indices are connected to the number of capturing group in MIU_TAG_PATTERN
     heading = text_and_heading[1]
-    text_iter = SECTION_SPLITTER_PATTERN.split(text_and_heading[3][:-2]).__iter__()
+    text_iter = SECTION_SPLITTER_PATTERN.split(text_and_heading[4][:-2]).__iter__()
     paragraph = next(text_iter)
 
     sections, ar_tokens, tags = [heading], [None], [None]

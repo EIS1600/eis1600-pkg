@@ -31,6 +31,8 @@ PAGE_TAG_IN_BETWEEN_PATTERN = re.compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
 
+# MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
+# changing them
 MIU_TAG_PATTERN = re.compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
 CATEGORY_PATTERN = re.compile(r'[$|@]+(?:[A-Z]+[|])?')
 SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'

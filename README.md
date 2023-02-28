@@ -36,7 +36,7 @@ To create a new virtual environment with python, run:
 python3 -m venv eis1600_env
 ```
 
-**NB:** while creating your new virtual environment, you must use Python 3.7 or 3.8, as these are version required by CAMeL-Tools. If you call the right version of Python, you should see lots of other packages being installed.
+**NB:** while creating your new virtual environment, you must use Python 3.7 or 3.8, as these are version required by CAMeL-Tools.
 
 After creation of the environment it can be activated by:
 ```shell
@@ -47,7 +47,8 @@ The environment is now activated and the eis1600 package can be installed into t
 ```shell
 $ pip install eis1600
 ```
-This command installs all dependencies as well.
+This command installs all dependencies as well, so you should see lots of other libraries being installed. If you do not, you must have used a wrong version of Python while creating your virtual environment.
+
 You can now use the commands listed in this README.
 
 To use the environment, you have to activate it for **every session**, by:

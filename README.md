@@ -56,10 +56,17 @@ source eis1600_env/bin/activate
 ```
 After successful activation, your user has the pre-text `(eis1600_env)`.
 
-Probably, you want to create an alias for the source command in the `~.bash_aliases` by adding the following line:
+Probably, you want to create an alias for the source command in your *alias* file by adding the following line:
 ```shell
 alias eis="source eis1600_env/bin/activate"
 ```
+
+Alias files:
+
+- on Linux:
+  - `~.bash_aliases`
+- On Mac:
+  - `.zshrc` if you use `zsh` (default in the latest versions Mac OS);
 
 ## Usage
 

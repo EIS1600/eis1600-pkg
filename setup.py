@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.7.8',
+      version='0.7.9',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -13,6 +13,7 @@ setup(name='eis1600',
       author_email='mischer.lisa@gmail.com',
       license='MIT License',
       packages=find_packages(include=['eis1600', 'eis1600.*'], exclude=['excluded']),
+      package_data={'gazetteers.data': ['*.csv']},
       entry_points={
           'console_scripts': [
                   'convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main',
@@ -24,7 +25,8 @@ setup(name='eis1600',
                   'ner_annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
                   'reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main',
                   'update_uids = eis1600.markdown.update_uids:main',
-                  'xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main'
+                  'xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main',
+                  'onomastic_annotation = eis1600.onomastics.annotation:main'
           ],
       },
       python_requires='>=3.7, <3.9',

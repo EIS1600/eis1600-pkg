@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type
 
-from eis1600.markdown.re_patterns import MIU_HEADER
+from eis1600.markdown.re_pattern import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
 
 
@@ -110,6 +110,9 @@ class YAMLHandler:
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
 
         return yaml_str
+
+    def is_bio(self) -> bool:
+        return self.category == '$' or self.category == '$$'
 
     def is_reviewed(self) -> bool:
         return self.reviewed == 'REVIEWED'

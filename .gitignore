@@ -12,3 +12,4 @@ dist/
 
 # Ignore test notebooks
 eis1600/dates/test_regex.ipynb
+eis1600/gazetteers/data/

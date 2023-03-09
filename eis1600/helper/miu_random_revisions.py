@@ -15,8 +15,8 @@ add detailed readme here to be printed out if YML file does not exist in the fol
 ymlTemplate = """
 
 system: ... # options: mac, lin, win;
-reviewer: eis100researcher # change this to your name;
-path_to_kate: kate # add absolute path to Kate on your machine; or a working alias
+reviewer: eis1600researcher # change this to your name;
+path_to_kate: kate # add absolute path to Kate on your machine; or a working alias (kate should already work)
 files_to_open: 10 # the script will open 10 files by default; you can increase/decrease this value;
 miu_main_path: ./data/ # the script should be run from inside the repository with MIU files
 miu_specific_uri: ... # you can paste a URI of a specific book in order to focus on it
@@ -143,9 +143,7 @@ def main():
                     # lineToRun = "open -a %s %s" % (pathToKate, dictionary[f])
                     # os.system(lineToRun)
                     subprocess.run(['open', '-a', pathToKate, dictionary[f]])
-                elif osVar == "lin":
-                    subprocess.run([pathToKate, dictionary[f]])
-                elif osVar == "win":
+                elif osVar == "lin" or osVar == 'win':
                     subprocess.run([pathToKate, dictionary[f]])
                 else:
                     print("Operating system is incorrect. Use: mac, lin, or win")

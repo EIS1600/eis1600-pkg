@@ -8,7 +8,7 @@ from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
 from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.markdown.re_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
+from eis1600.markdown.re_pattern import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 
 

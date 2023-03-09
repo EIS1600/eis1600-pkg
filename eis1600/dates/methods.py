@@ -10,7 +10,7 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTE
     DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
     WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
-from eis1600.markdown.re_patterns import TAG_PATTERN
+from eis1600.markdown.re_pattern import TAG_PATTERN
 
 
 def parse_year(m: Match[str]) -> (int, int):

@@ -137,3 +137,31 @@ Use the `-e` option to process all files from the MIU repo. Can be used with `-p
 ```shell
 $ ner_annotate_mius -p -e <MIU_repo>
 ```
+
+### MIU revision
+
+Run the following command from the root of the MIU repo to revise automated annotated files:
+```shell
+$ miu_random_revisions
+```
+
+When first run, the file *file_picker.yml* is added to the root of the MIU repository.
+Make sure to specify your operating system and to set your initials and the path/command to/for Kate in this YAML file.
+```yaml
+system: ... # options: mac, lin, win;
+reviewer: eis1600researcher # change this to your name;
+path_to_kate: kate # add absolute path to Kate on your machine; or a working alias (kate should already work)
+```
+Optional, you can specify a path from where to open files - e.g. if you only want to open training-data, set:
+```yaml
+miu_main_path: ./training_data/
+```
+
+When revising files, remember to change
+```yaml
+reviewed    : NOT REVIEWED
+```
+to
+```yaml
+reviewed    : REVIEWED
+```

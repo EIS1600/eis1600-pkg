@@ -3,7 +3,7 @@ from typing import Optional, Type, TextIO
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
 
-from eis1600.markdown.re_patterns import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
+from eis1600.markdown.re_pattern import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
 
 
 def create_yml_header(category: str, headings: Optional[Type[HeadingTracker]] = None) -> str:

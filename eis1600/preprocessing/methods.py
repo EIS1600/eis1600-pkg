@@ -9,7 +9,7 @@ pd.options.mode.chained_assignment = None
 
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
-from eis1600.markdown.re_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
+from eis1600.markdown.re_pattern import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
 
 
 def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]:

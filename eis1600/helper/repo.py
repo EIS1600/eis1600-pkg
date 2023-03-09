@@ -15,7 +15,7 @@ from glob import glob
 from os.path import split, splitext
 from typing import List, Literal, Optional
 
-from eis1600.markdown.re_patterns import FIXED_POETRY_OLD_PATH_PATTERN
+from eis1600.markdown.re_pattern import FIXED_POETRY_OLD_PATH_PATTERN
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:

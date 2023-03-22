@@ -43,6 +43,7 @@ eis1600/nlp/ner_annotate_mius.py
 eis1600/nlp/utils.py
 eis1600/onomastics/__init__.py
 eis1600/onomastics/annotation.py
+eis1600/onomastics/methods.py
 eis1600/onomastics/re_pattern.py
 eis1600/preprocessing/__init__.py
 eis1600/preprocessing/methods.py

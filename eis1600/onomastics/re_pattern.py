@@ -2,8 +2,8 @@ import re
 
 from eis1600.markdown.re_pattern import AR_STR
 
-ABU_ABI = re.compile('[اأ]ب[ويى] ')
-UMM = re.compile('[و]?[اأ]م ')
+ABU_ABI = re.compile(' [و]?[اأ]ب[ويى] ')
+UMM = re.compile(' [و]?[اأ]م ')
 IBN_IBNA = re.compile('[اإ](بن[ةه]?) ')
 BN_BNT = re.compile(' (بن[ت]?) ')
 DIN_DAULA = re.compile(' (الدين|الدول[ةه])')

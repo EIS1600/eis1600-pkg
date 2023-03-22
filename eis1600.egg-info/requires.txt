@@ -1,7 +1,7 @@
 openiti
-p_tqdm
 pandas
 tqdm
+p_tqdm
 
 [NER]
 camel-tools

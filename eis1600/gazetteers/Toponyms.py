@@ -35,7 +35,7 @@ class Toponyms:
 
         places = thurayya_df['toponyms'].explode().to_list()
         Toponyms.__places = places + [prefix + top for prefix in prefixes for top in places]
-        regions = regions_df['region'].to_list()
+        regions = regions_df['REGION'].to_list()
         Toponyms.__regions = regions + [prefix + reg for prefix in prefixes for reg in regions]
 
         Toponyms.__total = Toponyms.__places + Toponyms.__regions

@@ -37,15 +37,16 @@ class Onomastics:
     __ngrams_regex = None
 
     def __init__(self) -> None:
-        df = pd.read_csv(path)
-        df['ngram'] = df['ngram'].astype('uint8')
-        df['category'] = df['category'].astype('category')
-        Onomastics.__end = df.loc[df['category'] == 'END', 'value'].to_list()
-        Onomastics.__exp = df.loc[df['category'] == 'EXP', 'value'].to_list()
-        Onomastics.__ism = df.loc[df['category'] == 'ISM', 'value'].to_list()
-        Onomastics.__laq = df.loc[df['category'] == 'LAQ', 'value'].to_list()
-        Onomastics.__nsb = df.loc[df['category'] == 'NSB', 'value'].to_list()
-        Onomastics.__swm = df.loc[df['category'] == 'SWM', 'value'].to_list()
+        oa_df = pd.read_csv(path)
+        oa_df['NGRAM'] = oa_df['NGRAM'].astype('uint8')
+        oa_df['CATEGORY'] = oa_df['CATEGORY'].astype('category')
+
+        Onomastics.__end = oa_df.loc[oa_df['CATEGORY'] == 'END', 'VALUE'].to_list()
+        Onomastics.__exp = oa_df.loc[oa_df['CATEGORY'] == 'EXP', 'VALUE'].to_list()
+        Onomastics.__ism = oa_df.loc[oa_df['CATEGORY'] == 'ISM', 'VALUE'].to_list()
+        Onomastics.__laq = oa_df.loc[oa_df['CATEGORY'] == 'LAQ', 'VALUE'].to_list()
+        Onomastics.__nsb = oa_df.loc[oa_df['CATEGORY'] == 'NSB', 'VALUE'].to_list()
+        Onomastics.__swm = oa_df.loc[oa_df['CATEGORY'] == 'SWM', 'VALUE'].to_list()
 
         Onomastics.__tot = Onomastics.__ism + Onomastics.__laq + Onomastics.__nsb + Onomastics.__swm + Onomastics.__exp
         expression = Onomastics.__exp + Onomastics.__swm + Onomastics.__ism
@@ -53,23 +54,24 @@ class Onomastics:
 
         def rplc_to_aba(row):
             new_row = row
-            new_row['value'] = row['value'].replace('أيو', 'أبا')
+            new_row['VALUE'] = row['VALUE'].replace('أبو', 'أبا')
             return new_row
 
         def rplc_to_abi(row):
             new_row = row
-            new_row['value'] = row['value'].replace('أيو', 'أبي')
+            new_row['VALUE'] = row['VALUE'].replace('أبو', 'أبي')
             return new_row
 
-        abu_rows = df.loc[df['value'].str.contains('أيو')]
+        abu_rows = oa_df.loc[oa_df['VALUE'].str.contains('أبو')]
         spelling_variations_1 = abu_rows.apply(rplc_to_aba, axis=1)
         spelling_variations_2 = abu_rows.apply(rplc_to_abi, axis=1)
-        df_abu_variations = pd.concat([df, spelling_variations_1, spelling_variations_2])
+        df_abu_variations = pd.concat([oa_df.loc[oa_df['CATEGORY'] != 'END'], spelling_variations_1,
+                                       spelling_variations_2])
 
         # Sort from longest to shortest ngrams - longest need to come first in regex otherwise only the shorter one
         # will be matched
-        Onomastics.__ngrams = df_abu_variations.sort_values(by=['ngram'], ascending=False)
-        ngrams = Onomastics.__ngrams['value'].to_list()
+        Onomastics.__ngrams = df_abu_variations.sort_values(by=['NGRAM'], ascending=False)
+        ngrams = Onomastics.__ngrams['VALUE'].to_list()
         Onomastics.__ngrams_regex = re.compile('(?:^| )(' + denormalize('|'.join(ngrams)) + ')')
 
     @staticmethod
@@ -94,12 +96,12 @@ class Onomastics:
 
     @staticmethod
     def get_ngram_tag(ngram) -> str:
-        lookup = Onomastics.__ngrams.loc[Onomastics.__ngrams['value'] == ngram]
+        lookup = Onomastics.__ngrams.loc[Onomastics.__ngrams['VALUE'].str.fullmatch(denormalize(ngram))]
         if len(lookup) > 1:
-            all_pos = [cat + str(n) for cat, n in zip(lookup['category'].to_list(), lookup['ngram'].to_list())]
-            return '/'.join(all_pos) + ' '
+            all_pos = ['Ü' + cat + str(n) for cat, n in zip(lookup['CATEGORY'].to_list(), lookup['NGRAM'].to_list())]
+            return '___'.join(all_pos) + ' '
         elif len(lookup) == 1:
-            return str(lookup.iloc[0]['category']) + str(lookup.iloc[0]['ngram']) + ' '
+            return 'Ü' + str(lookup.iloc[0]['CATEGORY']) + str(lookup.iloc[0]['NGRAM']) + ' '
         else:
-            return '???' + str(len(ngram)) + ' '
+            return 'ÜNaN' + str(len(ngram)) + ' '
 

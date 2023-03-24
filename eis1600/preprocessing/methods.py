@@ -79,6 +79,8 @@ def get_yml_and_MIU_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
     zipped = tokenize_miu_text(text)
     df = pd.DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
+    df.mask(df == '', inplace=True)
+
     return yml, df
 
 
@@ -99,12 +101,13 @@ def reconstruct_miu_text_with_tags(
         text_and_tags_iter = text_and_tags.__iter__()
     heading, _, _ = next(text_and_tags_iter)
     reconstructed_text = heading
+    # TODO NASAB tag after token
     for section, token, tags in text_and_tags_iter:
-        if section:
+        if pd.notna(section):
             reconstructed_text += '\n\n' + section + '\n_ء_'
-        if tags:
+        if pd.notna(tags):
             reconstructed_text += ' ' + ' '.join(tags)
-        if token:
+        if pd.notna(token):
             if token in UNICODE_PUNCT_CHARSET:
                 reconstructed_text += token
             else:

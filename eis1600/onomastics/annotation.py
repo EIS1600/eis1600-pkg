@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
@@ -30,36 +32,26 @@ def main():
 
     og = Onomastics.instance()
     tg = Toponyms.instance()
-    infiles = glob('OpenITI_EIS1600_MIUs/training_data/*.EIS1600')[:100]#[200:300]
+    # infiles = glob('OpenITI_EIS1600_MIUs/training_data/*.EIS1600')#[:100]#[200:300]
+    with open('OpenITI_EIS1600_MIUs/gold_standard.txt', 'r', encoding='utf-8') as fh:
+        files_txt = fh.read().splitlines()
+    infiles = [Path('OpenITI_EIS1600_MIUs/training_data/' + file) for file in files_txt if Path(
+            'OpenITI_EIS1600_MIUs/training_data/' + file).exists()]
 
-    # TODO add filtered and manipulated str as metadata to yml header
+    # TODO How do deal with '::' tag?
 
-    if args.filtering:
-        res = []
-        res += p_uimap(partial(nasab_filtering, og=og, tg=tg), infiles)
+    res = []
+    res += p_uimap(partial(nasab_annotation, og=og, tg=tg), infiles)
 
-        unknown, nasabs, manipulated, cutoff, spelling = zip(*res)
+    # for file in infiles:
+    #     print(file)
+    #     res.append(nasab_annotation(file, og, tg))
 
-        with open('OnomasticonArabicum2020/oa2020/nasabs.txt', 'w', encoding='utf-8') as fh:
-            fh.write('\n\n'.join([f'1\n{nsb}\n2\n{co}' for u, nsb, m, co, s in res]))
+    annotated, unknown = zip(*res)
 
-        with open('OnomasticonArabicum2020/oa2020/manipulated.txt', 'w', encoding='utf-8') as fh:
-            fh.write('\n\n'.join(manipulated))
-
-        with open('OnomasticonArabicum2020/oa2020/spelling.txt', 'w', encoding='utf-8') as fh:
-            fh.write('\n\n'.join(spelling))
-
-        unknown_flat = pd.Series([elem for sub in unknown for elem in sub])
-        unknown_flat.value_counts().to_csv('OnomasticonArabicum2020/oa2020/unknown.csv')
-    else:
-        res = []
-        # res += p_uimap(partial(nasab_annotation, og=og, tg=tg), infiles)
-
-        for file in infiles:
-            print(file)
-            res.append(nasab_annotation(file, og, tg))
-
-        with open('OnomasticonArabicum2020/oa2020/tagged.txt', 'w', encoding='utf-8') as fh:
-            fh.write('\n\n'.join(res))
+    with open('OnomasticonArabicum2020/oa2020/tagged.txt', 'w', encoding='utf-8') as fh:
+        fh.write('\n\n'.join(annotated))
+    unknown_flat = pd.Series([elem for sub in unknown for elem in sub])
+    unknown_flat.value_counts().to_csv('OnomasticonArabicum2020/oa2020/unknown.csv')
 
     print('Done')

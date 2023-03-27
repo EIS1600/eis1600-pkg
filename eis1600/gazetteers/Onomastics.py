@@ -28,11 +28,11 @@ class Onomastics:
     __end = None
     __exp = None
     __ism = None
+    __kun = None
     __laq = None
     __nsb = None
     __swm = None
     __tot = None
-    __rpl = None
     __ngrams = None
     __ngrams_regex = None
 
@@ -44,13 +44,13 @@ class Onomastics:
         Onomastics.__end = oa_df.loc[oa_df['CATEGORY'] == 'END', 'VALUE'].to_list()
         Onomastics.__exp = oa_df.loc[oa_df['CATEGORY'] == 'EXP', 'VALUE'].to_list()
         Onomastics.__ism = oa_df.loc[oa_df['CATEGORY'] == 'ISM', 'VALUE'].to_list()
+        Onomastics.__ism = oa_df.loc[oa_df['CATEGORY'] == 'KUN', 'VALUE'].to_list()
         Onomastics.__laq = oa_df.loc[oa_df['CATEGORY'] == 'LAQ', 'VALUE'].to_list()
         Onomastics.__nsb = oa_df.loc[oa_df['CATEGORY'] == 'NSB', 'VALUE'].to_list()
         Onomastics.__swm = oa_df.loc[oa_df['CATEGORY'] == 'SWM', 'VALUE'].to_list()
 
         Onomastics.__tot = Onomastics.__ism + Onomastics.__laq + Onomastics.__nsb + Onomastics.__swm + Onomastics.__exp
         expression = Onomastics.__exp + Onomastics.__swm + Onomastics.__ism
-        Onomastics.__rpl = [(elem, elem.replace(' ', '_')) for elem in expression if ' ' in elem]
 
         def rplc_to_aba(row):
             new_row = row
@@ -72,7 +72,7 @@ class Onomastics:
         # will be matched
         Onomastics.__ngrams = df_abu_variations.sort_values(by=['NGRAM'], ascending=False)
         ngrams = Onomastics.__ngrams['VALUE'].to_list()
-        Onomastics.__ngrams_regex = re.compile('(?:^| )(' + denormalize('|'.join(ngrams)) + ')')
+        Onomastics.__ngrams_regex = re.compile('(^| )(' + denormalize('|'.join(ngrams)) + ')')
 
     @staticmethod
     def exp() -> List[str]:
@@ -85,10 +85,6 @@ class Onomastics:
     @staticmethod
     def total() -> List[str]:
         return Onomastics.__tot
-
-    @staticmethod
-    def replacements() -> List[Tuple[str, str]]:
-        return Onomastics.__rpl
 
     @staticmethod
     def get_ngrams_regex() -> Pattern[str]:

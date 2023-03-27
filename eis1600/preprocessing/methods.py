@@ -12,6 +12,21 @@ from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 from eis1600.markdown.re_pattern import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
 
 
+def get_tokens_and_tags(tagged_text: str) -> Tuple[Union[str, None], Union[List[str], None]]:
+    tokens = simple_word_tokenize(tagged_text)
+    ar_tokens, tags = [], []
+    tag = None
+    for t in tokens:
+        if TAG_PATTERN.match(t):
+            tag = t
+        else:
+            ar_tokens.append(t)
+            tags.append(tag)
+            tag = None
+
+    return ar_tokens, tags
+
+
 def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]:
     """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
 
@@ -105,7 +120,7 @@ def reconstruct_miu_text_with_tags(
     for section, token, tags in text_and_tags_iter:
         if pd.notna(section):
             reconstructed_text += '\n\n' + section + '\n_ء_'
-        if pd.notna(tags):
+        if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
         if pd.notna(token):
             if token in UNICODE_PUNCT_CHARSET:
@@ -120,16 +135,18 @@ def reconstruct_miu_text_with_tags(
 
 
 def merge_tagslists(lst1, lst2):
-    if lst1 is not None:
-        if lst2 != '':
+    if isinstance(lst1, list):
+        if pd.notna(lst2):
             lst1.append(lst2)
     else:
-        if lst2 != '':
+        if pd.notna(lst2):
             lst1 = [lst2]
     return lst1
 
 
-def write_updated_miu_to_file(miu_file_object: TextIO, yml: YAMLHandler, df: pd.DataFrame) -> None:
+def write_updated_miu_to_file(miu_file_object: TextIO, yml: YAMLHandler, df: pd.DataFrame, nasab_analysis: bool = False) \
+        -> \
+        None:
     """Write MIU file with annotations.
 
     :param TextIO miu_file_object: Path to the MIU file to write
@@ -139,14 +156,19 @@ def write_updated_miu_to_file(miu_file_object: TextIO, yml: YAMLHandler, df: pd.
     """
     df_subset = None
     if not yml.is_reviewed():
-        columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS']
+        columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS', 'NASAB_TAGS']
         df['ÜTAGS'] = df['TAGS_LISTS']
         for col in columns_of_automated_tags:
             if col in df.columns:
                 df['ÜTAGS'] = df.apply(lambda x: merge_tagslists(x['ÜTAGS'], x[col]), axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'ÜTAGS']]
     else:
-        df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
+        if nasab_analysis:
+            df['ÜTAGS'] = df['TAGS_LISTS']
+            df['ÜTAGS'] = df.apply(lambda x: merge_tagslists(x['ÜTAGS'], x['NASAB_TAGS']), axis=1)
+            df_subset = df[['SECTIONS', 'TOKENS', 'ÜTAGS']]
+        else:
+            df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 

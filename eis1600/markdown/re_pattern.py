@@ -38,7 +38,7 @@ CATEGORY_PATTERN = re.compile(r'[$|@]+(?:[A-Z]+[|])?')
 SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
 SECTION_PATTERN = re.compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
-TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG)
+TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
         r'(_ء_#=\d{12}= [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ('

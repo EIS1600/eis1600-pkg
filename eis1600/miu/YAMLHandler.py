@@ -16,6 +16,7 @@ class YAMLHandler:
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
     :ivar List[str] dates_headings: List of dates contained in headings
     :ivar List[str] dates: List of dates contained in text
+    :ivar str nasab_filtered: unanalysed nasab str, parts are connected by '_'.
     :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
 
@@ -75,6 +76,7 @@ class YAMLHandler:
         self.headings = None
         self.dates_headings = None
         self.dates = None
+        self.nasab_filtered = None
         self.category = None
 
         if yml:
@@ -94,6 +96,10 @@ class YAMLHandler:
     def set_headings(self, headings: Type[HeadingTracker]) -> None:
         self.headings = headings
 
+    def unset_reviewed(self) -> None:
+        self.reviewed = 'NOT REVIEWED'
+        self.reviewer = None
+
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():
@@ -103,7 +109,7 @@ class YAMLHandler:
                     yaml_str += '"' + date + '",'
                 yaml_str = yaml_str[:-1]
                 yaml_str += ']\n'
-            elif key == 'category':
+            elif key == 'category' and val is not None:
                 yaml_str += key + '    : "' + val + '"\n'
             else:
                 yaml_str += key + '    : ' + str(val) + '\n'
@@ -117,19 +123,22 @@ class YAMLHandler:
     def is_reviewed(self) -> bool:
         return self.reviewed == 'REVIEWED'
 
-    def add_date(self, date_tag: str):
+    def add_date(self, date_tag: str) -> None:
         if self.dates:
             if date_tag not in self.dates:
                 self.dates.append(date_tag)
         else:
             self.dates = [date_tag]
 
-    def add_date_headings(self, date_tag: str):
+    def add_date_headings(self, date_tag: str) -> None:
         if self.dates_headings:
             if date_tag not in self.dates_headings:
                 self.dates_headings.append(date_tag)
         else:
             self.dates_headings = [date_tag]
+
+    def add_nasab_filtered(self, nasab_filtered: str) -> None:
+        self.nasab_filtered = nasab_filtered
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

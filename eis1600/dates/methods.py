@@ -1,4 +1,3 @@
-from camel_tools.tokenizers.word import simple_word_tokenize
 from eis1600.miu.YAMLHandler import YAMLHandler
 from pandas import DataFrame
 from typing import List, Match, Tuple
@@ -10,7 +9,7 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTE
     DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
     WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
-from eis1600.markdown.re_pattern import TAG_PATTERN
+from eis1600.preprocessing.methods import get_tokens_and_tags
 
 
 def parse_year(m: Match[str]) -> (int, int):
@@ -103,18 +102,7 @@ def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Tuple[List, Y
     ar_text = ' '.join(tokens)
 
     tagged_text = tag_dates_fulltext(ar_text)
-    tokens = simple_word_tokenize(tagged_text)
-    ar_tokens, tags = [], []
-    tag = None
-    for t in tokens:
-        if TAG_PATTERN.match(t):
-            tag = t
-            yml.add_date(t)
-        else:
-            ar_tokens.append(t)
-            tags.append(tag)
-            tag = None
-
+    ar_tokens, tags = get_tokens_and_tags(tagged_text)
     ner_df.loc[ner_df['TOKENS'].notna(), 'DATE_TAGS'] = tags
 
     return ner_df['DATE_TAGS'].fillna('').tolist(), yml

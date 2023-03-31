@@ -1,7 +1,10 @@
 import sys
 import os
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
+from functools import partial
+from pathlib import Path
 
+from eis1600.helper.logging import setup_logger
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
@@ -27,16 +30,12 @@ def main():
         description='''Script to NER annotate MIU file(s).
 -----
 Give an IDs file or a single MIU file as input
-or 
-Use -e <EIS1600_repo> to batch process all files in the MIU directory.
+otherwise 
+all files in the MIU directory are batch processed.
 '''
         )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
     arg_parser.add_argument('-p', '--parallel', help='parallel processing', action='store_true')
-    arg_parser.add_argument(
-        '-e', '--eis1600_repo', type=str,
-        help='takes a path to the MIU file repo and batch processes all files'
-        )
     arg_parser.add_argument('-f', '--force', help='force re-annotation', action='store_true')
     arg_parser.add_argument(
         'input', type=str, nargs='?',
@@ -56,7 +55,7 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
             print(f'NER annotate MIUs of {infile}')
             if args.parallel:
                 res = []
-                res += p_uimap(annotate_miu_file, mius)
+                res += p_uimap(partial(annotate_miu_file), mius)
             else:
                 for miu in tqdm(mius):
                     try:
@@ -66,10 +65,13 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
         else:
             print(f'NER annotate {infile}')
             annotate_miu_file(infile, force_annotation=force)
-    elif args.eis1600_repo:
-        input_dir = args.eis1600_repo
-        if not input_dir[-1] == '/':
-            input_dir += '/'
+    else:
+        input_dir = 'OpenITI_EIS1600_MIUs/'
+
+        if not Path(input_dir).exists():
+            print('Your working directory seems to be wrong, make sure it is set to the parent dir of '
+                  '`OpenITI_EIS1600_MIUs/`.')
+            sys.exit()
 
         print(f'NER annotate MIU files')
         files_list = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')
@@ -78,6 +80,7 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
             print('There are no IDs files to process')
             sys.exit()
 
+        logger_nasab = setup_logger('nasab_unknown', 'logs/nasab_unknown.log')
         for infile in infiles:
             if verbose:
                 print(f'NER annotate MIUs of {infile}')
@@ -85,18 +88,12 @@ Use -e <EIS1600_repo> to batch process all files in the MIU directory.
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             if args.parallel:
                 res = []
-                res += p_uimap(annotate_miu_file, mius)
+                res += p_uimap(partial(annotate_miu_file, logger_nasab), mius)
             else:
                 for miu in tqdm(mius):
                     try:
-                        annotate_miu_file(miu)
+                        annotate_miu_file(miu, logger_nasab)
                     except Exception as e:
                         print(miu, e)
-    else:
-        print(
-                'Pass in a <uri.IDs> file or an individual MIU file to process a single file or use the -e option for '
-                'batch processing'
-        )
-        sys.exit()
 
     print('Done')

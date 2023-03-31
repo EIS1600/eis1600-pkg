@@ -1,7 +1,12 @@
+from logging import Logger
+from pathlib import Path
+from typing import Optional
+
 import pandas as pd
+from numpy import nan
+from pandas import Series
 
 from eis1600.miu.YAMLHandler import YAMLHandler
-from typing import List, Tuple, Type
 
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
@@ -11,7 +16,17 @@ from eis1600.preprocessing.methods import get_tokens_and_tags, get_yml_and_MIU_d
     write_updated_miu_to_file
 
 
-def nasab_filtering(nasab_text, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[List[str], str]:
+def nasab_filtering(nasab_text: str, yml_handler: YAMLHandler, logger_nasab: Logger) -> None:
+    """Filters elements from the nasab which were not recognized by the current onomastic gazetteer.
+
+    Filters elements from the nasab which were not recognized by the current onomastic gazetteer. Unrecognized uni-
+    and bi-grams are logged and the manipulated nasab string is added to the YAMLHandler.
+    :param str nasab_text: nasab text as one single string which was cleaned from spelling information.
+    :param YAMLHandler yml_handler: YAMLHandler of the MIU to which the manipulated nasab string is added.
+    :param Logger logger_nasab: logger for unrecognized uni- and bi-grams.
+    """
+    og = Onomastics.instance()
+    tg = Toponyms.instance()
     text_mnpld = nasab_text
     text_mnpld = PARENTHESIS.sub(r'\g<1>', text_mnpld)
     text_mnpld = QUOTES.sub('', text_mnpld)
@@ -41,13 +56,33 @@ def nasab_filtering(nasab_text, og: Type[Onomastics], tg: Type[Toponyms]) -> Tup
     for elem, repl in tg.replacements():
         text_mnpld = text_mnpld.replace(elem, repl)
 
-    tokens = text_mnpld.split()
-    unknown = [t for t in tokens if '_' not in t and t not in og.total() + tg.total()]
+    yml_handler.add_nasab_filtered(text_mnpld)
 
-    return unknown, text_mnpld
+    if logger_nasab:
+        # Log unidentified tokens as uni- and bi-grams
+        tokens = text_mnpld.split()
+        unknown_uni = [t for t in tokens if '_' not in t and t not in og.total() + tg.total()]
+        prev = None
+        unknown_bi = []
+        for t in tokens:
+            if not prev and '_' not in t and t not in og.total() + tg.total() + ['بن', 'بنت']:
+                prev = t
+            else:
+                if '_' not in t and t not in og.total() + tg.total() + ['بن', 'بنت']:
+                    unknown_bi.append(prev + ' ' + t)
+                    prev = t
+                else:
+                    prev = None
+        logger_nasab.info('\n'.join(unknown_uni + unknown_bi))
 
 
-def tag_nasab(text: str, og: Type[Onomastics]) -> str:
+def tag_nasab(text: str) -> str:
+    """Annotate the nasab part of the MIU.
+
+    :param str text: nasab part of the MIU as one single string.
+    :returns str: the nasab part pf the MIU which contains also the tags in front of the recognized elements.
+    """
+    og = Onomastics.instance()
     text_updated = text
     m = og.get_ngrams_regex().search(text_updated)
     while m:
@@ -63,6 +98,12 @@ def tag_nasab(text: str, og: Type[Onomastics]) -> str:
 
 
 def tag_spelling(text: str) -> str:
+    """Tags spelling information which is stated in the nasab part of the MIU text.
+
+    Spelling is detected when two elements of the spelling gazetteer are found successively.
+    :param str text: the nasab part as one string.
+    :returns str: nasab part as one string including tags for found spelling.
+    """
     text_updated = text
     m = SPELLING.search(text_updated)
     while m:
@@ -75,21 +116,25 @@ def tag_spelling(text: str) -> str:
     return text_updated
 
 
-# def nasab_annotation(file, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[List[str], Type[YAMLHandler], str]:
-def nasab_annotation(file, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[str, List[str]]:
-    with open(file, 'r', encoding='utf-8') as miu_file_object:
-        yml_header, df = get_yml_and_MIU_df(miu_file_object)
+def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, logger_nasab: Optional[Logger]) -> Series:
+    """Onomastic analysis of the nasab part of the MIU.
 
+    :param DataFrame df: DataFrame of the MIU.
+    :param YAMLHandler yml_handler: YAMLHandler of the MIU.
+    :param Logger logger_nasab: logs unrecognized uni- and bi-grams to a log file, optional.
+    :returns Series: a series of the same length as the df containing the nasab tags corresponding to the tokens.
+    """
+    # TODO this here
     # if not yml_header.is_bio():
-    #     return [], '', ''
-    if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_header.is_reviewed():
-        return '', []
+    #     return [nan] * len(df), yml_handler
+    if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_handler.is_reviewed():
+        return Series([nan] * len(df))
 
+    # TODO remove, as we have a NLP model which sets the NASAB tag (what about the '::'?)
     # For not annotated MIUs
     # idcs = df[df['TOKENS'].notna() & df['TOKENS'].isin(og.end())].index
     # idx = idcs[0] if idcs.any() else min(49, len(df))
 
-    # Only for pre-annotated MIUs
     s_notna = df['TAGS_LISTS'].loc[df['TAGS_LISTS'].notna()].apply(lambda tag_list: ','.join(tag_list))
     idx = s_notna.loc[s_notna.str.contains('NASAB')].index[0]
 
@@ -97,9 +142,7 @@ def nasab_annotation(file, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[st
 
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
-    unknown, nasab_filtered = nasab_filtering(text, og, tg)
-    yml_header.add_nasab_filtered(nasab_filtered)
-    yml_header.unset_reviewed()
+    nasab_filtering(text, yml_handler, logger_nasab)
 
     tagged_spelling = tag_spelling(text)
     ar_tokens, tags = get_tokens_and_tags(tagged_spelling)
@@ -117,7 +160,7 @@ def nasab_annotation(file, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[st
     nasab_idx = df.loc[nasab_idx.difference(spl_idcs)].index
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
-    tagged_onomastics = tag_nasab(text, og)
+    tagged_onomastics = tag_nasab(text)
     ar_tokens, tags = get_tokens_and_tags(tagged_onomastics)
     df.loc[nasab_idx, 'NASAB_TAGS'] = tags
 
@@ -125,14 +168,25 @@ def nasab_annotation(file, og: Type[Onomastics], tg: Type[Toponyms]) -> Tuple[st
         # TODO make NASAB stay on same line
         df.loc[idx - 1, 'NASAB_END'] = 'NASAB'
 
+    return df['NASAB_TAGS'].to_list()
+
+
+def nasab_annotation(file: Path, logger_nasab: Logger) -> str:
+    """Only used for onomastic_annotation cmdline script"""
+    with open(file, 'r', encoding='utf-8') as miu_file_object:
+        yml_handler, df = get_yml_and_MIU_df(miu_file_object)
+
+    df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, logger_nasab)
+    yml_handler.unset_reviewed()
+
     reconstructed_miu = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'NASAB_TAGS']])
 
     output_path = str(file).replace('training_data', 'training_nasab')
     with open(output_path, 'w', encoding='utf-8') as out_file_object:
         write_updated_miu_to_file(
-            out_file_object, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']], True
+            out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']], True
         )
 
-    # return df['NASAB_TAGS'].fillna('').tolist(), yml_header, text_w_cutoff
+    # return df['NASAB_TAGS'].fillna('').tolist(), yml_handler, text_w_cutoff
 
-    return f'{file}\n' + reconstructed_miu, unknown
+    return f'{file}\n' + reconstructed_miu

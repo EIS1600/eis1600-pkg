@@ -6,7 +6,7 @@ from eis1600.nlp.cameltools import lemmatize_and_tag_ner
 def annotate_miu_text(df):
     lemmas, ner_tags, pos_tags = ['_'], ['_'], ['_']
     section_id, temp_tokens = None, []
-    for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].to_list()))[1:]:
+    for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].fillna('').to_list()))[1:]:
         _section, _token = entry[0], entry[1]
         if _section is not None:
             # Start a new section

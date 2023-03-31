@@ -12,7 +12,12 @@ from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 from eis1600.markdown.re_pattern import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
 
 
-def get_tokens_and_tags(tagged_text: str) -> Tuple[Union[str, None], Union[List[str], None]]:
+def get_tokens_and_tags(tagged_text: str) -> Tuple[List[Union[str, None]], List[Union[str, None]]]:
+    """Splits the annotated text into two lists of the same length, one containing the tokens, the other one the tags
+
+    :param str tagged_text: the annotated text as a single str.
+    :returns List[str], List[str]: two lists, first contains the arabic tokens, the other one the tags.
+    """
     tokens = simple_word_tokenize(tagged_text)
     ar_tokens, tags = [], []
     tag = None
@@ -27,13 +32,13 @@ def get_tokens_and_tags(tagged_text: str) -> Tuple[Union[str, None], Union[List[
     return ar_tokens, tags
 
 
-def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], str, Union[List[str], None]]]:
+def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, None], List[Union[str, None]]]]:
     """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
 
     Takes an MIU text and returns a zip object of three sparse columns: sections, tokens, lists of tags. Elements can
     be None because of sparsity.
     :param text: MIU text content to process.
-    :return Iterator: Returns a zip object containing three sparse columns: sections, tokens, lists of tags. Elements
+    :returns Iterator: Returns a zip object containing three sparse columns: sections, tokens, lists of tags. Elements
     can be None because of sparsity.
     """
     text_and_heading = MIU_TAG_PATTERN.split(text)
@@ -87,7 +92,7 @@ def get_yml_and_MIU_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
     :param TextIO miu_file_object: File object of the MIU file.
-    :return pd.DataFrame DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
+    :returns DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
     """
     yml_str, text = extract_yml_header_and_text(miu_file_object, False)
     yml = YAMLHandler().from_yml_str(yml_str)
@@ -108,7 +113,7 @@ def reconstruct_miu_text_with_tags(
     Section headers are inserted after an empty line ('\n\n'), followed by the text on the next line.
     :param Iterator[Tuple[Union[str, None], str, Union[List[str], None]]] text_and_tags: zip object containing three
     sparse columns: sections, tokens, lists of tags.
-    :return str: The reconstructed MIU text containing all the tags.
+    :returns str: The reconstructed MIU text containing all the tags.
     """
     if type(text_and_tags) is pd.DataFrame:
         text_and_tags_iter = text_and_tags.itertuples(index=False)

@@ -1,6 +1,6 @@
 from eis1600.miu.YAMLHandler import YAMLHandler
-from pandas import DataFrame
-from typing import List, Match, Tuple
+from pandas import DataFrame, Series
+from typing import Match
 
 from openiti.helper.ara import normalize_ara_heavy
 
@@ -28,20 +28,25 @@ def parse_year(m: Match[str]) -> (int, int):
     return year, length
 
 
-def get_dates_headings(yml: YAMLHandler) -> None:
-    headings = yml.headings
+def get_dates_headings(yml_handler: YAMLHandler) -> None:
+    """Checks the headings for date statements and if a such a statement is found, it is converted into a tag and
+    added to the yml header.
+
+    :param YAMLHandler yml_handler: arabic text.
+    """
+    headings = yml_handler.headings
     for key, val in headings:
         if DATE_PATTERN.search(val):
             m = DATE_PATTERN.search(val)
             year, length = parse_year(m)
-            yml.add_date_headings(Date(year, length, 'H').get_tag()[:-1])   # Cut of trailing whitespace
+            yml_handler.add_date_headings(Date(year, length, 'H').get_tag()[:-1])   # Cut of trailing whitespace
 
 
 def tag_dates_fulltext(text: str) -> str:
     """Inserts date tags in the arabic text and returns the text with the tags.
 
     :param str text: arabic text.
-    :return: arabic text with date tags.
+    :returns str: arabic text with date tags.
     """
     text_updated = text
     m = DATE_PATTERN.search(text_updated)
@@ -87,13 +92,12 @@ def tag_dates_fulltext(text: str) -> str:
     return text_updated
 
 
-def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Tuple[List, YAMLHandler]:
-    """Annotate dates in the MIU text, returns a list of tag per token.
+def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Series:
+    """Annotate dates in the headings and in the MIU text, returns a list of tag per token.
 
     :param DataFrame ner_df: df containing the 'TOKENS' column.
     :param YAMLHandler yml: yml_header to collect date tags in.
-    :return Tuple[List, YAMLHandler]: List of date tags per token, which can be added as additional column to the df,
-    and modified yml.
+    :returns Series: List of date tags per token, which can be added as additional column to the df.
     """
     get_dates_headings(yml)
 
@@ -105,4 +109,4 @@ def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Tuple[List, Y
     ar_tokens, tags = get_tokens_and_tags(tagged_text)
     ner_df.loc[ner_df['TOKENS'].notna(), 'DATE_TAGS'] = tags
 
-    return ner_df['DATE_TAGS'].fillna('').tolist(), yml
+    return ner_df['DATE_TAGS'].tolist()

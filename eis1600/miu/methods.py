@@ -1,7 +1,10 @@
 from glob import glob
+from logging import Logger
 from os.path import splitext, split, exists
-from typing import List, Optional
+from typing import List, Optional, Type
 from pathlib import Path
+
+from eis1600.onomastics.methods import nasab_annotate_miu
 
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -151,7 +154,7 @@ def get_mius(infile: str) -> List[str]:
     return mius
 
 
-def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotation=False):
+def annotate_miu_file(path: str, logger: Logger = None, tsv_path=None, output_path=None, force_annotation=False):
     if output_path is None:
         output_path = path
     if tsv_path is None:
@@ -163,7 +166,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
 
     with open(path, 'r+', encoding='utf-8') as miu_file_object:
         # 1. open miu file and disassemble the file to its parts
-        yml_header, df = get_yml_and_MIU_df(miu_file_object)
+        yml_handler, df = get_yml_and_MIU_df(miu_file_object)
 
         # 2. annotate NEs and lemmatize
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'] = annotate_miu_text(df)
@@ -172,7 +175,10 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
 
         # 4. annotate dates
-        df['DATE_TAGS'], yml_header = date_annotate_miu_text(df[['TOKENS']], yml_header)
+        df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
+
+        # 5. annotate onomastic information
+        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, logger)
 
         # 5. save csv file
         df.to_csv(tsv_path, index=False, sep='\t')
@@ -180,12 +186,12 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 6. reconstruct the text and save it to the output file
         if output_path == path:
             write_updated_miu_to_file(
-                miu_file_object, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                 'DATE_TAGS']]
+                miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
+                                                 'DATE_TAGS', 'NASAB_TAGS']]
                 )
         else:
             with open(output_path, 'w', encoding='utf-8') as out_file_object:
                 write_updated_miu_to_file(
-                        out_file_object, yml_header, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                         'DATE_TAGS']]
+                        out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
+                                                         'DATE_TAGS', 'NASAB_TAGS']]
                 )

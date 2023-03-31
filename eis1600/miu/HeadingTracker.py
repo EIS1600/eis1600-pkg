@@ -29,15 +29,16 @@ class HeadingTracker:
                 self.__setattr__(key, val)
 
     def __iter__(self):
+        """Iterate over headings which are not None. Omits page_tag."""
         for key, val in self.__dict__.items():
-            if key.startswith('h'):
+            if key.startswith('h') and val is not None:
                 yield key, val
 
     def get_curr_state(self) -> Type[HeadingTracker]:
         """Get current state of the tacker as deepcopy.
 
         Returns a deepcopy of the current state.
-        :return Type[HeadingTracker]: Deepcopy of the current state of the tracker.
+        :returns HeadingTracker: Deepcopy of the current state of the tracker.
         """
 
         return copy.deepcopy(self)
@@ -89,8 +90,8 @@ class HeadingTracker:
         else:
             self.h4 = heading
 
-    def track_pages(self, page_Tag: str) -> None:
-        self.page_tag = page_Tag.strip()
+    def track_pages(self, page_tag: str) -> None:
+        self.page_tag = page_tag.strip()
 
     def __repr__(self) -> str:
         return str(self.__dict__)

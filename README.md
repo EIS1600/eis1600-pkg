@@ -133,17 +133,18 @@ NER annotation for persons, toponyms, misc and dates.
 To annotate all MIU files of a text give the IDs file as argument.
 Can be used with `-p` option to run in parallel.
 ```shell
-$ ner_annotate_mius <uri>.IDs
+$ annotate_mius <uri>.IDs
 ```
 
 To annotate an individual MIU file, give MIU file as argument.
 ```shell
-$ ner_annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
+$ annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
 ```
 
-Use the `-e` option to process all files from the MIU repo. Can be used with `-p` option for parallelization.
+If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
+Run from the parent dir of your MIU repo (internally used path starts with: `OpenITI_EIS1600_MIUs/`).
 ```shell
-$ ner_annotate_mius -p -e <MIU_repo>
+$ annotate_mius -p
 ```
 
 ### MIU revision

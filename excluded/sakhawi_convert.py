@@ -1,5 +1,5 @@
 import re
-from eis1600.markdown.re_pattern import AR_STR, AR_STR_AND_TAGS, PAGE_TAG
+from eis1600.helper.markdown_patterns import AR_STR, AR_STR_AND_TAGS, PAGE_TAG
 
 UID_PATTERN = re.compile(r'###\$\d{12,13}\$')
 ORPHANED_PAGE_TAG_PATTERN = re.compile(r'\n ?(' + PAGE_TAG + r') ?\n(?!\n)')
@@ -15,7 +15,7 @@ SPACE_CROWD_PATTERN = re.compile(r'  +')
 FIX_POETRY_PATTERN = re.compile(r'(%~%) (' + AR_STR + r' ?(?:: ?)?\n%~%)')
 FIX_POETRY_MD_PATTERN = re.compile(r'%~% ([^%\n]+%~%[^%\n]+) %~%')
 FIX_POETRY_MD_2_PATTERN = re.compile(r'(%~% [^%\n]+) %~%')
-FIX_POETRY_QALA_PATTERN = re.compile(r'(\n\n[وف](?:قال|قوله|منه) ?:)(?: ?' + PAGE_TAG +r')? ?\n\n')
+FIX_POETRY_QALA_PATTERN = re.compile(r'(\n\n[وف](?:قال|قوله|منه) ?:)(?: ?' + PAGE_TAG + r')? ?\n\n')
 
 
 if __name__ == "__main__":

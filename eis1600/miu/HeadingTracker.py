@@ -1,7 +1,7 @@
 from __future__ import annotations
 import copy
 
-from typing import Dict, Optional, Type
+from typing import Dict, Optional
 
 
 class HeadingTracker:
@@ -34,11 +34,11 @@ class HeadingTracker:
             if key.startswith('h') and val is not None:
                 yield key, val
 
-    def get_curr_state(self) -> Type[HeadingTracker]:
+    def get_curr_state(self) -> HeadingTracker:
         """Get current state of the tacker as deepcopy.
 
         Returns a deepcopy of the current state.
-        :returns HeadingTracker: Deepcopy of the current state of the tracker.
+        :return HeadingTracker: Deepcopy of the current state of the tracker.
         """
 
         return copy.deepcopy(self)

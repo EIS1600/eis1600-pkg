@@ -9,7 +9,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
-from eis1600.markdown.re_pattern import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, HEADING_OR_BIO_PATTERN, \
+from eis1600.helper.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, HEADING_OR_BIO_PATTERN, \
     MIU_LIGHT_OR_EIS1600_PATTERN, NEWLINES_CROWD_PATTERN, UID_PATTERN
 
 

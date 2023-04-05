@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional
 
-from eis1600.markdown.re_pattern import MIU_HEADER
+from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
 
 
@@ -14,8 +14,8 @@ class YAMLHandler:
     'NOT REVIEWED'.
     :ivar str reviewer: Initials of the reviewer if the file was already manually reviewed, defaults to None.
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
-    :ivar List[str] dates_headings: List of dates contained in headings
-    :ivar List[str] dates: List of dates contained in text
+    :ivar List[str] dates_headings: List of dates tags contained in headings.
+    :ivar List[int] dates: List of dates contained in the text.
     :ivar str nasab_filtered: unanalysed nasab str, parts are connected by '_'.
     :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
@@ -35,7 +35,11 @@ class YAMLHandler:
         elif val.startswith('["'):
             val_list = val.strip('[]')
             val_list = val_list.replace('"', '')
-            return val_list.split(',')
+            values = val_list.split(',')
+            if values[0].isdigit():
+                return [int(value) for value in values]
+            else:
+                return values
         else:
             return val
 
@@ -86,14 +90,14 @@ class YAMLHandler:
                 self.__setattr__(key, val)
 
     @classmethod
-    def from_yml_str(cls, yml_str: str) -> Type[YAMLHandler]:
+    def from_yml_str(cls, yml_str: str) -> YAMLHandler:
         """Return instance with attr set from the yml_str."""
         return cls(YAMLHandler.__parse_yml(yml_str))
 
     def set_category(self, category: str) -> None:
         self.category = category
 
-    def set_headings(self, headings: Type[HeadingTracker]) -> None:
+    def set_headings(self, headings: HeadingTracker) -> None:
         self.headings = headings
 
     def unset_reviewed(self) -> None:
@@ -106,7 +110,7 @@ class YAMLHandler:
             if key.startswith('dates') and val is not None:
                 yaml_str += key + '    : ['
                 for date in val:
-                    yaml_str += '"' + date + '",'
+                    yaml_str += '"' + str(date) + '",'
                 yaml_str = yaml_str[:-1]
                 yaml_str += ']\n'
             elif key == 'category' and val is not None:
@@ -121,24 +125,28 @@ class YAMLHandler:
         return self.category == '$' or self.category == '$$'
 
     def is_reviewed(self) -> bool:
-        return self.reviewed == 'REVIEWED'
+        return self.reviewed.startswith('REVIEWED')
 
-    def add_date(self, date_tag: str) -> None:
+    def add_date(self, date: int) -> None:
         if self.dates:
-            if date_tag not in self.dates:
-                self.dates.append(date_tag)
+            if date not in self.dates:
+                self.dates.append(date)
         else:
-            self.dates = [date_tag]
+            self.dates = [date]
 
-    def add_date_headings(self, date_tag: str) -> None:
+    def add_date_headings(self, date: int) -> None:
         if self.dates_headings:
-            if date_tag not in self.dates_headings:
-                self.dates_headings.append(date_tag)
+            if date not in self.dates_headings:
+                self.dates_headings.append(date)
         else:
-            self.dates_headings = [date_tag]
+            self.dates_headings = [date]
 
     def add_nasab_filtered(self, nasab_filtered: str) -> None:
         self.nasab_filtered = nasab_filtered
+
+    def add_tagged_entities(self, entities_dict: dict) -> None:
+        for key, val in entities_dict.items():
+            self.__setattr__(key, val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

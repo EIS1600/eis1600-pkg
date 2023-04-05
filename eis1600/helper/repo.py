@@ -15,7 +15,7 @@ from glob import glob
 from os.path import split, splitext
 from typing import List, Literal, Optional
 
-from eis1600.markdown.re_pattern import FIXED_POETRY_OLD_PATH_PATTERN
+from eis1600.helper.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:
@@ -155,12 +155,10 @@ def read_files_from_autoreport(path: str) -> List[str]:
 
     Get the list of files from the README which are to be processed in further steps.
     :param str path: The root of the text repo, path to the README
-    :param str which: The section heading from the README indicating the section from which to read the file list from.
-    :param bool only_checked: If True, only read those lines with a ticked checkbox, defaults to True.
     :return list[str]: List of URIs from files to process further
     """
 
-    which_pattern = re.compile('## DOUBLE-CHECKED Files \(\d+\) - ready for MIU\n')
+    which_pattern = re.compile(r'## DOUBLE-CHECKED Files \(\d+\) - ready for MIU\n')
     file_list = []
 
     try:

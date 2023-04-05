@@ -1,12 +1,12 @@
-from typing import Optional, Type, TextIO
+from typing import Optional, TextIO
 
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
 
-from eis1600.markdown.re_pattern import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
+from eis1600.helper.markdown_patterns import MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
 
 
-def create_yml_header(category: str, headings: Optional[Type[HeadingTracker]] = None) -> str:
+def create_yml_header(category: str, headings: Optional[HeadingTracker] = None) -> str:
     """Creates a YAML header for the current MIU file and returns it as yamlfied string.
 
     :param str category: Category of the entry.

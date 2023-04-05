@@ -39,14 +39,14 @@ def get_dates_headings(yml_handler: YAMLHandler) -> None:
         if DATE_PATTERN.search(val):
             m = DATE_PATTERN.search(val)
             year, length = parse_year(m)
-            yml_handler.add_date_headings(Date(year, length, 'H').get_tag()[:-1])   # Cut of trailing whitespace
+            yml_handler.add_date_headings(year)
 
 
 def tag_dates_fulltext(text: str) -> str:
     """Inserts date tags in the arabic text and returns the text with the tags.
 
     :param str text: arabic text.
-    :returns str: arabic text with date tags.
+    :return str: arabic text with date tags.
     """
     text_updated = text
     m = DATE_PATTERN.search(text_updated)
@@ -97,7 +97,7 @@ def date_annotate_miu_text(ner_df: DataFrame, yml: YAMLHandler) -> Series:
 
     :param DataFrame ner_df: df containing the 'TOKENS' column.
     :param YAMLHandler yml: yml_header to collect date tags in.
-    :returns Series: List of date tags per token, which can be added as additional column to the df.
+    :return Series: List of date tags per token, which can be added as additional column to the df.
     """
     get_dates_headings(yml)
 

@@ -8,8 +8,7 @@ class Date:
     :param int length: number of tokens which make up the date expression.
     :param Literal['B', 'D', 'K', 'H', 'P', 'L'] category:
     """
-    def __init__(self, year: int, length: int,
-            category: Literal['B', 'D', 'K', 'H', 'P', 'L'] = 'X'):
+    def __init__(self, year: int, length: int, category: Literal['B', 'D', 'K', 'H', 'P', 'L', 'X'] = 'X'):
         self.year = year
         self.length = length
         self.category = category

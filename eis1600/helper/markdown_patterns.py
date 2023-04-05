@@ -1,5 +1,7 @@
 import re
 
+from eis1600.helper.entity_tags import get_entity_tags
+
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
         u'\u0628\u0629\u062a\u062b\u062c\u062d\u062e'
@@ -41,11 +43,16 @@ SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
 TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
-        r'(_ء_#=\d{12}= [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ('
-                                                                                                               r'(?:\( ?)?' +
-        AR_STR + r')'
-)
+        r'(_ء_#=\d{12}= [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:\( '
+                                                                                                     r'?)?' + AR_STR
+        + r')')
 MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+
+# MIU entity tags
+entity_tags = '|'.join(get_entity_tags())
+ENTITY_TAGS_PATTERN = re.compile(r'Ü?(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})(?:[A-Z0-9]+)?')
+YEAR_PATTERN = re.compile(r'Ü?Y\d{1,2}(?P<cat>[A-Z])(?P<written>\d{4})(?P<i>I)?Y(?P<real>\d{4})?')
+AGE_PATTERN = re.compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
@@ -68,7 +75,7 @@ PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(
 )
 NORMALIZE_BIO_CHR_MD_PATTERN = re.compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
 BIO_CHR_TO_NEWLINE_PATTERN = re.compile(
-        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:(?:\(|\[) ?)?'
+        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:(?:[(\[]) ?)?'
         + AR_STR + r')'
 )
 

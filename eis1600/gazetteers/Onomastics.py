@@ -1,7 +1,7 @@
 import re
 
 from importlib_resources import files
-from typing import List, Tuple, Pattern
+from typing import List, Pattern
 import pandas as pd
 from eis1600.helper.Singleton import Singleton
 from openiti.helper.ara import denormalize

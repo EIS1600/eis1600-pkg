@@ -29,10 +29,8 @@ def main():
     # infiles = glob('OpenITI_EIS1600_MIUs/training_data/*.EIS1600')#[:100]#[200:300]
     with open('OpenITI_EIS1600_MIUs/gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
-    infiles = [Path('OpenITI_EIS1600_MIUs/training_data/' + file) for file in files_txt if Path(
+    infiles = ['OpenITI_EIS1600_MIUs/training_data/' + file for file in files_txt if Path(
             'OpenITI_EIS1600_MIUs/training_data/' + file).exists()]
-
-    # TODO How do deal with '::' tag?
 
     logger_nasab = setup_logger('nasab_unknown', 'OpenITI_EIS1600_MIUs/logs/nasab_unknown.log')
     res = []
@@ -42,7 +40,7 @@ def main():
     #     print(file)
     #     res.append(nasab_annotation(file, logger_nasab))
 
-    with open('OnomasticonArabicum2020/oa2020/tagged.txt', 'w', encoding='utf-8') as fh:
+    with open('gazetteers/tagged.txt', 'w', encoding='utf-8') as fh:
         fh.write('\n\n'.join(res))
 
     print('Done')

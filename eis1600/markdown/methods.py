@@ -3,8 +3,9 @@ from typing import Optional
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
-from eis1600.markdown.re_pattern import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, HEADER_END_PATTERN, \
-    MIU_LIGHT_OR_EIS1600_PATTERN, MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
+from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
+    HEADER_END_PATTERN, \
+    MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
     PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
@@ -61,7 +62,7 @@ def convert_to_EIS1600TMP(infile: str, output_dir: Optional[str] = None, verbose
 
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
+    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
 
     if text[0:2] == '#\n':
         # Some texts start with a plain #, remove these
@@ -139,7 +140,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
+    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
@@ -183,9 +184,9 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 elif text_updated:
                     text_updated[-1] += ' ' + page_tag
                 # else:
-                    # Remove PageV00P000 at the beginning in an individual paragraph
-                    # text_updated.append(paragraph)
-                    # pass
+                # Remove PageV00P000 at the beginning in an individual paragraph
+                # text_updated.append(paragraph)
+                # pass
             else:
                 paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
                 text_updated.append(paragraph)
@@ -224,7 +225,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]   # Ignore second new line after #META#Header#End#
+    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
@@ -303,9 +304,9 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 elif text_updated:
                     text_updated[-1] += ' ' + page_tag
                 # else:
-                    # Remove PageV00P000 at the beginning in an individual paragraph
-                    # text_updated.append(paragraph)
-                    # pass
+                # Remove PageV00P000 at the beginning in an individual paragraph
+                # text_updated.append(paragraph)
+                # pass
             elif not EMPTY_PARAGRAPH_PATTERN.fullmatch(paragraph):
                 # Do not add empty paragraphs to the updated text
                 text_updated.append(paragraph)

@@ -1,0 +1,13 @@
+ENTITY,CATEGORY,TAG
+toponym,TOPONYMS,T
+person,PERSONS,P
+book,BOOKS,B
+misc,MISC,M
+date,DATES,Y
+age,AGES,A
+spelling,,SPL
+explanatory terms,,EXP
+ism,ONOMASTICS,ISM
+kunya,ONOMASTICS,KUN
+laqab,ONOMASTICS,LQB
+nisba,ONOMASTICS,NSB

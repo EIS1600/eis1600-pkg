@@ -1,7 +1,7 @@
 import re
 from glob import glob
 from p_tqdm import p_uimap
-from eis1600.preprocessing.methods import get_yml_and_MIU_df, write_updated_miu_to_file
+from eis1600.preprocessing.methods import get_yml_and_miu_df, write_updated_miu_to_file
 
 
 sheikhuna = re.compile('[و]?شيخنا')
@@ -25,7 +25,7 @@ def check_file(file):
         fh.readline()
         if fh.readline() == 'reviewed    : REVIEWED2\n':
             fh.seek(0)
-            yml, df = get_yml_and_MIU_df(fh)
+            yml, df = get_yml_and_miu_df(fh)
             df['TAGS_LISTS'], changed = zip(*df[['TOKENS', 'TAGS_LISTS']].apply(untag_sheikhuna, axis=1))
             if any(changed):
                 write_updated_miu_to_file(fh, yml, df)

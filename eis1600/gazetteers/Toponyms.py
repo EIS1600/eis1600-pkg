@@ -1,3 +1,4 @@
+from eis1600.helper.ar_normalization import denormalize_list
 from importlib_resources import files
 from typing import List, Tuple
 import pandas as pd
@@ -8,33 +9,40 @@ thurayya_path = file_path.joinpath('toponyms.csv')
 regions_path = file_path.joinpath('regions_gazetteer.csv')
 
 
-def split_toponyms(tops: str) -> List[str]:
-    return tops.split('، ')
-
-
 @Singleton
 class Toponyms:
     """
     Gazetteer
 
+    :ivar DataFrame __df: The dataFrame.
     :ivar __places List[str]: List of all place names and their prefixed variants.
     :ivar __regions List[str]: List of all region names and their prefixed variants.
     :ivar __total List[str]: List of all toponyms and their prefixed variants.
     :ivar __rpl List[Tuple[str, str]]: List of tuples: expression and its replacement.
     """
+    __df = None
     __places = None
     __regions = None
     __total = None
     __rpl = None
 
     def __init__(self) -> None:
-        thurayya_df = pd.read_csv(thurayya_path, usecols=['placeLabel', 'toponyms', 'typeLabel', 'geometry'],
+        def split_toponyms(tops: str) -> List[str]:
+            return tops.split('، ')
+
+        thurayya_df = pd.read_csv(thurayya_path, usecols=['uri', 'placeLabel', 'toponyms', 'typeLabel', 'geometry'],
                                   converters={'toponyms': split_toponyms})
         regions_df = pd.read_csv(regions_path)
         prefixes = ['ب', 'و', 'وب']
 
-        places = thurayya_df['toponyms'].explode().to_list()
-        Toponyms.__places = places + [prefix + top for prefix in prefixes for top in places]
+        def get_all_variations(tops: List[str]) -> List[str]:
+            variations = denormalize_list(tops)
+            prefixed_variations = [prefix + top for prefix in prefixes for top in variations]
+            return variations + prefixed_variations
+
+        thurayya_df['toponyms'] = thurayya_df['toponyms'].apply(get_all_variations)
+        Toponyms.__df = thurayya_df.explode('toponyms', ignore_index=True)
+        Toponyms.__places = Toponyms.__df['toponyms'].to_list()
         regions = regions_df['REGION'].to_list()
         Toponyms.__regions = regions + [prefix + reg for prefix in prefixes for reg in regions]
 
@@ -56,3 +64,15 @@ class Toponyms:
     @staticmethod
     def replacements() -> List[Tuple[str, str]]:
         return Toponyms.__rpl
+
+    @staticmethod
+    def look_up_entity(entity: str) -> Tuple[str, str]:
+        if entity in Toponyms.__places:
+            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'placeLabel']]
+            place = matches['placeLabel'].unique()
+            if len(place) == 1:
+                return place[0], '@' + '@'.join(matches['uri'].to_list()) + '@'
+            else:
+                return '::'.join(place), '@' + '@'.join(matches['uri'].to_list()) + '@'
+        else:
+            return entity, ''

@@ -2,20 +2,20 @@ import re
 
 from openiti.helper.ara import denormalize
 
-from eis1600.helper.ar_normalization import normalize_set
+from eis1600.helper.ar_normalization import normalize_dict
 from eis1600.helper.markdown_patterns import WORD
 
 ONES = {
         'واحد': 1, 'احدى': 1, 'احد': 1, 'اثنين': 2, 'اثنتين': 2, 'اثنتي': 2, 'ثلاث': 3, 'ثلث': 3, 'اربع': 4, 'خمس': 5,
         'ست': 6, 'سبع': 7, 'ثماني': 8, 'ثمان': 8, 'تسع': 9
 }
-ONES_NOR = normalize_set(ONES)
+ONES_NOR = normalize_dict(ONES)
 TEN = {
         'عشرة': 10, 'عشري': 10, 'عشر': 10, 'عشرين': 20, 'ثلاثين': 30, 'اربعين': 40, 'خمسين': 50, 'ستين': 60,
         'سبعين': 70,
         'ثمانين': 80, 'تسعين': 90
 }
-TEN_NOR = normalize_set(TEN)
+TEN_NOR = normalize_dict(TEN)
 HUNDRED = {
         'مائة': 100, 'ماية': 100, 'مية': 100, 'مئة': 100, 'مائتين': 200, 'مايتين': 200, 'ميتين': 200,
         'ثلاثمائة': 300, 'ثلاث مائة': 300, 'ثلثمائة': 300, 'ثلث مائة': 300, 'اربعمائة': 400, 'اربع مائة': 400,
@@ -31,20 +31,20 @@ HUNDRED = {
         'ست مئة': 600, 'سبعمئة': 700, 'سبع مئة': 700, 'ثمانمئة': 800, 'ثمان مئة': 800, 'ثمانيمئة': 800,
         'ثماني مئة': 800, 'تسعمئة': 900, 'تسع مئة': 900
 }
-HUNDRED_NOR = normalize_set(HUNDRED)
+HUNDRED_NOR = normalize_dict(HUNDRED)
 
 DAY_ONES = {
         'واحد': 1, 'حادي': 1, 'ثاني': 2, 'ثالث': 3, 'رابع': 4, 'خامس': 5, 'خميس': 5, 'سادس': 6, 'سابع': 7,
         'ثامن': 8, 'تاسع': 9, 'عاشر': 10
 }
-DAY_ONES_NOR = normalize_set(DAY_ONES)
+DAY_ONES_NOR = normalize_dict(DAY_ONES)
 DAY_TEN = {'عشرة': 10, 'عشري': 10, 'عشر': 10, 'عشرين': 20, 'عشرون': 20, 'ثلاثين': 30, 'ثلاثون': 30}
-DAY_TEN_NOR = normalize_set(DAY_TEN)
+DAY_TEN_NOR = normalize_dict(DAY_TEN)
 WEEKDAYS = {
         'يوم الأحد': 1, 'يوم الاثنين': 2, 'يوم الثلاثاء': 3, 'يوم الأربعاء': 4, 'يمو الخميس': 5, 'يوم الجمعة': 6,
         'يوم السبت': 7
 }
-WEEKDAYS_NOR = normalize_set(WEEKDAYS)
+WEEKDAYS_NOR = normalize_dict(WEEKDAYS)
 
 MONTHS = {
         'محرم': 1, 'شهر الله المحرم': 1, 'صفر': 2, 'صفر الخير': 2, 'ربيع': 3, 'ربيع الاول': 3, 'ربيع الثاني': 4,
@@ -53,7 +53,7 @@ MONTHS = {
         'رمضان المعظم': 9, 'شوال': 10, 'ذي القعدة': 11, 'ذي قعدة': 11, 'ذي الحجة': 12, 'ذي حجة': 12, 'ذو القعدة': 11,
         'ذو قعدة': 11, 'ذو الحجة': 12, 'ذو حجة': 12, 'اخر': -1
 }
-MONTHS_NOR = normalize_set(MONTHS)
+MONTHS_NOR = normalize_dict(MONTHS)
 
 AR_MONTHS = '|'.join(['(?:' + r'\s'.join(denormalize(key).split()) + ')' for key in MONTHS.keys()])
 AR_ONES = '|'.join([denormalize(key) for key in ONES.keys()])
@@ -77,7 +77,7 @@ DATE_CATEGORIES = {
         'ولد': 'B', 'مولد': 'B', 'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفات': 'D', 'حج': 'P',
         'سمع': 'K', 'قرا': 'K', 'استقر': 'O', 'اجاز': 'K', 'انفصل': 'O', 'لقي': 'M'
 }
-DATE_CATEGORIES_NOR = normalize_set(DATE_CATEGORIES)
+DATE_CATEGORIES_NOR = normalize_dict(DATE_CATEGORIES)
 
 AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES.keys()])
 DATE_CATEGORY_PATTERN = re.compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')')

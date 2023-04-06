@@ -1,3 +1,4 @@
+from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.entity_tags import get_entity_tags_df
 from eis1600.helper.markdown_methods import get_yrs_tag_value
 from eis1600.miu.YAMLHandler import YAMLHandler
@@ -108,7 +109,8 @@ def get_yml_and_miu_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
     return yml_handler, df
 
 
-def add_to_entities_dict(entities_dict: Dict, cat: str, entity: Union[str, int], tag: Optional[str]) -> None:
+def add_to_entities_dict(entities_dict: Dict, cat: str, entity: Union[str, Tuple[str, Union[int, str]]], tag: Optional[
+    str]) -> None:
     """Add a tagged entity to the respective list in the entities_dict.
 
     :param Dict entities_dict: Dict containing previous tagged entities.
@@ -116,7 +118,7 @@ def add_to_entities_dict(entities_dict: Dict, cat: str, entity: Union[str, int],
     :param Union[str|int] entity: Entity - might be int if entity is a date, otherwise str.
     :param str tag: Onomastic classification, used to differentiate between onomastic elements.
     """
-    cat = cat.lower()
+    cat = cat.lower() + 's'
     if tag:
         tag = tag.lower()
     if cat in entities_dict.keys():
@@ -150,19 +152,23 @@ def add_annotated_entities_to_yml(df: pd.DataFrame, yml_handler: YAMLHandler, fi
     while m:
         tag = m.group('entity')
         length = int(m.group('length'))
-        entity = text_with_tags[m.end():].split(maxsplit=length)[:length]
+        entity = ' '.join(text_with_tags[m.end():].split(maxsplit=length)[:length])
 
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
-        if cat == 'DATES' or cat == 'AGE':
+        if cat == 'DATE' or cat == 'AGE':
             try:
-                entity = get_yrs_tag_value(m.group(0))
+                val = get_yrs_tag_value(m.group(0))
+                add_to_entities_dict(entities_dict, cat, (entity, val), tag)
             except ValueError:
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
-
-            add_to_entities_dict(entities_dict, cat, entity, tag)
         else:
-            add_to_entities_dict(entities_dict, cat, ' '.join(entity), tag)
+            if cat == 'TOPONYM':
+                tg = Toponyms.instance()
+                place, uri = tg.look_up_entity(entity)
+                add_to_entities_dict(entities_dict, cat, (place, uri), tag)
+            else:
+                add_to_entities_dict(entities_dict, cat, entity, tag)
 
         m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())
 
@@ -191,10 +197,7 @@ def get_text_with_annotation_only(
             entity_tags = [tag for tag in tags if ENTITY_TAGS_PATTERN.fullmatch(tag)]
             text_with_annotation_only += ' ' + ' '.join(entity_tags)
         if pd.notna(token):
-            if token in UNICODE_PUNCT_CHARSET:
-                text_with_annotation_only += token
-            else:
-                text_with_annotation_only += ' ' + token
+            text_with_annotation_only += ' ' + token
 
     return text_with_annotation_only
 

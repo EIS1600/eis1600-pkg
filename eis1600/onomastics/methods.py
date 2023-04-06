@@ -192,6 +192,4 @@ def nasab_annotation(file: str, logger_nasab: Logger) -> str:
             out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]
         )
 
-    # return df['NASAB_TAGS'].fillna('').tolist(), yml_handler, text_w_cutoff
-
     return f'{file}\n' + reconstructed_miu

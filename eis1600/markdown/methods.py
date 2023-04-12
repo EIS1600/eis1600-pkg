@@ -279,13 +279,11 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 paragraph = TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\n\2', paragraph)
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                            heading_and_text[1]
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
             elif MIU_TAG_AND_TEXT_PATTERN.match(paragraph):
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                            heading_and_text[1]
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
 
             if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
                 # Add page tags to previous paragraph if there is no other information contained in the current

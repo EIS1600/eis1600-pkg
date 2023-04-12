@@ -9,7 +9,7 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTE
     DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
     WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
-from eis1600.preprocessing.methods import get_tokens_and_tags
+from eis1600.processing.preprocessing import get_tokens_and_tags
 
 
 def parse_year(m: Match[str]) -> (int, int):

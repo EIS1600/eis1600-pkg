@@ -7,13 +7,12 @@ from numpy import nan
 from pandas import Series
 
 from eis1600.miu.YAMLHandler import YAMLHandler
-
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.onomastics.re_pattern import ABU_ABI, BANU_BANI, IBN_IBNA, BN_BNT, DIN_DAULA, DATES, PARENTHESIS, \
     QUOTES, PUNCTUATION, SPACES, SPELLING, UMM, YURIFA_K_BI
-from eis1600.preprocessing.methods import get_tokens_and_tags, get_yml_and_miu_df, reconstruct_miu_text_with_tags, \
-    write_updated_miu_to_file
+from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
+from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, write_updated_miu_to_file
 
 
 def nasab_filtering(nasab_text: str, yml_handler: YAMLHandler, logger_nasab: Logger) -> None:

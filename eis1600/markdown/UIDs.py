@@ -27,8 +27,7 @@ class UIDs:
             ids.append(randint(400000000000, 999999999999))
         return set(ids)
 
-    IDS = _generate_ids.__func__()
-    """Set of 5000000 random UIDs generated once and shared by all instances of this class."""
+    IDS = None
 
     def __init__(self, existing_uids: Optional[List[int]] = None) -> None:
         """Constructor method, creates an individual set uids per instance.
@@ -37,6 +36,10 @@ class UIDs:
         if this list was given to the constructor. Otherwise it uses a copy of the static IDS set.
         :param List[int] existing_uids: List of already used UIDs in the current text.
         """
+
+        if UIDs.IDS is None:
+            """Set of 5000000 random UIDs generated once and shared by all instances of this class."""
+            UIDs.IDS = UIDs._generate_ids()
 
         if existing_uids:
             self.ids = UIDs.IDS.difference(existing_uids)

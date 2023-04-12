@@ -1,6 +1,5 @@
-from typing import Dict, Optional, TextIO, Tuple, Union
-
-from pandas import DataFrame
+from itertools import combinations
+from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.markdown_methods import get_yrs_tag_value
@@ -8,7 +7,6 @@ from eis1600.helper.entity_tags import get_entity_tags_df
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN, MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
-from eis1600.processing.postprocessing import get_text_with_annotation_only
 
 
 def create_yml_header(category: str, headings: Optional[HeadingTracker] = None) -> str:
@@ -61,14 +59,16 @@ def extract_yml_header_and_text(miu_file_object: TextIO, is_header: Optional[boo
 
 
 def add_to_entities_dict(
-        entities_dict: Dict, cat: str, entity: Union[str, Tuple[str, Union[int, str]]], tag: Optional[str]
+        entities_dict: Dict, cat: str,
+        entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str]],
+        tag: Optional[str] = None
 ) -> None:
     """Add a tagged entity to the respective list in the entities_dict.
 
     :param Dict entities_dict: Dict containing previous tagged entities.
     :param str cat: Category of the entity.
     :param Union[str|int] entity: Entity - might be int if entity is a date, otherwise str.
-    :param str tag: Onomastic classification, used to differentiate between onomastic elements.
+    :param str tag: Onomastic classification, used to differentiate between onomastic elements, optional.
     """
     cat = cat.lower() + 's'
     if tag:
@@ -85,20 +85,23 @@ def add_to_entities_dict(
         if cat == 'onomastics' and tag:
             entities_dict[cat] = {}
             entities_dict[cat][tag] = [entity]
+        elif isinstance(entity, list):
+            entities_dict[cat] = entity
         else:
             entities_dict[cat] = [entity]
 
 
-def add_annotated_entities_to_yml(df: DataFrame, yml_handler: YAMLHandler, filename: str) -> None:
+def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler, filename: str) -> None:
     """Populates YAMLHeader with annotated entities.
 
-    :param DataFrame df: DataFrame of the MIU.
+    :param str text_with_tags: Text with inserted tags of the MIU.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
-    :param str filename: Filename of the current MIU (used in error msg.)
+    :param str filename: Filename of the current MIU (used in error msg).
     """
-    text_with_tags = get_text_with_annotation_only(df)
     entity_tags_df = get_entity_tags_df()
     entities_dict = {}
+    toponyms_set: Set[str] = set()
+    provinces_set: Set[str] = set()
 
     m = ENTITY_TAGS_PATTERN.search(text_with_tags)
     while m:
@@ -110,18 +113,25 @@ def add_annotated_entities_to_yml(df: DataFrame, yml_handler: YAMLHandler, filen
         if cat == 'DATE' or cat == 'AGE':
             try:
                 val = get_yrs_tag_value(m.group(0))
-                add_to_entities_dict(entities_dict, cat, (entity, val), tag)
+                add_to_entities_dict(entities_dict, cat, (entity, val))
             except ValueError:
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
         else:
             if cat == 'TOPONYM':
                 tg = Toponyms.instance()
-                place, uri = tg.look_up_entity(entity)
-                add_to_entities_dict(entities_dict, cat, (place, uri), tag)
+                place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
+                if len(list_of_uris) > 1:
+                    yml_handler.set_ambigious_toponyms()
+                toponyms_set.update(list_of_uris)
+                provinces_set.update(list_of_provinces)
+                add_to_entities_dict(entities_dict, cat, (place, uri))
             else:
                 add_to_entities_dict(entities_dict, cat, entity, tag)
 
         m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())
 
+    add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
+    add_to_entities_dict(entities_dict, 'province', list(provinces_set))
+    add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
     yml_handler.add_tagged_entities(entities_dict)

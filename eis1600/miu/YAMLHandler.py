@@ -22,8 +22,8 @@ class YAMLHandler:
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
-        if val.startswith('"'):
-            return val.strip('"')
+        if val.startswith(('\'', '"')):
+            return val.strip('\'"')
         elif val.isdigit():
             return int(val)
         elif val == 'True':
@@ -32,8 +32,9 @@ class YAMLHandler:
             return False
         elif val == 'None':
             return None
-        elif val.startswith('["'):
+        elif val.startswith(('[\'', '["')):
             val_list = val.strip('[]')
+            val_list = val_list.replace('\'', '')
             val_list = val_list.replace('"', '')
             values = val_list.split(',')
             if values[0].isdigit():
@@ -82,6 +83,7 @@ class YAMLHandler:
         self.dates = None
         self.nasab_filtered = None
         self.category = None
+        self.ambigious_toponyms = False
 
         if yml:
             for key, val in yml.items():
@@ -97,6 +99,9 @@ class YAMLHandler:
     def set_category(self, category: str) -> None:
         self.category = category
 
+    def set_ambigious_toponyms(self) -> None:
+        self.ambigious_toponyms = True
+
     def set_headings(self, headings: HeadingTracker) -> None:
         self.headings = headings
 
@@ -107,15 +112,13 @@ class YAMLHandler:
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():
-            if key.startswith('dates') and val is not None:
-                yaml_str += key + '    : ['
-                for date in val:
-                    yaml_str += '"' + str(date) + '",'
-                yaml_str = yaml_str[:-1]
-                yaml_str += ']\n'
-            elif key == 'category' and val is not None:
-                yaml_str += key + '    : "' + val + '"\n'
-            else:
+            if key == 'category' and val is not None:
+                yaml_str += key + '    : \'' + val + '\'\n'
+            elif isinstance(val, dict):
+                yaml_str += key + '    :\n'
+                for key2, val2 in val.items():
+                    yaml_str += '   - ' + key2 + '  : ' + str(val2) + '\n'
+            elif val is not None:
                 yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
 

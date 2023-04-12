@@ -30,7 +30,8 @@ class Toponyms:
         def split_toponyms(tops: str) -> List[str]:
             return tops.split('، ')
 
-        thurayya_df = pd.read_csv(thurayya_path, usecols=['uri', 'placeLabel', 'toponyms', 'typeLabel', 'geometry'],
+        thurayya_df = pd.read_csv(thurayya_path, usecols=['uri', 'placeLabel', 'toponyms', 'province', 'typeLabel',
+                                                          'geometry'],
                                   converters={'toponyms': split_toponyms})
         regions_df = pd.read_csv(regions_path)
         prefixes = ['ب', 'و', 'وب']
@@ -66,13 +67,16 @@ class Toponyms:
         return Toponyms.__rpl
 
     @staticmethod
-    def look_up_entity(entity: str) -> Tuple[str, str]:
+    def look_up_entity(entity: str) -> Tuple[str, str, List[str], List[str]]:
         if entity in Toponyms.__places:
-            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'placeLabel']]
+            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'placeLabel',
+                                                                                          'province']]
+            uris = matches['uri'].to_list()
+            provinces = matches['province'].to_list()
             place = matches['placeLabel'].unique()
             if len(place) == 1:
-                return place[0], '@' + '@'.join(matches['uri'].to_list()) + '@'
+                return place[0], '@' + '@'.join(uris) + '@', uris, provinces
             else:
-                return '::'.join(place), '@' + '@'.join(matches['uri'].to_list()) + '@'
+                return '::'.join(place), '@' + '@'.join(uris) + '@', uris, provinces
         else:
-            return entity, ''
+            return entity, '', [], []

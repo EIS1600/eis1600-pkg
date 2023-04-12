@@ -53,16 +53,16 @@ class HeadingTracker:
             return '[]'
 
         heading_tracker_str = '\n'
-        heading_tracker_str += '    - h1    : "' + self.h1 + '"\n'
+        heading_tracker_str += '    - h1    : \'' + self.h1 + '\'\n'
         if self.h2 is not None:
-            heading_tracker_str += '    - h2    : "' + self.h2 + '"\n'
+            heading_tracker_str += '    - h2    : \'' + self.h2 + '\'\n'
             if self.h3 is not None:
-                heading_tracker_str += '    - h3    : "' + self.h3 + '"\n'
+                heading_tracker_str += '    - h3    : \'' + self.h3 + '\'\n'
                 if self.h4 is not None:
-                    heading_tracker_str += '    - h4    : "' + self.h4 + '"\n'
+                    heading_tracker_str += '    - h4    : \'' + self.h4 + '\'\n'
 
         if self.page_tag:
-            heading_tracker_str += '    - page_tag    : "' + self.page_tag + '"'
+            heading_tracker_str += '    - page_tag    : \'' + self.page_tag + '\''
         else:
             heading_tracker_str = heading_tracker_str[:-1]
 

@@ -88,11 +88,12 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, 
     return zip(sections, ar_tokens, tags)
 
 
-def get_yml_and_miu_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
+def get_yml_and_miu_df(miu_file_object: TextIO) -> Tuple[YAMLHandler, pd.DataFrame]:
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
     :param TextIO miu_file_object: File object of the MIU file.
-    :return DataFrame: DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
+    :return Tuple[YAMLHandler, DataFrame]: YAMLHandler and DataFrame containing the columns 'SECTIONS', 'TOKENS',
+    'TAGS_LISTS'.
     """
     yml_str, text = extract_yml_header_and_text(miu_file_object, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
@@ -103,3 +104,8 @@ def get_yml_and_miu_df(miu_file_object: TextIO) -> (str, pd.DataFrame):
 
     return yml_handler, df
 
+
+def get_yml(path: str) -> Tuple[str, YAMLHandler]:
+    with open(path, 'r', encoding='utf-8') as miu_file_object:
+        yml_str, text = extract_yml_header_and_text(miu_file_object, False)
+    return path, YAMLHandler().from_yml_str(yml_str)

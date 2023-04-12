@@ -1,5 +1,6 @@
 from __future__ import annotations
 import copy
+import json
 
 from typing import Dict, Optional
 
@@ -67,6 +68,13 @@ class HeadingTracker:
             heading_tracker_str = heading_tracker_str[:-1]
 
         return heading_tracker_str
+
+    def to_json(self) -> Dict:
+        json_dict = {}
+        for key, val in vars(self).items():
+            if val is not None:
+                json_dict[key] = val
+        return json_dict
 
     def track_headings(self, level: int, heading: str) -> None:
         """Checks which of the levels changed and sets all sub levels to None (some headings are just an empty string).

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, Optional
+
+from eis1600.helper.my_json_ecoder import MyJSONEncoder
 
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -123,6 +126,13 @@ class YAMLHandler:
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
 
         return yaml_str
+
+    def to_json(self) -> Dict:
+        json_dict = {}
+        for key, val in vars(self).items():
+            if val is not None:
+                json_dict[key] = val
+        return json_dict
 
     def is_bio(self) -> bool:
         return self.category == '$' or self.category == '$$'

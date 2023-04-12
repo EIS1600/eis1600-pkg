@@ -1,5 +1,6 @@
 openiti
 pandas
+numpy
 tqdm
 p_tqdm
 

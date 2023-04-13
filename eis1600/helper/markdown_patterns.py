@@ -42,10 +42,9 @@ SECTION_PATTERN = re.compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
 TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
-TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
-        r'(_ء_#=\d{12}= [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:\( '
-                                                                                                     r'?)?' + AR_STR
-        + r')')
+TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
+UID_TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
+        r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
 MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # MIU entity tags
@@ -74,10 +73,7 @@ PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(
         ')'
 )
 NORMALIZE_BIO_CHR_MD_PATTERN = re.compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
-BIO_CHR_TO_NEWLINE_PATTERN = re.compile(
-        r'(# [$@]+(?:' + NOR_DIGIT_NOR_AR_STR + r')?(?:\d+)?(?:' + NOR_DIGIT_NOR_AR_STR + r')?) ((?:(?:[(\[]) ?)?'
-        + AR_STR + r')'
-)
+BIO_CHR_TO_NEWLINE_PATTERN = re.compile(TAG_AND_TEXT_SAME_LINE)
 
 # Fixed poetry old file path pattern
 FIXED_POETRY_OLD_PATH_PATTERN = re.compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')

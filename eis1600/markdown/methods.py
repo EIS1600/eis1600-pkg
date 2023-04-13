@@ -9,7 +9,7 @@ from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPT
     PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
-    POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, TAG_AND_TEXT_SAME_LINE_PATTERN, \
+    POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, \
     BIO_CHR_TO_NEWLINE_PATTERN
@@ -275,8 +275,8 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
             elif not UID_PATTERN.match(paragraph):
                 section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
                 paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
-            elif TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
-                paragraph = TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\n\2', paragraph)
+            elif UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
+                paragraph = UID_TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\2\n\3', paragraph)
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]

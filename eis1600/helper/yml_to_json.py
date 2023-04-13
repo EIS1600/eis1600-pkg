@@ -1,6 +1,7 @@
 import json
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from glob import glob
 from pathlib import Path
 
 from eis1600.helper.my_json_ecoder import MyJSONEncoder
@@ -18,6 +19,7 @@ def main():
     args = arg_parser.parse_args()
 
     verbose = args.verbose
+    # TODO: infiles = glob('OpenITI_EIS1600_MIUs/data/**/MIUs/*.EIS1600')
     with open('OpenITI_EIS1600_MIUs/gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
     infiles = ['OpenITI_EIS1600_MIUs/training_nasab/' + file for file in files_txt if Path(
@@ -35,6 +37,7 @@ def main():
     for path, yml in res:
         yml_dict[path] = yml
 
+    # TODO: Where shall that file be?
     with open('OpenITI_EIS1600_MIUs/gold_standard_yml.json', 'w', encoding='utf-8') as fh:
         json.dump(yml_dict, fh, cls=MyJSONEncoder, indent='\t', ensure_ascii=False)
 

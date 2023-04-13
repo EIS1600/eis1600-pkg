@@ -25,15 +25,17 @@ def main():
     ).exists()]
 
     res = []
-    # res = p_uimap(get_yml, infiles)
+    res = p_uimap(get_yml, infiles)
 
-    for file in infiles[:10]:
-        print(file)
-        res.append(get_yml(file))
+    # for file in infiles[:10]:
+    #     print(file)
+    #     res.append(get_yml(file))
 
-    paths, ymls = zip(*res)
+    yml_dict = {}
+    for path, yml in res:
+        yml_dict[path] = yml
 
     with open('OpenITI_EIS1600_MIUs/gold_standard_yml.json', 'w', encoding='utf-8') as fh:
-        json.dump(ymls, fh, cls=MyJSONEncoder, indent='\t', ensure_ascii=False)
+        json.dump(yml_dict, fh, cls=MyJSONEncoder, indent='\t', ensure_ascii=False)
 
     print('Done')

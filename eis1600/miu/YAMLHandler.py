@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import json
 from typing import Any, Dict, Optional
-
-from eis1600.helper.my_json_ecoder import MyJSONEncoder
 
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -25,25 +22,31 @@ class YAMLHandler:
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
-        if val.startswith(('\'', '"')):
-            return val.strip('\'"')
-        elif val.isdigit():
+        if val.isdigit():
             return int(val)
         elif val == 'True':
             return True
         elif val == 'False':
             return False
-        elif val == 'None':
+        elif val == 'None' or val == '':
             return None
-        elif val.startswith(('[\'', '["')):
-            val_list = val.strip('[]')
-            val_list = val_list.replace('\'', '')
-            val_list = val_list.replace('"', '')
-            values = val_list.split(',')
-            if values[0].isdigit():
-                return [int(value) for value in values]
+        elif val.startswith(('\'', '"')):
+            return val.strip('\'"')
+        elif val.startswith('['):
+            # List - no comma allowed in strings, it is used as the separator!
+            raw_val_list = val.strip('[]')
+            if raw_val_list.startswith('(') and raw_val_list.endswith(')'):
+                # List of tuples
+                val_list = raw_val_list.strip('()').split('), (')
+                values = []
+                for v in val_list:
+                    t = v.split(', ')
+                    values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
             else:
-                return values
+                # List of other values
+                val_list = raw_val_list.split(', ')
+                values = [YAMLHandler.__parse_yml_val(v) for v in val_list]
+            return values
         else:
             return val
 

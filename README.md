@@ -105,7 +105,7 @@ $ insert_uids <input_dir> <output_dir>
 ### Disassembling
 
 Disassemble files into the MIU repo. MIU repo has to be next to TEXT repo.
-Must be run from the root of TEXT repo, this will disassemble all files from the AUTOREPORT.
+Must be run from the root of TEXT repo, this will disassemble all files from the `AUTOREPORT`.
 ```shell
 $ disassemble_into_miu_files
 ```
@@ -173,4 +173,12 @@ reviewed    : NOT REVIEWED
 to
 ```yaml
 reviewed    : REVIEWED
+```
+
+## For MC
+
+### Collect YAMLHeader into JSON
+
+```shell
+$ yml_to_json
 ```

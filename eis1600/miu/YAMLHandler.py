@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -16,7 +16,7 @@ class YAMLHandler:
     :ivar HeadingTracker headings: HeadingTracker returned by the get_curr_state method of the HeaderTracker.
     :ivar List[str] dates_headings: List of dates tags contained in headings.
     :ivar List[int] dates: List of dates contained in the text.
-    :ivar str nasab_filtered: unanalysed nasab str, parts are connected by '_'.
+    :ivar Dict onomstics: contains onomastic elements by category.
     :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
 
@@ -87,6 +87,7 @@ class YAMLHandler:
         self.headings = None
         self.dates_headings = None
         self.dates = None
+        self.onomastics = {}
         self.nasab_filtered = None
         self.category = None
         self.ambigious_toponyms = False
@@ -157,12 +158,22 @@ class YAMLHandler:
         else:
             self.dates_headings = [date]
 
+    def add_nas(self, nas: List[Tuple[int, str]]) -> None:
+        if hasattr(self, 'onomastics') and self.onomastics:
+            self.onomanstics['nas'] = nas
+        else:
+            self.onomastics = {'nas': nas}
+
     def add_nasab_filtered(self, nasab_filtered: str) -> None:
         self.nasab_filtered = nasab_filtered
 
     def add_tagged_entities(self, entities_dict: dict) -> None:
         for key, val in entities_dict.items():
-            self.__setattr__(key, val)
+            if key == 'onomastics' and hasattr(self, 'onomastics') and self.onomastics:
+                for key2, val2 in val.items():
+                    self.onomastics[key2] = val2
+            else:
+                self.__setattr__(key, val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

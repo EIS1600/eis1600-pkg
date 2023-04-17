@@ -1,21 +1,19 @@
 import re
 
-from eis1600.helper.markdown_patterns import AR_STR
+from eis1600.helper.markdown_patterns import AR_CHR, AR_STR
 
-ABU_ABI = re.compile(r' [و]?[اأ]ب[ويى] ')
-UMM = re.compile(r' [و]?[اأ]م ')
-IBN_IBNA = re.compile(r'[اإ](بن[ةه]?)(?= )')
+ABU = re.compile(r' [اأ]بو ')
+ABI = re.compile(r' [اأ]ب[يى] ')
+UMM = re.compile(r' [اأ]م ')
+IBN_IBNA = re.compile(r' [اإ](بن[ةه]?)(?= )')
 BN_BNT = re.compile(r' (بن[ت]?) ')
 DIN_DAULA = re.compile(r' (الدين|الدول[ةه])')
 BANU_BANI = re.compile(r'بن[ويى] ')
 YURIFA_K_BI = re.compile(r'([تي]عرف) (ك' + AR_STR + r') (ب)')
 
-DATES = re.compile(r'\[[^\]]+\]')
-PARENTHESIS = re.compile(r'\(([^)]+)\)')
-QUOTES = re.compile(r'"[^"]+"')
-PUNCTUATION = re.compile(r'[.،؟!:؛,;?|]')
-
-SPACES = re.compile(r' {2,}')
+CRF_PATTERN = re.compile(AR_CHR + r'*?عر' + AR_CHR + r'*?ف')
+SHR_PATTERN = re.compile(AR_CHR + r'*?شت?ه' + AR_CHR + r'*?ر')
+LQB_PATTERN = re.compile(AR_CHR + r'*?لق' + AR_CHR + r'*?ب')
 
 LETTERS = r'(?:[أا]لف)|(?:باء)|(?:تاء)|(?:ثاء)|(?:جيم)|(?:حاء)|(?:خاء)|(?:داء)|(?:دال)|(?:ذاء)|(?:ذال)|(?:راء)|(' \
           r'?:زاء)|(?:زاي)|(?:زين)|(?:سين)|(?:شين)|(?:صاد)|(?:ضاد)|(?:طاء)|(?:ظاء)|(?:عين)|(?:غين)|(?:فاء)|(?:قاف)|(' \

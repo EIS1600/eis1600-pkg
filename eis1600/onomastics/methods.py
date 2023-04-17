@@ -9,91 +9,121 @@ from pandas import Series
 from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
-from eis1600.onomastics.re_pattern import ABU_ABI, BANU_BANI, IBN_IBNA, BN_BNT, DIN_DAULA, DATES, PARENTHESIS, \
-    QUOTES, PUNCTUATION, SPACES, SPELLING, UMM, YURIFA_K_BI
+from eis1600.onomastics.re_pattern import ABU, ABI, BANU_BANI, CRF_PATTERN, IBN_IBNA, BN_BNT, SHR_PATTERN, SPELLING, UMM
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, write_updated_miu_to_file
 
 
-def nasab_filtering(nasab_text: str, yml_handler: YAMLHandler, logger_nasab: Logger) -> None:
-    """Filters elements from the nasab which were not recognized by the current onomastic gazetteer.
-
-    Filters elements from the nasab which were not recognized by the current onomastic gazetteer. Unrecognized uni-
-    and bi-grams are logged and the manipulated nasab string is added to the YAMLHandler.
-    :param str nasab_text: nasab text as one single string which was cleaned from spelling information.
-    :param YAMLHandler yml_handler: YAMLHandler of the MIU to which the manipulated nasab string is added.
-    :param Logger logger_nasab: logger for unrecognized uni- and bi-grams.
-    """
+def get_nas(text: str, yml_handler: YAMLHandler) -> str:
     og = Onomastics.instance()
-    tg = Toponyms.instance()
-    text_mnpld = nasab_text
-    text_mnpld = PARENTHESIS.sub(r'\g<1>', text_mnpld)
-    text_mnpld = QUOTES.sub('', text_mnpld)
-    text_mnpld = DATES.sub('', text_mnpld)
-    text_mnpld = PUNCTUATION.sub('', text_mnpld)
-    text_mnpld = SPACES.sub(' ', text_mnpld)
-    m = SPELLING.search(text_mnpld)
-    while m:
-        text_mnpld = text_mnpld[:m.start()] + m.group(0).replace(' ', '_') + text_mnpld[m.end():]
-        m = SPELLING.search(text_mnpld, m.end())
+
+    text_mnpld = ABU.sub(' ابو_', text)
+    text_mnpld = UMM.sub(' ام_', text_mnpld)
+    text_mnpld = ABI.sub(' ابي_', text_mnpld)
+    text_mnpld = IBN_IBNA.sub(r' \g<1>', text_mnpld)
 
     m = og.get_ngrams_regex().search(text_mnpld)
     while m:
         text_mnpld = text_mnpld[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + text_mnpld[m.end():]
         m = og.get_ngrams_regex().search(text_mnpld, m.end())
 
-    # They should be catched by regex - no manual manipulation
-    # text_mnpld = ABU_ABI.sub(' ابو_', text_mnpld)
-    # text_mnpld = UMM.sub(' ام_', text_mnpld)
-    # text_mnpld = IBN_IBNA.sub(r'\g<1>', text_mnpld)
-    # text_mnpld = BN_BNT.sub(r'_\g<1>_', text_mnpld)
-    # text_mnpld = DIN_DAULA.sub(r'_\g<1>', text_mnpld)
-    # text_mnpld = YURIFA_K_BI.sub('\g<1>_\g<2>_\g<3>', text_mnpld)
-    text_mnpld = BANU_BANI.sub('<بنو_', text_mnpld)
-    for elem in tg.total():
-        text_mnpld = text_mnpld.replace('نائب ' + elem, 'نائب_' + elem)
-    for elem, repl in tg.replacements():
-        text_mnpld = text_mnpld.replace(elem, repl)
+    m_bn = list(BN_BNT.finditer(text_mnpld))
+    if m_bn:
+        start = m_bn[0].start()
+        end = m_bn[-1].end()
+        pos_abu = text_mnpld[start:end].find(' ابو_')
+        pos_umm = text_mnpld[start:end].find(' ام_')
+        pos = max(pos_abu, pos_umm)
+        if pos > 1:
+            end = min(end, start+pos-1)
+        last_ancestor = text_mnpld[end+1:].find(' ')
+        ancestors = BN_BNT.split(text_mnpld[start:end+1+last_ancestor])
+        if ancestors[0] == '':
+            ancestors = ancestors[1:]
+        nas = [(i, txt) for i, txt in enumerate([a for a in ancestors if not a.startswith('بن')])]
+        yml_handler.add_nas(nas)
+        nas_w_tags = ''
+        for elem in ancestors:
+            if not elem.startswith('بن'):
+                num_tokens = len(elem.replace('_', ' ').split())
+                nas_w_tags += ' ÜNAS' + str(num_tokens)
+            nas_w_tags += ' ' + elem
+        text_w_tags = text_mnpld[:start+1].replace('_', ' ') +\
+                      nas_w_tags[1:].replace(' ', '_') + \
+                      text_mnpld[end+1+last_ancestor:].replace('_', ' ')
 
-    yml_handler.add_nasab_filtered(text_mnpld)
+        return text_w_tags
 
-    if logger_nasab:
-        # Log unidentified tokens as uni- and bi-grams
-        tokens = text_mnpld.split()
-        unknown_uni = [t for t in tokens if '_' not in t and t not in og.total() + tg.total()]
-        prev = None
-        unknown_bi = []
-        for t in tokens:
-            if not prev and '_' not in t and t not in og.total() + tg.total() + ['بن', 'بنت']:
-                prev = t
-            else:
-                if '_' not in t and t not in og.total() + tg.total() + ['بن', 'بنت']:
-                    unknown_bi.append(prev + ' ' + t)
-                    prev = t
-                else:
-                    prev = None
-        logger_nasab.info('\n'.join(unknown_uni + unknown_bi))
+    return text_mnpld
 
 
-def tag_nasab(text: str) -> str:
+def tag_nasab(text: str, logger_nasab: Logger) -> str:
     """Annotate the nasab part of the MIU.
 
     :param str text: nasab part of the MIU as one single string.
     :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements.
     """
     og = Onomastics.instance()
-    text_updated = text
-    m = og.get_ngrams_regex().search(text_updated)
+    tg = Toponyms.instance()
+    text_mnpld = text.replace(' بن ', ' بن_')
+    # for m in BANU_BANI.finditer(text_mnpld):
+    #     print(f'{m.group(0)} last: {text_mnpld[m.end()]}')
+    text_mnpld = text_mnpld.replace('من ولد ', 'من_ولد_')
+    m = og.get_ngrams_regex().search(text_mnpld)
     while m:
         tag = og.get_ngram_tag(m.group(2))
         pos = m.start()
+        end = m.end()
         if m.group(1) == ' ':
             pos += 1
-        text_updated = text_updated[:pos] + tag + text_updated[pos:]
+        if tag.startswith('ÜEXP'):
+            if CRF_PATTERN.search(m.group(2)) or SHR_PATTERN.search(m.group(2)):
+                tag = 'ÜSHR'
+                if text_mnpld[end:].startswith('ابن '):
+                    tag += '2 '
+                    text_mnpld = text_mnpld[:end] + text_mnpld[end+1:].replace(' ', '_', 1)
+                else:
+                    tag += '1 '
+                if m.group(2).endswith(' ب'):
+                    end -= 1
 
-        m = og.get_ngrams_regex().search(text_updated, m.end() + len(tag))
+                text_mnpld = text_mnpld[:end] + tag + text_mnpld[end:]
+                text_mnpld = text_mnpld[:pos] + \
+                             text_mnpld[pos+1:end+len(tag)+1].replace(' ', '_') + \
+                             text_mnpld[end+len(tag)+1:]
+            # else:
+            #     tag = ''
+            #     print(f'start: {text_mnpld[pos:end]} end: {text_mnpld[end:]}')
+        else:
+            text_mnpld = text_mnpld[:pos] + tag + text_mnpld[pos:]
 
-    return text_updated
+        end += len(tag)
+
+        m = og.get_ngrams_regex().search(text_mnpld, end)
+
+    if logger_nasab:
+        # Log unidentified tokens as uni- and bi-grams
+        filtered = text_mnpld
+        m = og.get_ngrams_regex().search(filtered)
+        while m:
+            filtered = filtered[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + filtered[m.end():]
+            m = og.get_ngrams_regex().search(filtered, m.end())
+        tokens = [token for token in filtered.split() if not token.startswith('Ü')]
+        unknown_uni = [t for t in tokens if not ('_' in t or t in og.total() + tg.total())]
+        prev = None
+        unknown_bi = []
+        for t in tokens:
+            if not prev and not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+                prev = t
+            else:
+                if not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+                    unknown_bi.append(prev + ' ' + t)
+                    prev = t
+                else:
+                    prev = None
+        logger_nasab.info('\n'.join(unknown_uni + unknown_bi))
+
+    return text_mnpld.replace('_', ' ')
 
 
 def tag_spelling(text: str) -> str:
@@ -138,11 +168,11 @@ def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, lo
         )
         return Series([nan] * len(df))
 
-    nasab_idx = df['TOKENS'].loc[df['TOKENS'].notna()].iloc[:idx - 2].index
+    # The following blacklisted elements are considered noise in the text data and are therefore ignored but kept
+    blacklist = ['(', ')', '[', ']', '"', "'", '.', '،', '؟', '!', ':', '؛', ',', ';', '?', '|']
+    nasab_idx = df.loc[df['TOKENS'].notna() & ~df['TOKENS'].isin(blacklist) & df.index.isin(df.iloc[:idx].index)].index
 
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
-
-    nasab_filtering(text, yml_handler, logger_nasab)
 
     tagged_spelling = tag_spelling(text)
     ar_tokens, tags = get_tokens_and_tags(tagged_spelling)
@@ -160,7 +190,8 @@ def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, lo
     nasab_idx = df.loc[nasab_idx.difference(spl_idcs)].index
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
-    tagged_onomastics = tag_nasab(text)
+    text_w_mnpld_nas = get_nas(text, yml_handler)
+    tagged_onomastics = tag_nasab(text_w_mnpld_nas, logger_nasab)
     ar_tokens, tags = get_tokens_and_tags(tagged_onomastics)
     df.loc[nasab_idx, 'NASAB_TAGS'] = tags
 

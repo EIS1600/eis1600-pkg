@@ -10,7 +10,8 @@ AR_LETTERS_CHARSET = frozenset(
         u'\u0642\u0643\u0644\u0645\u0646\u0647\u0648'
         u'\u0649\u064a\u0671\u067e\u0686\u06a4\u06af'
 )
-AR_STR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']+'
+AR_CHR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']'
+AR_STR = AR_CHR + '+'
 AR_STR_AND_TAGS = r'[' + u''.join(AR_LETTERS_CHARSET) + 'a-zA-ZÜ0-9]+'
 WORD = r'(?:\s' + AR_STR + ')'
 

@@ -127,6 +127,8 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
                 provinces_set.update(list_of_provinces)
                 add_to_entities_dict(entities_dict, cat, (place, uri))
             else:
+                if (tag.startswith('ÜSHR') or tag.startswith('SHR')) and entity.startswith('ب'):
+                    entity = entity[1:]
                 add_to_entities_dict(entities_dict, cat, entity, tag)
 
         m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())

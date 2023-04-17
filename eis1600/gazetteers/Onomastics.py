@@ -91,7 +91,7 @@ class Onomastics:
         return Onomastics.__ngrams_regex
 
     @staticmethod
-    def get_ngram_tag(ngram) -> str:
+    def get_ngram_tag(ngram: str) -> str:
         lookup = Onomastics.__ngrams.loc[Onomastics.__ngrams['VALUE'].str.fullmatch(denormalize(ngram))]
         if len(lookup) > 1:
             all_pos = ['Ü' + cat + str(n) for cat, n in zip(lookup['CATEGORY'].to_list(), lookup['NGRAM'].to_list())]
@@ -100,4 +100,3 @@ class Onomastics:
             return 'Ü' + str(lookup.iloc[0]['CATEGORY']) + str(lookup.iloc[0]['NGRAM']) + ' '
         else:
             return 'ÜNaN' + str(len(ngram)) + ' '
-

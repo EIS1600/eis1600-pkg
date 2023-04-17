@@ -15,6 +15,13 @@ from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, wr
 
 
 def get_nas(text: str, yml_handler: YAMLHandler) -> str:
+    """Add the list of forefathers to the YAMLHeader and return nasab part with tagged NAS and manipulated so it is
+    ignored for further onomastic analysis (all elements which refere to ancestors are filtered here).
+
+    :param str text: nasab str.
+    :param YAMLHandler yml_handler: YAMLHandler of the MIU.
+    :return str: nasab str with tagged and manipulated nas elements.
+    """
     og = Onomastics.instance()
 
     text_mnpld = ABU.sub(' ابو_', text)
@@ -35,22 +42,31 @@ def get_nas(text: str, yml_handler: YAMLHandler) -> str:
         pos_umm = text_mnpld[start:end].find(' ام_')
         pos = max(pos_abu, pos_umm)
         if pos > 1:
-            end = min(end, start+pos-1)
-        last_ancestor = text_mnpld[end+1:].find(' ')
-        ancestors = BN_BNT.split(text_mnpld[start:end+1+last_ancestor])
+            end = min(end, start + pos - 1)
+        last_ancestor = text_mnpld[end + 1:].find(' ')
+        if last_ancestor == -1:
+            ancestors = BN_BNT.split(text_mnpld[start:])
+        else:
+            ancestors = BN_BNT.split(text_mnpld[start:end + 1 + last_ancestor])
         if ancestors[0] == '':
             ancestors = ancestors[1:]
-        nas = [(i, txt) for i, txt in enumerate([a for a in ancestors if not a.startswith('بن')])]
+        nas = [(i, txt.replace('_', ' ')) for i, txt in enumerate([a for a in ancestors if not a.startswith('بن')])]
         yml_handler.add_nas(nas)
         nas_w_tags = ''
+        # Insert NAS tags
         for elem in ancestors:
             if not elem.startswith('بن'):
                 num_tokens = len(elem.replace('_', ' ').split())
-                nas_w_tags += ' ÜNAS' + str(num_tokens)
+                nas_w_tags += ' ÜNAS' + str(max(1, num_tokens))
             nas_w_tags += ' ' + elem
-        text_w_tags = text_mnpld[:start+1].replace('_', ' ') +\
-                      nas_w_tags[1:].replace(' ', '_') + \
-                      text_mnpld[end+1+last_ancestor:].replace('_', ' ')
+        # Connect NAS elements with _ so they are ignored in further analysis
+        if last_ancestor == -1:
+            text_w_tags = text_mnpld[:start + 1].replace('_', ' ') + \
+                          nas_w_tags[1:].replace(' ', '_')
+        else:
+            text_w_tags = text_mnpld[:start + 1].replace('_', ' ') + \
+                          nas_w_tags[1:].replace(' ', '_') + \
+                          text_mnpld[end + 1 + last_ancestor:].replace('_', ' ')
 
         return text_w_tags
 
@@ -60,8 +76,10 @@ def get_nas(text: str, yml_handler: YAMLHandler) -> str:
 def tag_nasab(text: str, logger_nasab: Logger) -> str:
     """Annotate the nasab part of the MIU.
 
-    :param str text: nasab part of the MIU as one single string.
-    :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements.
+    :param str text: nasab part of the MIU as one single string with tagged and filtered NAS elements (NAS is
+    connected with '_' and therefore does not match with the gazetteer).
+    :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements,
+    '_' are removed.
     """
     og = Onomastics.instance()
     tg = Toponyms.instance()
@@ -81,7 +99,7 @@ def tag_nasab(text: str, logger_nasab: Logger) -> str:
                 tag = 'ÜSHR'
                 if text_mnpld[end:].startswith('ابن '):
                     tag += '2 '
-                    text_mnpld = text_mnpld[:end] + text_mnpld[end+1:].replace(' ', '_', 1)
+                    text_mnpld = text_mnpld[:end] + text_mnpld[end + 1:].replace(' ', '_', 1)
                 else:
                     tag += '1 '
                 if m.group(2).endswith(' ب'):
@@ -89,8 +107,8 @@ def tag_nasab(text: str, logger_nasab: Logger) -> str:
 
                 text_mnpld = text_mnpld[:end] + tag + text_mnpld[end:]
                 text_mnpld = text_mnpld[:pos] + \
-                             text_mnpld[pos+1:end+len(tag)+1].replace(' ', '_') + \
-                             text_mnpld[end+len(tag)+1:]
+                             text_mnpld[pos + 1:end + len(tag) + 1].replace(' ', '_') + \
+                             text_mnpld[end + len(tag) + 1:]
             # else:
             #     tag = ''
             #     print(f'start: {text_mnpld[pos:end]} end: {text_mnpld[end:]}')
@@ -219,7 +237,7 @@ def nasab_annotation(file: str, logger_nasab: Logger) -> str:
     output_path = str(file).replace('training_data', 'training_nasab')
     with open(output_path, 'w', encoding='utf-8') as out_file_object:
         write_updated_miu_to_file(
-            out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]
+                out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]
         )
 
     return f'{file}\n' + reconstructed_miu

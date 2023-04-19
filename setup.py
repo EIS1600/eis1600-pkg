@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.8.2',
+      version='0.8.3',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -31,7 +31,14 @@ setup(name='eis1600',
           ],
       },
       python_requires='>=3.7, <3.9',
-      install_requires=['openiti', 'pandas', 'numpy', 'tqdm', 'p_tqdm'],
+      install_requires=[
+              'openiti',
+              'pandas',
+              'numpy',
+              'tqdm',
+              'p_tqdm',
+              'importlib_resources; python_version < "3.8"'
+      ],
       extras_require={'NER': ['camel-tools']},
       classifiers=['Programming Language :: Python :: 3',
                    'License :: OSI Approved :: MIT License',

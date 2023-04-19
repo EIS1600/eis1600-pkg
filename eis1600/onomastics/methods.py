@@ -14,7 +14,7 @@ from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_mi
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, write_updated_miu_to_file
 
 
-def get_nas(text: str, yml_handler: YAMLHandler) -> str:
+def get_nas(text: str) -> str:
     """Add the list of forefathers to the YAMLHeader and return nasab part with tagged NAS and manipulated so it is
     ignored for further onomastic analysis (all elements which refere to ancestors are filtered here).
 
@@ -50,8 +50,6 @@ def get_nas(text: str, yml_handler: YAMLHandler) -> str:
             ancestors = BN_BNT.split(text_mnpld[start:end + 1 + last_ancestor])
         if ancestors[0] == '':
             ancestors = ancestors[1:]
-        nas = [(i, txt.replace('_', ' ')) for i, txt in enumerate([a for a in ancestors if not a.startswith('بن')])]
-        yml_handler.add_nas(nas)
         nas_w_tags = ''
         # Insert NAS tags
         for elem in ancestors:
@@ -208,7 +206,7 @@ def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, lo
     nasab_idx = df.loc[nasab_idx.difference(spl_idcs)].index
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
-    text_w_mnpld_nas = get_nas(text, yml_handler)
+    text_w_mnpld_nas = get_nas(text)
     tagged_onomastics = tag_nasab(text_w_mnpld_nas, logger_nasab)
     ar_tokens, tags = get_tokens_and_tags(tagged_onomastics)
     df.loc[nasab_idx, 'NASAB_TAGS'] = tags

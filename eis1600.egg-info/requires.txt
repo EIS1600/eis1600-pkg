@@ -3,8 +3,6 @@ pandas
 numpy
 tqdm
 p_tqdm
-
-[:python_version < "3.8"]
 importlib_resources
 
 [NER]

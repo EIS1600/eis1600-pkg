@@ -87,8 +87,7 @@ class YAMLHandler:
         self.headings = None
         self.dates_headings = None
         self.dates = None
-        self.onomastics = {}
-        self.nasab_filtered = None
+        self.onomastics = None
         self.category = None
         self.ambigious_toponyms = False
 
@@ -158,22 +157,9 @@ class YAMLHandler:
         else:
             self.dates_headings = [date]
 
-    def add_nas(self, nas: List[Tuple[int, str]]) -> None:
-        if hasattr(self, 'onomastics') and self.onomastics:
-            self.onomanstics['nas'] = nas
-        else:
-            self.onomastics = {'nas': nas}
-
-    def add_nasab_filtered(self, nasab_filtered: str) -> None:
-        self.nasab_filtered = nasab_filtered
-
     def add_tagged_entities(self, entities_dict: dict) -> None:
         for key, val in entities_dict.items():
-            if key == 'onomastics' and hasattr(self, 'onomastics') and self.onomastics:
-                for key2, val2 in val.items():
-                    self.onomastics[key2] = val2
-            else:
-                self.__setattr__(key, val)
+            self.__setattr__(key, val)
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

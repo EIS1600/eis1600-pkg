@@ -60,7 +60,7 @@ def extract_yml_header_and_text(miu_file_object: TextIO, is_header: Optional[boo
 
 def add_to_entities_dict(
         entities_dict: Dict, cat: str,
-        entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str]],
+        entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str], Tuple[int, str]],
         tag: Optional[str] = None
 ) -> None:
     """Add a tagged entity to the respective list in the entities_dict.
@@ -98,10 +98,13 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param str filename: Filename of the current MIU (used in error msg).
     """
+    # We do not need to differentiate between automated and manual tags
+    text_with_tags = text_with_tags.replace('Ü', '')
     entity_tags_df = get_entity_tags_df()
     entities_dict = {}
     toponyms_set: Set[str] = set()
     provinces_set: Set[str] = set()
+    nas_counter = 0
 
     m = ENTITY_TAGS_PATTERN.search(text_with_tags)
     while m:
@@ -117,23 +120,30 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
             except ValueError:
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
+        elif cat == 'TOPONYM':
+            tg = Toponyms.instance()
+            place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
+            if len(list_of_uris) > 1:
+                yml_handler.set_ambigious_toponyms()
+            toponyms_set.update(list_of_uris)
+            provinces_set.update(list_of_provinces)
+            add_to_entities_dict(entities_dict, cat, (place, uri))
+        elif cat == 'ONOMASTIC':
+            if tag.startswith('SHR') and entity.startswith('ب'):
+                entity = entity[1:]
+            elif tag.startswith('NAS'):
+                print('NAS')
+                entity = (nas_counter, entity)
+                print(entity)
+                nas_counter += 1
+            add_to_entities_dict(entities_dict, cat, entity, tag)
         else:
-            if cat == 'TOPONYM':
-                tg = Toponyms.instance()
-                place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
-                if len(list_of_uris) > 1:
-                    yml_handler.set_ambigious_toponyms()
-                toponyms_set.update(list_of_uris)
-                provinces_set.update(list_of_provinces)
-                add_to_entities_dict(entities_dict, cat, (place, uri))
-            else:
-                if (tag.startswith('ÜSHR') or tag.startswith('SHR')) and entity.startswith('ب'):
-                    entity = entity[1:]
-                add_to_entities_dict(entities_dict, cat, entity, tag)
+            add_to_entities_dict(entities_dict, cat, entity, tag)
 
         m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())
 
     add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
     add_to_entities_dict(entities_dict, 'province', list(provinces_set))
     add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
+    print(entities_dict)
     yml_handler.add_tagged_entities(entities_dict)

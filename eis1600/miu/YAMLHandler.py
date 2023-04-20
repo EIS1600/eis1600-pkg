@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -55,7 +55,6 @@ class YAMLHandler:
         yml = {}
         level = []
         dict_elem = {}
-        # print(yml_str)
         for line in yml_str.splitlines():
             if not line.startswith('#'):
                 intend = (len(line) - len(line.lstrip())) / 4
@@ -67,8 +66,8 @@ class YAMLHandler:
                     yml[level[0]] = dict_elem
                     dict_elem = {}
                     level.pop()
-                    yml[key] = YAMLHandler.__parse_yml_val(val)
-                elif intend and intend == len(level):
+
+                if intend and intend == len(level):
                     dict_elem[key] = YAMLHandler.__parse_yml_val(val)
                 elif val == '':
                     dict_elem = {}
@@ -123,7 +122,7 @@ class YAMLHandler:
             elif isinstance(val, dict):
                 yaml_str += key + '    :\n'
                 for key2, val2 in val.items():
-                    yaml_str += '   - ' + key2 + '  : ' + str(val2) + '\n'
+                    yaml_str += '    - ' + key2 + '  : ' + str(val2) + '\n'
             elif val is not None:
                 yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
@@ -134,6 +133,9 @@ class YAMLHandler:
         json_dict = {}
         for key, val in vars(self).items():
             if val is not None:
+                #if key == 'dates':
+                #    val = [elem for elem in val if isinstance(elem, (str, int))]
+                #    json_dict[key] = [{'str': d_str, 'num': d_num} for d_str, d_num in val]
                 json_dict[key] = val
         return json_dict
 

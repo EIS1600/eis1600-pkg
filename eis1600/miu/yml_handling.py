@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.markdown_methods import get_yrs_tag_value
-from eis1600.helper.entity_tags import get_entity_tags_df
+from eis1600.helper.EntityTags import EntityTags
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN, MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
@@ -100,7 +100,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     """
     # We do not need to differentiate between automated and manual tags
     text_with_tags = text_with_tags.replace('Ü', '')
-    entity_tags_df = get_entity_tags_df()
+    entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     toponyms_set: Set[str] = set()
     provinces_set: Set[str] = set()
@@ -132,9 +132,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
             elif tag.startswith('NAS'):
-                print('NAS')
                 entity = (nas_counter, entity)
-                print(entity)
                 nas_counter += 1
             add_to_entities_dict(entities_dict, cat, entity, tag)
         else:
@@ -145,5 +143,4 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
     add_to_entities_dict(entities_dict, 'province', list(provinces_set))
     add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
-    print(entities_dict)
     yml_handler.add_tagged_entities(entities_dict)

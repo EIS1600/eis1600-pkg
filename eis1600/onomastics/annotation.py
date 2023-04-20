@@ -1,3 +1,4 @@
+from glob import glob
 from pathlib import Path
 
 import sys
@@ -18,13 +19,18 @@ def main():
 
     with open('OpenITI_EIS1600_MIUs/gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
-    infiles = ['OpenITI_EIS1600_MIUs/training_data/' + file for file in files_txt if Path(
-            'OpenITI_EIS1600_MIUs/training_data/' + file).exists()]
+    # Uncomment to test on training_data
+    # infiles = ['OpenITI_EIS1600_MIUs/training_data/' + file for file in files_txt if Path(
+    #         'OpenITI_EIS1600_MIUs/training_data/' + file).exists()]
+
+    # test on new batch
+    infiles = glob('OpenITI_EIS1600_MIUs/training_data_nasab_ML2/*.EIS1600')
 
     logger_nasab = setup_logger('nasab_unknown', 'OpenITI_EIS1600_MIUs/logs/nasab_unknown.log')
     res = []
     res += p_uimap(partial(nasab_annotation, logger_nasab=logger_nasab), infiles)
 
+    # run serialized (nor parallelized)
     # for file in infiles:
     #     print(file)
     #     res.append(nasab_annotation(file, logger_nasab))

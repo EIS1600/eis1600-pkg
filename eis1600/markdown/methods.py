@@ -167,6 +167,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
                                 heading_and_text[1]
                 text_updated.append(paragraph)
+            # TODO elif paragraph.startswith('::')
             elif '%~%' in paragraph:
                 paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n' + paragraph
                 text_updated.append(paragraph)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -19,6 +19,7 @@ class YAMLHandler:
     :ivar Dict onomstics: contains onomastic elements by category.
     :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
+    __attr_from_annotation = ['dates', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms', 'provinces', 'edges_toponyms', 'edges_provinces']
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
@@ -54,7 +55,6 @@ class YAMLHandler:
     def __parse_yml(yml_str: str) -> Dict:
         yml = {}
         level = []
-        dict_elem = {}
         for line in yml_str.splitlines():
             if not line.startswith('#'):
                 intend = (len(line) - len(line.lstrip())) / 4
@@ -62,33 +62,46 @@ class YAMLHandler:
                 key = key_val[0].strip(' -')
                 val = ':'.join(key_val[1:]).strip()
 
-                if intend < len(level):
-                    yml[level[0]] = dict_elem
-                    dict_elem = {}
+                while intend < len(level):
+                    # Go as many levels up as necessary, for each level: add key, dict to the parent level and pop child
+                    dict_key = level[-1][0]
+                    dict_val = level[-1][1]
+                    if len(level) > 1:
+                        level[-2][1][dict_key] = dict_val
+                    else:
+                        yml[dict_key] = dict_val
                     level.pop()
 
-                if intend and intend == len(level):
-                    dict_elem[key] = YAMLHandler.__parse_yml_val(val)
+                if intend and intend == len(level) and val != '':
+                    # Stay on level and add key, val to the respective dict
+                    curr_dict = level[-1][1]
+                    curr_dict[key] = YAMLHandler.__parse_yml_val(val)
                 elif val == '':
-                    dict_elem = {}
-                    level.append(key)
+                    # Go one level deeper, add key and empty dict for that new level
+                    level.append((key, {}))
                 else:
+                    # Add key, val to the top level
                     yml[key] = YAMLHandler.__parse_yml_val(val)
 
         if len(level):
-            yml[level[0]] = dict_elem
+            dict_key = level[-1][0]
+            dict_val = level[-1][1]
+            yml[dict_key] = dict_val
 
         return yml
 
     def __init__(self, yml: Optional[Dict] = None) -> None:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = None
+        self.category = None
         self.headings = None
         self.dates_headings = None
-        self.dates = None
-        self.onomastics = None
-        self.category = None
-        self.ambigious_toponyms = False
+
+        for key in YAMLHandler.__attr_from_annotation:
+            if key == 'ambigious_toponyms':
+                self.__setattr__(key, False)
+            else:
+                self.__setattr__(key, None)
 
         if yml:
             for key, val in yml.items():
@@ -117,14 +130,20 @@ class YAMLHandler:
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():
-            if key == 'category' and val is not None:
-                yaml_str += key + '    : \'' + val + '\'\n'
-            elif isinstance(val, dict):
-                yaml_str += key + '    :\n'
-                for key2, val2 in val.items():
-                    yaml_str += '    - ' + key2 + '  : ' + str(val2) + '\n'
-            elif val is not None:
-                yaml_str += key + '    : ' + str(val) + '\n'
+            if val:
+                if key == 'category':
+                    yaml_str += key + '    : \'' + val + '\'\n'
+                elif isinstance(val, dict):
+                    yaml_str += key + '    :\n'
+                    for key2, val2 in val.items():
+                        if key2 == 'nas':
+                            yaml_str += '    - ' + key2 + '  :\n'
+                            for key3, val3 in val2.items():
+                                yaml_str += '        - ' + key3 + '  : \'' + val3 + '\'\n'
+                        else:
+                            yaml_str += '    - ' + key2 + '  : ' + str(val2) + '\n'
+                else:
+                    yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
 
         return yaml_str
@@ -132,11 +151,11 @@ class YAMLHandler:
     def to_json(self) -> Dict:
         json_dict = {}
         for key, val in vars(self).items():
-            if val is not None:
-                #if key == 'dates':
-                #    val = [elem for elem in val if isinstance(elem, (str, int))]
-                #    json_dict[key] = [{'str': d_str, 'num': d_num} for d_str, d_num in val]
-                json_dict[key] = val
+            if val:
+                if key == 'dates':
+                    json_dict[key] = [{'str': d_str, 'num': d_num} for d_str, d_num in val]
+                else:
+                    json_dict[key] = val
         return json_dict
 
     def is_bio(self) -> bool:
@@ -160,8 +179,14 @@ class YAMLHandler:
             self.dates_headings = [date]
 
     def add_tagged_entities(self, entities_dict: dict) -> None:
-        for key, val in entities_dict.items():
-            self.__setattr__(key, val)
+        for key in YAMLHandler.__attr_from_annotation:
+            # Clear old entities
+            if key != 'ambigious_toponyms':
+                self.__setattr__(key, None)
+        for key in YAMLHandler.__attr_from_annotation:
+            # Set new entities in same order
+            if key in entities_dict.keys():
+                self.__setattr__(key, entities_dict.get(key))
 
     def __setitem__(self, key: str, value: Any) -> None:
         super().__setattr__(key, value)

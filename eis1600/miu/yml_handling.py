@@ -102,6 +102,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     text_with_tags = text_with_tags.replace('Ü', '')
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
+    nas_dict = {}
     toponyms_set: Set[str] = set()
     provinces_set: Set[str] = set()
     nas_counter = 0
@@ -131,8 +132,9 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
+                add_to_entities_dict(entities_dict, cat, entity, tag)
             elif tag.startswith('NAS'):
-                entity = (nas_counter, entity)
+                nas_dict['gen_' + str(nas_counter)] = entity
                 nas_counter += 1
             add_to_entities_dict(entities_dict, cat, entity, tag)
         else:
@@ -140,7 +142,18 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
 
         m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())
 
-    add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
-    add_to_entities_dict(entities_dict, 'province', list(provinces_set))
-    add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
+    if nas_dict != {}:
+        if 'onomastics' in entities_dict.keys():
+            entities_dict['onomastics']['nas'] = nas_dict
+        else:
+            entities_dict['onomastics'] = {'nas': nas_dict}
+
+    if 'onomastics' in entities_dict.keys():
+        # Sort dict by keys
+        entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
+
+    if toponyms_set:
+        add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
+        add_to_entities_dict(entities_dict, 'province', list(provinces_set))
+        add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
     yml_handler.add_tagged_entities(entities_dict)

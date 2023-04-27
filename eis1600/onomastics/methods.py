@@ -161,14 +161,17 @@ def tag_spelling(text: str) -> str:
     return text_updated
 
 
-def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, logger_nasab: Optional[Logger]) -> \
-        Series:
+def nasab_annotate_miu(
+        df: pd.DataFrame, yml_handler: YAMLHandler, file: str, logger_nasab: Optional[Logger],
+        test: Optional[bool] = False
+) -> Series:
     """Onomastic analysis of the nasab part of the MIU.
 
     :param DataFrame df: DataFrame of the MIU.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param Path file: the MIU which was opened.
     :param Logger logger_nasab: logs unrecognized uni- and bi-grams to a log file, optional.
+    :param bool test: run on test data set, optional.
     :return Series: a series of the same length as the df containing the nasab tags corresponding to the tokens.
     """
     if not yml_handler.is_bio():
@@ -176,12 +179,15 @@ def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, lo
 
     s_notna = df['TAGS_LISTS'].loc[df['TAGS_LISTS'].notna()].apply(lambda tag_list: ','.join(tag_list))
     try:
-        # training_data batch uses old NASAB tag, not new ENASAB tag
-        # idx = s_notna.loc[s_notna.str.contains('NASAB')].index[0]
-        idx = s_notna.loc[s_notna.str.contains('ENASAB')].index[0]
+        if test:
+            # training_data batch uses old NASAB tag, not new ENASAB tag
+            idx = s_notna.loc[s_notna.str.contains('NASAB')].index[0]
+        else:
+            idx = s_notna.loc[s_notna.str.contains('ENASAB')].index[0]
     except IndexError:
         print(
-                f'MIU does not have a NASAB tag, most likely the MIU is not a biography but a cross reference. '
+                f'MIU does not have a ENASAB tag, most likely the MIU is not a biography but a cross reference and '
+                f'wrongly labeled. '
                 f'Check:\n{file}'
         )
         return Series([nan] * len(df))
@@ -220,26 +226,29 @@ def nasab_annotate_miu(df: pd.DataFrame, yml_handler: YAMLHandler, file: str, lo
     return df['NASAB_TAGS'].to_list()
 
 
-def nasab_annotation(file: str, logger_nasab: Logger) -> str:
+def nasab_annotation(file: str, logger_nasab: Logger, test: bool) -> str:
     """Only used for onomastic_annotation cmdline script."""
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
-    # Only used if run on training_data batch because this information is missing there
-    # if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_handler.is_reviewed():
-    #     df['NASAB_TAGS'] = Series([nan] * len(df))
-    # else:
-    #     yml_handler.set_category('$')
-    #     df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab)
-
-    # Run on new data batch
-    df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab)
+    if test:
+        # Only used if run on training_data batch because this information is missing there
+        if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_handler.is_reviewed():
+            df['NASAB_TAGS'] = Series([nan] * len(df))
+        else:
+            yml_handler.set_category('$')
+            df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab, test)
+    else:
+        # Run on new data batch
+        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab, test)
     yml_handler.unset_reviewed()
 
     reconstructed_miu = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'NASAB_TAGS']])
 
-    # Outpath for training_data batch
-    # output_path = str(file).replace('training_data', 'training_nasab')
-    output_path = str(file)
+    if test:
+        output_path = str(file).replace('training_data', 'training_nasab')
+    else:
+        output_path = str(file)
+
     with open(output_path, 'w', encoding='utf-8') as out_file_object:
         write_updated_miu_to_file(
                 out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]

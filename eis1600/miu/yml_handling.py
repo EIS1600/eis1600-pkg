@@ -1,7 +1,7 @@
 from itertools import combinations
 from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
-from eis1600.gazetteers.Toponyms import Toponyms
+from eis1600.gazetteers.Toponyms import Toponyms, YAMLToponym
 from eis1600.helper.markdown_methods import get_yrs_tag_value
 from eis1600.helper.EntityTags import EntityTags
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -60,7 +60,7 @@ def extract_yml_header_and_text(miu_file_object: TextIO, is_header: Optional[boo
 
 def add_to_entities_dict(
         entities_dict: Dict, cat: str,
-        entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str], Tuple[int, str]],
+        entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str], Tuple[int, str], Dict],
         tag: Optional[str] = None
 ) -> None:
     """Add a tagged entity to the respective list in the entities_dict.
@@ -91,6 +91,14 @@ def add_to_entities_dict(
             entities_dict[cat] = [entity]
 
 
+def toponyms_list_to_dict(t_list: List[YAMLToponym]) -> Dict:
+    t_dict = {}
+    for t in t_list:
+        t_dict[t.name] = t.geometry
+
+    return t_dict
+
+
 def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler, filename: str) -> None:
     """Populates YAMLHeader with annotated entities.
 
@@ -103,8 +111,8 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
-    toponyms_set: Set[str] = set()
-    provinces_set: Set[str] = set()
+    toponyms_set: Set[YAMLToponym] = set()
+    provinces_set: Set[YAMLToponym] = set()
     nas_counter = 0
 
     m = ENTITY_TAGS_PATTERN.search(text_with_tags)
@@ -117,7 +125,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         if cat == 'DATE' or cat == 'AGE':
             try:
                 val = get_yrs_tag_value(m.group(0))
-                add_to_entities_dict(entities_dict, cat, (entity, val))
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val})
             except ValueError:
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
@@ -128,13 +136,13 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
                 yml_handler.set_ambigious_toponyms()
             toponyms_set.update(list_of_uris)
             provinces_set.update(list_of_provinces)
-            add_to_entities_dict(entities_dict, cat, (place, uri))
+            add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uri})
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
                 add_to_entities_dict(entities_dict, cat, entity, tag)
             elif tag.startswith('NAS'):
-                nas_dict['gen_' + str(nas_counter)] = entity
+                nas_dict['nas_' + str(nas_counter)] = entity
                 nas_counter += 1
             add_to_entities_dict(entities_dict, cat, entity, tag)
         else:
@@ -153,7 +161,9 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
 
     if toponyms_set:
-        add_to_entities_dict(entities_dict, 'edges_toponym', list(combinations(toponyms_set, 2)))
-        add_to_entities_dict(entities_dict, 'province', list(provinces_set))
-        add_to_entities_dict(entities_dict, 'edges_province', list(combinations(provinces_set, 2)))
+        entities_dict['places'] = toponyms_list_to_dict(list(toponyms_set))
+        entities_dict['edges_places'] = [[a.coords(), b.coords()] for a, b in combinations(toponyms_set, 2)]
+        provinces_set = set([tg.look_up_province(p) for p in provinces_set])
+        entities_dict['provinces'] = toponyms_list_to_dict(list(provinces_set))
+        entities_dict['edges_provinces'] = [[a.coords(), b.coords()] for a, b in combinations(provinces_set, 2)]
     yml_handler.add_tagged_entities(entities_dict)

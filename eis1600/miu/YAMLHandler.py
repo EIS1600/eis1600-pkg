@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from ast import literal_eval
+from typing import Any, Dict, Optional
 
+from eis1600.gazetteers.Toponyms import YAMLToponym
 from eis1600.helper.markdown_patterns import MIU_HEADER
+from eis1600.helper.yml_methods import dict_to_yaml
 from eis1600.miu.HeadingTracker import HeadingTracker
 
 
@@ -19,7 +22,10 @@ class YAMLHandler:
     :ivar Dict onomstics: contains onomastic elements by category.
     :ivar str category: String categorising the type of the entry, bio, chr, dict, etc.
     """
-    __attr_from_annotation = ['dates', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms', 'provinces', 'edges_toponyms', 'edges_provinces']
+    # Only attributes named in the following list are allowed to be added to the YAMLHeader - add any new attribute
+    # to that list
+    __attr_from_annotation = ['dates', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms', 'places', 'provinces',
+                              'edges_places', 'edges_provinces']
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
@@ -35,7 +41,7 @@ class YAMLHandler:
             return val.strip('\'"')
         elif val.startswith('['):
             # List - no comma allowed in strings, it is used as the separator!
-            raw_val_list = val.strip('[]')
+            raw_val_list = val[1:-1]    # strip '[]' but without stripping multiple in case we have nested lists
             if raw_val_list.startswith('(') and raw_val_list.endswith(')'):
                 # List of tuples
                 val_list = raw_val_list.strip('()').split('), (')
@@ -43,6 +49,10 @@ class YAMLHandler:
                 for v in val_list:
                     t = v.split(', ')
                     values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
+            elif raw_val_list.startswith('['):
+                # Nested lists
+                nested_lists = literal_eval(val)
+                values = nested_lists
             else:
                 # List of other values
                 val_list = raw_val_list.split(', ')
@@ -134,14 +144,9 @@ class YAMLHandler:
                 if key == 'category':
                     yaml_str += key + '    : \'' + val + '\'\n'
                 elif isinstance(val, dict):
-                    yaml_str += key + '    :\n'
-                    for key2, val2 in val.items():
-                        if key2 == 'nas':
-                            yaml_str += '    - ' + key2 + '  :\n'
-                            for key3, val3 in val2.items():
-                                yaml_str += '        - ' + key3 + '  : \'' + val3 + '\'\n'
-                        else:
-                            yaml_str += '    - ' + key2 + '  : ' + str(val2) + '\n'
+                    yaml_str += f'{key}    :\n{dict_to_yaml(val, 1)}\n'
+                elif isinstance(val, YAMLToponym):
+                    yaml_str += f'{key}    :\n{dict_to_yaml(val.as_dict(), 1)}\n'
                 else:
                     yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
@@ -152,10 +157,7 @@ class YAMLHandler:
         json_dict = {}
         for key, val in vars(self).items():
             if val:
-                if key == 'dates':
-                    json_dict[key] = [{'str': d_str, 'num': d_num} for d_str, d_num in val]
-                else:
-                    json_dict[key] = val
+                json_dict[key] = val
         return json_dict
 
     def is_bio(self) -> bool:
@@ -163,13 +165,6 @@ class YAMLHandler:
 
     def is_reviewed(self) -> bool:
         return self.reviewed.startswith('REVIEWED')
-
-    def add_date(self, date: int) -> None:
-        if self.dates:
-            if date not in self.dates:
-                self.dates.append(date)
-        else:
-            self.dates = [date]
 
     def add_date_headings(self, date: int) -> None:
         if self.dates_headings:

@@ -55,7 +55,7 @@ class YAMLToponym:
         return str(self.__dict__)
 
     def __hash__(self):
-        return hash(self.name + str(self.geometry.get('coordinates')))
+        return hash(self.uri + str(self.geometry.get('coordinates')))
 
 
 @Singleton
@@ -130,7 +130,8 @@ class Toponyms:
         # TODO lookup provinces from provinces gazetteer
         # TODO toponyms_from_rows(row)
         province = {
-                'name': uri,
+                'uri': uri,
+                'label': '',
                 'geometry': {
                         'type': 'point',
                         'coordinates': [0, 0]

@@ -29,7 +29,6 @@ eis1600/helper/logging.py
 eis1600/helper/markdown_methods.py
 eis1600/helper/markdown_patterns.py
 eis1600/helper/miu_random_revisions.py
-eis1600/helper/my_json_ecoder.py
 eis1600/helper/repo.py
 eis1600/helper/yml_methods.py
 eis1600/helper/yml_to_json.py

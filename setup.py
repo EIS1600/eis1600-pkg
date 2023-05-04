@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='0.8.7',
+      version='0.8.8',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -37,7 +37,8 @@ setup(name='eis1600',
               'numpy',
               'tqdm',
               'p_tqdm',
-              'importlib_resources'
+              'importlib_resources',
+              'jsonpickle'
       ],
       extras_require={'NER': ['camel-tools']},
       classifiers=['Programming Language :: Python :: 3',

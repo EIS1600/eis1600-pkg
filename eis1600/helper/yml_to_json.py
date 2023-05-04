@@ -1,9 +1,7 @@
-import json
 import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
-
-from eis1600.helper.my_json_ecoder import MyJSONEncoder
+import jsonpickle
 from p_tqdm import p_uimap
 
 from eis1600.processing.preprocessing import get_yml
@@ -34,10 +32,10 @@ def main():
 
     yml_dict = {}
     for path, yml in res:
-        yml_dict[path] = yml
+        yml_dict[path] = yml.to_json()
 
-    # TODO: Where shall that file be?
-    with open('OpenITI_EIS1600_MIUs/gold_standard_yml.json', 'w', encoding='utf-8') as fh:
-        json.dump(yml_dict, fh, cls=MyJSONEncoder, indent='\t', ensure_ascii=False)
+    with open('MasterChronicle/masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
+        json_str = jsonpickle.encode(yml_dict, unpicklable=False)
+        fh.write(json_str)
 
     print('Done')

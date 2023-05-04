@@ -6,12 +6,12 @@ import pandas as pd
 from numpy import nan
 from pandas import Series
 
-from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
-from eis1600.onomastics.re_pattern import ABU, ABI, BANU_BANI, CRF_PATTERN, IBN_IBNA, BN_BNT, SHR_PATTERN, SPELLING, UMM
-from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
+from eis1600.miu.YAMLHandler import YAMLHandler
+from eis1600.onomastics.re_pattern import ABI, ABU, BN_BNT, CRF_PATTERN, IBN_IBNA, SHR_PATTERN, SPELLING, UMM
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, write_updated_miu_to_file
+from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
 
 
 def get_nas(text: str) -> str:
@@ -19,7 +19,6 @@ def get_nas(text: str) -> str:
     ignored for further onomastic analysis (all elements which refere to ancestors are filtered here).
 
     :param str text: nasab str.
-    :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :return str: nasab str with tagged and manipulated nas elements.
     """
     og = Onomastics.instance()
@@ -74,6 +73,7 @@ def get_nas(text: str) -> str:
 def tag_nasab(text: str, logger_nasab: Logger) -> str:
     """Annotate the nasab part of the MIU.
 
+    :param logger_nasab:
     :param str text: nasab part of the MIU as one single string with tagged and filtered NAS elements (NAS is
     connected with '_' and therefore does not match with the gazetteer).
     :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements,

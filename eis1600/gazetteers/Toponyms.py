@@ -13,7 +13,8 @@ regions_path = file_path.joinpath('regions_gazetteer.csv')
 
 def toponyms_from_rows(row: pd.Series) -> YAMLToponym:
     toponym = {
-            'name': row['uri'],
+            'uri': row['uri'],
+            'label': row['placeLabel'],
             'geometry': {
                     'type': row['geometry_type'],
                     'coordinates': row['geometry_coords']
@@ -24,7 +25,8 @@ def toponyms_from_rows(row: pd.Series) -> YAMLToponym:
 
 class YAMLToponym:
     def __init__(self, attr: Dict):
-        self.name = ''
+        self.uri = ''
+        self.label = ''
         self.geometry = {
                 'type': '',
                 'coordinates': [0, 0]
@@ -42,6 +44,9 @@ class YAMLToponym:
 
     def coords(self) -> List[float, float]:
         return self.geometry['coordinates']
+
+    def to_json(self) -> Dict:
+        return self.__dict__
 
     def __repr__(self) -> str:
         return str(type(self)) + str(self.__dict__)

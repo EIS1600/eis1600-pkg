@@ -179,7 +179,6 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                             text_updated[-1] += page_tag + ' ' + next_p
                         else:
                             text_updated[-1] += ' ' + page_tag + ' ' + next_p
-                        prev_p = paragraph
                         paragraph = next_p
                         next_p = next(text_iter, None)
                 elif text_updated:
@@ -297,7 +296,6 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                             text_updated[-1] += page_tag + ' ' + next_p_text
                         else:
                             text_updated[-1] += ' ' + page_tag + ' ' + next_p_text
-                        prev_p = paragraph
                         paragraph = next_p
                         next_p = next(text_iter, None)
                 elif text_updated:

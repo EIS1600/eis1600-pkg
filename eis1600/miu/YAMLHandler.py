@@ -3,6 +3,7 @@ from __future__ import annotations
 from ast import literal_eval
 from typing import Any, Dict, Optional
 
+
 from eis1600.gazetteers.Toponyms import YAMLToponym
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.helper.yml_methods import dict_to_yaml
@@ -28,9 +29,11 @@ class YAMLHandler:
                               'edges_places', 'edges_provinces']
 
     @staticmethod
-    def __parse_yml_val(val: str) -> Any:
+    def __parse_yml_val(val: str, key: Optional[str] = None) -> Any:
         if val.isdigit():
             return int(val)
+        if len(val.split('.')) == 2 and val.split('.')[0].isdigit() and val.split('.')[1].isdigit():
+            return float(val)
         elif val == 'True':
             return True
         elif val == 'False':
@@ -49,10 +52,15 @@ class YAMLHandler:
                 for v in val_list:
                     t = v.split(', ')
                     values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
-            elif raw_val_list.startswith('['):
+            elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
                 # Nested lists
                 nested_lists = literal_eval(val)
-                values = nested_lists
+                if key == 'places' or key == 'provinces':
+                    values = [YAMLToponym(toponym) for toponym in nested_lists]
+                elif key.startswith('edges'):
+                    values = [[YAMLToponym(edge[0]), YAMLToponym(edge[1])] for edge in nested_lists]
+                else:
+                    values = nested_lists
             else:
                 # List of other values
                 val_list = raw_val_list.split(', ')
@@ -85,13 +93,13 @@ class YAMLHandler:
                 if intend and intend == len(level) and val != '':
                     # Stay on level and add key, val to the respective dict
                     curr_dict = level[-1][1]
-                    curr_dict[key] = YAMLHandler.__parse_yml_val(val)
+                    curr_dict[key] = YAMLHandler.__parse_yml_val(val, key)
                 elif val == '':
                     # Go one level deeper, add key and empty dict for that new level
                     level.append((key, {}))
                 else:
                     # Add key, val to the top level
-                    yml[key] = YAMLHandler.__parse_yml_val(val)
+                    yml[key] = YAMLHandler.__parse_yml_val(val, key)
 
         if len(level):
             dict_key = level[-1][0]
@@ -143,10 +151,14 @@ class YAMLHandler:
             if val:
                 if key == 'category':
                     yaml_str += key + '    : \'' + val + '\'\n'
+                elif key == 'places' or key == 'provinces':
+                    yaml_str += f'{key}    : {[toponym.as_dict() for toponym in val]}\n'
+                elif key.startswith('edges'):
+                    yaml_str += f'{key}    : {[[edge[0].as_dict(), edge[1].as_dict()] for edge in val]}\n'
+                elif hasattr(val, 'get_yamlfied'):
+                    yaml_str += f'{key}    : {val.get_yamlfied()}\n'
                 elif isinstance(val, dict):
                     yaml_str += f'{key}    :\n{dict_to_yaml(val, 1)}\n'
-                elif isinstance(val, YAMLToponym):
-                    yaml_str += f'{key}    :\n{dict_to_yaml(val.as_dict(), 1)}\n'
                 else:
                     yaml_str += key + '    : ' + str(val) + '\n'
         yaml_str += '\n' + MIU_HEADER + 'End#\n\n'
@@ -156,8 +168,16 @@ class YAMLHandler:
     def to_json(self) -> Dict:
         json_dict = {}
         for key, val in vars(self).items():
-            if val:
-                json_dict[key] = val
+            if key != 'toponyms' and val:
+                # Toponym is only to control the entity and how it was identified
+                if key == 'places' or key == 'provinces':
+                    json_dict[key] = [elem.to_json() for elem in val]
+                elif key.startswith('edges'):
+                    json_dict[key] = [[edge[0].to_json(), edge[1].to_json()] for edge in val]
+                elif hasattr(val, 'to_json'):
+                    json_dict[key] = val.to_json()
+                else:
+                    json_dict[key] = val
         return json_dict
 
     def is_bio(self) -> bool:

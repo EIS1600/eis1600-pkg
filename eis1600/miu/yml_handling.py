@@ -91,14 +91,6 @@ def add_to_entities_dict(
             entities_dict[cat] = [entity]
 
 
-def toponyms_list_to_dict(t_list: List[YAMLToponym]) -> Dict:
-    t_dict = {}
-    for t in t_list:
-        t_dict[t.name] = t.geometry
-
-    return t_dict
-
-
 def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler, filename: str) -> None:
     """Populates YAMLHeader with annotated entities.
 
@@ -108,6 +100,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     """
     # We do not need to differentiate between automated and manual tags
     text_with_tags = text_with_tags.replace('Ü', '')
+    tg = Toponyms.instance()
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
@@ -130,7 +123,6 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
         elif cat == 'TOPONYM':
-            tg = Toponyms.instance()
             place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
             if len(list_of_uris) > 1:
                 yml_handler.set_ambigious_toponyms()
@@ -161,9 +153,9 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
 
     if toponyms_set:
-        entities_dict['places'] = toponyms_list_to_dict(list(toponyms_set))
-        entities_dict['edges_places'] = [[a.coords(), b.coords()] for a, b in combinations(toponyms_set, 2)]
+        entities_dict['places'] = list(toponyms_set)
+        entities_dict['edges_places'] = [[a, b] for a, b in combinations(toponyms_set, 2)]
         provinces_set = set([tg.look_up_province(p) for p in provinces_set])
-        entities_dict['provinces'] = toponyms_list_to_dict(list(provinces_set))
-        entities_dict['edges_provinces'] = [[a.coords(), b.coords()] for a, b in combinations(provinces_set, 2)]
+        entities_dict['provinces'] = list(provinces_set)
+        entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2)]
     yml_handler.add_tagged_entities(entities_dict)

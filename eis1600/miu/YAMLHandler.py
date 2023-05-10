@@ -3,7 +3,6 @@ from __future__ import annotations
 from ast import literal_eval
 from typing import Any, Dict, Optional
 
-
 from eis1600.gazetteers.Toponyms import YAMLToponym
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.helper.yml_methods import dict_to_yaml
@@ -25,8 +24,8 @@ class YAMLHandler:
     """
     # Only attributes named in the following list are allowed to be added to the YAMLHeader - add any new attribute
     # to that list
-    __attr_from_annotation = ['dates', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms', 'places', 'provinces',
-                              'edges_places', 'edges_provinces']
+    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms',
+                              'settlements', 'provinces', 'edges_settlements', 'edges_provinces']
 
     @staticmethod
     def __parse_yml_val(val: str, key: Optional[str] = None) -> Any:
@@ -44,7 +43,7 @@ class YAMLHandler:
             return val.strip('\'"')
         elif val.startswith('['):
             # List - no comma allowed in strings, it is used as the separator!
-            raw_val_list = val[1:-1]    # strip '[]' but without stripping multiple in case we have nested lists
+            raw_val_list = val[1:-1]  # strip '[]' but without stripping multiple in case we have nested lists
             if raw_val_list.startswith('(') and raw_val_list.endswith(')'):
                 # List of tuples
                 val_list = raw_val_list.strip('()').split('), (')
@@ -55,7 +54,7 @@ class YAMLHandler:
             elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
                 # Nested lists
                 nested_lists = literal_eval(val)
-                if key == 'places' or key == 'provinces':
+                if key == 'settlements' or key == 'provinces':
                     values = [YAMLToponym(toponym) for toponym in nested_lists]
                 elif key.startswith('edges'):
                     values = [[YAMLToponym(edge[0]), YAMLToponym(edge[1])] for edge in nested_lists]
@@ -151,7 +150,7 @@ class YAMLHandler:
             if val:
                 if key == 'category':
                     yaml_str += key + '    : \'' + val + '\'\n'
-                elif key == 'places' or key == 'provinces':
+                elif key == 'settlements' or key == 'provinces':
                     yaml_str += f'{key}    : {[toponym.as_dict() for toponym in val]}\n'
                 elif key.startswith('edges'):
                     yaml_str += f'{key}    : {[[edge[0].as_dict(), edge[1].as_dict()] for edge in val]}\n'
@@ -170,7 +169,7 @@ class YAMLHandler:
         for key, val in vars(self).items():
             if key != 'toponyms' and val:
                 # Toponym is only to control the entity and how it was identified
-                if key == 'places' or key == 'provinces':
+                if key == 'settlements' or key == 'provinces':
                     json_dict[key] = [elem.to_json() for elem in val]
                 elif key.startswith('edges'):
                     json_dict[key] = [[edge[0].to_json(), edge[1].to_json()] for edge in val]

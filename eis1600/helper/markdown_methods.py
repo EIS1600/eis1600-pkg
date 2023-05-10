@@ -1,7 +1,9 @@
+from typing import Tuple
+
 from eis1600.helper.markdown_patterns import AGE_PATTERN, YEAR_PATTERN
 
 
-def get_yrs_tag_value(tag: str) -> int:
+def get_yrs_tag_value(tag: str) -> Tuple[int, str]:
     """Returns int value encoded in the tag for date and age tags.
 
     :param str tag: Annotation.
@@ -16,6 +18,6 @@ def get_yrs_tag_value(tag: str) -> int:
         raise ValueError
 
     if m.group('real'):
-        return int(m.group('real'))
+        return int(m.group('real')), m.group('cat')
     else:
-        return int(m.group('written'))
+        return int(m.group('written')), m.group('cat')

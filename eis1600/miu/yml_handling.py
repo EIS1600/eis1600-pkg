@@ -117,8 +117,8 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
         if cat == 'DATE' or cat == 'AGE':
             try:
-                val = get_yrs_tag_value(m.group(0))
-                add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val})
+                val, e_cat = get_yrs_tag_value(m.group(0))
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
                 return
@@ -153,9 +153,24 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
         entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
 
     if toponyms_set:
-        entities_dict['places'] = list(toponyms_set)
-        entities_dict['edges_places'] = [[a, b] for a, b in combinations(toponyms_set, 2)]
+        entities_dict['settlements'] = list(toponyms_set)
+        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(toponyms_set, 2)]
         provinces_set = set([tg.look_up_province(p) for p in provinces_set])
         entities_dict['provinces'] = list(provinces_set)
         entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2)]
+
+    if entities_dict.get('dates'):
+        dates = entities_dict.get('dates')
+        birth_date = [d.get('date') for d in dates if d.get('cat') == 'B']
+        death_date = [d.get('date') for d in dates if d.get('cat') == 'D']
+        if death_date:
+            entities_dict['max_date'] = max(death_date)
+        else:
+            entities_dict['max_date'] = max([d.get('date') for d in dates])
+
+        if birth_date:
+            entities_dict['min_date'] = min(birth_date)
+        else:
+            entities_dict['min_date'] = entities_dict.get('max_date') - 70
+
     yml_handler.add_tagged_entities(entities_dict)

@@ -5,6 +5,7 @@ import jsonpickle
 from p_tqdm import p_uimap
 
 from eis1600.processing.preprocessing import get_yml
+from helper.repo import MC_REPO, TRAINING_DATA_REPO
 
 
 def main():
@@ -16,10 +17,10 @@ def main():
     args = arg_parser.parse_args()
 
     debug = args.debug
-    with open('OpenITI_EIS1600_MIUs/gold_standard.txt', 'r', encoding='utf-8') as fh:
+    with open(TRAINING_DATA_REPO + 'gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
-    infiles = ['OpenITI_EIS1600_MIUs/training_nasab/' + file for file in files_txt if Path(
-            'OpenITI_EIS1600_MIUs/training_nasab/' + file
+    infiles = [TRAINING_DATA_REPO + 'gold_standard/' + file for file in files_txt if Path(
+            TRAINING_DATA_REPO + 'gold_standard/' + file
     ).exists()]
 
     res = []
@@ -34,7 +35,7 @@ def main():
     for path, yml in res:
         yml_dict[path] = yml.to_json()
 
-    with open('MasterChronicle/masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
+    with open(MC_REPO + 'masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
         json_str = jsonpickle.encode(yml_dict, unpicklable=False)
         fh.write(json_str)
 

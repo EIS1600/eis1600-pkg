@@ -1,5 +1,21 @@
 # EIS1600 Tools
 
+* [Workflow](#workflow)
+* [Process](#process)
+* [Installation](#installation)
+* [Set Up](#set-up-virtual-environment-and-install-the-eis1600-pkg-there)
+* [Working Directory Structure](#structure-of-the-working-directory)
+* [Usage](#usage)
+  * [convert_mARkdown_to_EIS1600TMP](#convert-markdown-to-eis1600-files)
+  * [insert_uids](#convert-markdown-to-eis1600-files)
+  * [update_uids](#convert-markdown-to-eis1600-files)
+  * [disassemble_into_miu_files](#disassembling)
+  * [reassble-from-miu_files](#reassembling)
+  * [annotate_mius](#annotation)
+  * [onomastic_annotation](#only-onomastic-annotation)
+  * [miu_random_revision](#miu-revision)
+  * [yml_to_json](#collect-yamlheaders-into-json)
+
 ## Workflow
 
 (*so that we do not forget again...*)
@@ -15,15 +31,16 @@
 2. Check the `.EIS1600TMP`
 3. Run `insert_uids` on the checked `.EIS1600TMP`
 4. Check again. If anything was changed in the EIS1600 file, run `update_uids`
-5. After double-check, the file can be disassembled by `disassemble_into_miu_files data/<author>/<text>/<edition>.EIS1600`
+5. After double-check, the file can be disassembled by `disassemble_into_miu_files <uri_of_that_file>.EIS1600`
 
 ## Installation
+
+After creating and activating the eis16000_env (see [Set Up](#set-up-virtual-environment-and-install-the-eis1600-pkg-there)), use:
 ```shell
 $ pip install eis1600
 ```
 
-In case you have an older version installed, use
-
+In case you have an older version installed, use:
 ```shell
 $ pip install --upgrade eis1600
 ```
@@ -69,9 +86,26 @@ Alias files:
 - On Mac:
   - `.zshrc` if you use `zsh` (default in the latest versions Mac OS);
 
+## Structure of the working directory
+
+The working directory is always the main `EIS1600` directory which is a parent to all the different repositories.
+The `EIS1600` directory has the following structure:
+
+```
+|
+|---| eis_env
+|---| EIS1600_MIUs
+|---| gazetteers
+|---| Master_Chronicle
+|---| OpenITI_EIS1600_Texts
+|---| Training_Data
+```
+
+Path variables are in the module `eis1600/helper/repo`.
+
 ## Usage
 
-### Covert mARkdown to EIS1600 files
+### Convert mARkdown to EIS1600 files
 
 Converts mARkdown file to EIS1600TMP (without inserting UIDs).
 The .EIS1600TMP file will be created next to the .mARkdown file (you can insert .inProcess or .completed files as well).
@@ -104,14 +138,15 @@ $ insert_uids <input_dir> <output_dir>
 
 ### Disassembling
 
-Disassemble files into the MIU repo. MIU repo has to be next to TEXT repo.
-Must be run from the root of TEXT repo, this will disassemble all files from the `AUTOREPORT`.
+Disassemble files into individual MIU files.
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`, this will disassemble all files from the `AUTOREPORT`.
 ```shell
 $ disassemble_into_miu_files
 ```
-Give the relative path to a file to disassemble a singe file.
+Can also be run from anywhere within the `EIS1600_MIUs/` directory with a single files as input.
+E.G.:
 ```shell
-$ disassemble_into_miu_files data/<author>/<text>/<edition>.EIS1600
+$ disassemble_into_miu_files <uri_of_the_text>.EIS1600
 ```
 
 ### Reassembling
@@ -126,9 +161,9 @@ Use the `-e` option to process all files from the MIU repo. Must be run from the
 $ reassemble_from_miu_files -e <MIU_repo>
 ```
 
-### NER Annotation
+### Annotation
 
-NER annotation for persons, toponyms, misc and dates.
+NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastics.
 
 To annotate all MIU files of a text give the IDs file as argument.
 Can be used with `-p` option to run in parallel.
@@ -142,9 +177,19 @@ $ annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
 ```
 
 If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
-Run from the parent dir of your MIU repo (internally used path starts with: `OpenITI_EIS1600_MIUs/`).
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `OpenITI_EIS1600_MIUs/`).
 ```shell
 $ annotate_mius -p
+```
+
+### Only Onomastic Annotation
+
+**Only for test purposes!**
+Can be run with `-D` to process one file at a time, otherwise runs in parallel.
+Can be run with `-T` to use gold-standard data as input.
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`.
+```shell
+$ onomastic_annotation
 ```
 
 ### MIU revision
@@ -175,10 +220,9 @@ to
 reviewed    : REVIEWED
 ```
 
-## For MC
+### Collect YAMLHeaders into JSON
 
-### Collect YAMLHeader into JSON
-
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`:
 ```shell
 $ yml_to_json
 ```

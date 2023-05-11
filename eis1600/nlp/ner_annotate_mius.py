@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
 from eis1600.miu.methods import annotate_miu_file, get_mius
+from helper.repo import MIU_REPO
 
 
 class CheckFileEndingAction(Action):
@@ -66,11 +67,11 @@ all files in the MIU directory are batch processed.
             print(f'NER annotate {infile}')
             annotate_miu_file(infile, force_annotation=force)
     else:
-        input_dir = 'OpenITI_EIS1600_MIUs/'
+        input_dir = MIU_REPO
 
         if not Path(input_dir).exists():
             print('Your working directory seems to be wrong, make sure it is set to the parent dir of '
-                  '`OpenITI_EIS1600_MIUs/`.')
+                  '`EIS1600_MIUs/`.')
             sys.exit()
 
         print(f'NER annotate MIU files')

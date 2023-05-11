@@ -10,6 +10,7 @@ from tqdm import tqdm
 from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, get_files_from_eis1600_dir, \
     write_to_readme
 from eis1600.miu.methods import disassemble_text
+from helper.repo import TEXT_REPO
 
 
 class CheckFileEndingAction(Action):
@@ -17,7 +18,7 @@ class CheckFileEndingAction(Action):
         if input_arg and os.path.isfile(input_arg):
             filepath, fileext = os.path.splitext(input_arg)
             if fileext != '.EIS1600':
-                parser.error('You need to input a EIS1600 file')
+                parser.error('You need to input an EIS1600 file')
             else:
                 setattr(namespace, self.dest, input_arg)
         else:
@@ -31,7 +32,7 @@ def main():
 -----
 Give a single EIS1600 file as input
 or 
-Run without input arg to batch process all EIS1600 files in the EIS1600 directory.
+Run without input arg to batch process all double-checked EIS1600 files from the AUTOREPORT.
 '''
     )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
@@ -53,10 +54,10 @@ Run without input arg to batch process all EIS1600 files in the EIS1600 director
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
     else:
-        input_dir = './'
+        input_dir = TEXT_REPO
         out_path = get_path_to_other_repo(input_dir, 'MIU')
 
-        print(f'Disassemble EIS1600 files from the EIS1600 repo')
+        print(f'Disassemble double-checked EIS1600 files from the AUTOREPORT')
         files_list = read_files_from_autoreport(input_dir)
 
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')

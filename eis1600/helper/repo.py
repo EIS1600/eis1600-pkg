@@ -1,7 +1,7 @@
 """
 
-This module contains functions to work with the EIS1600 text repo. This includes retrieving files from the repo,
-as well as reading and writing to the README file of that repo.
+This module contains functions to work with the EIS1600 repositories. This includes retrieving files from repos, writing
+files to repos, as well as reading and writing to README and AUTOREPORT files.
 
 Functions:
 :function write_to_readme(path, files, which, ext=None, checked=False, remove_duplicates=False):
@@ -16,6 +16,13 @@ from os.path import split, splitext
 from typing import List, Literal, Optional
 
 from eis1600.helper.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
+
+# Path variables
+MIU_REPO = 'EIS1600_MIUs/'
+TEXT_REPO = 'OpenITI_EIS1600_Texts/'
+TRAINING_DATA_REPO = 'Training_Data/'
+GAZETTEERS_REPO = 'gazetteers/'
+MC_REPO = 'MasterChronicle/'
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:
@@ -241,27 +248,29 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
     :param Literal which: Indicating which repo you want to get the path to, accepts 'MIU' or 'TEXT'.
     :return str: path to the same URI in the requested repo
     """
-    out_path = '../'
-
-    if 'data' in infile:
-        out_path += infile.split('data')[0][2:]
-    elif infile == './':
-        pass
-    else:
-        depth = len(infile.split('/'))
-        print(depth)
-        if depth == 1:
-            out_path += '../../../../'
-        elif depth == 2:
-            out_path += '../../../'
-        elif depth == 3:
-            out_path += '../../'
+    if infile.startswith('./OpenITI_EIS1600_') or infile.startswith('./EIS1600_'):
+        if which == 'MIU':
+            return MIU_REPO + 'data/'
         else:
-            out_path += '../'
-
-    if which == 'MIU':
-        out_path += 'OpenITI_EIS1600_MIUs/data/'
+            return TEXT_REPO + 'data/'
     else:
-        out_path += 'OpenITI_EIS1600_Texts/data/'
+        out_path = '../'
 
-    return out_path
+        if 'data' in infile:
+            out_path += infile.split('data')[0][2:]
+        elif infile != './':
+            depth = len(infile.split('/'))
+            print(depth)
+            if depth == 1:
+                out_path += '../../../../'
+            elif depth == 2:
+                out_path += '../../../'
+            elif depth == 3:
+                out_path += '../../'
+            else:
+                out_path += '../'
+
+        if which == 'MIU':
+            return out_path + MIU_REPO + 'data/'
+        else:
+            return out_path + TEXT_REPO + 'data/'

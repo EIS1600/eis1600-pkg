@@ -226,7 +226,7 @@ def nasab_annotate_miu(
     return df['NASAB_TAGS'].to_list()
 
 
-def nasab_annotation(file: str, logger_nasab: Logger, test: bool) -> str:
+def nasab_annotation(file: str, logger_nasab: Logger, test: bool):
     """Only used for onomastic_annotation cmdline script."""
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
@@ -242,10 +242,8 @@ def nasab_annotation(file: str, logger_nasab: Logger, test: bool) -> str:
         df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab, test)
     yml_handler.unset_reviewed()
 
-    reconstructed_miu = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'NASAB_TAGS']])
-
     if test:
-        output_path = str(file).replace('training_data', 'training_nasab')
+        output_path = str(file).replace('gold_standard', 'gold_standard_nasab')
     else:
         output_path = str(file)
 
@@ -253,5 +251,3 @@ def nasab_annotation(file: str, logger_nasab: Logger, test: bool) -> str:
         write_updated_miu_to_file(
                 out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]
         )
-
-    return f'{file}\n' + reconstructed_miu

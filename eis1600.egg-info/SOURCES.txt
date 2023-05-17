@@ -62,3 +62,7 @@ eis1600/processing/preprocessing.py
 eis1600/stats/__init__.py
 eis1600/stats/methods.py
 eis1600/stats/miu_stats.py
+eis1600/toponyms/__init__.py
+eis1600/toponyms/annotation.py
+eis1600/toponyms/methods.py
+eis1600/toponyms/toponym_categories.py

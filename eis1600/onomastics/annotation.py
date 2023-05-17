@@ -9,7 +9,7 @@ from eis1600.helper.logging import setup_logger
 from p_tqdm import p_uimap
 
 from eis1600.onomastics.methods import nasab_annotation
-from helper.repo import GAZETTEERS_REPO, TRAINING_DATA_REPO
+from eis1600.helper.repo import GAZETTEERS_REPO, TRAINING_DATA_REPO
 
 
 def main():

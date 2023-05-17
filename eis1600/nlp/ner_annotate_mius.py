@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
 from eis1600.miu.methods import annotate_miu_file, get_mius
-from helper.repo import MIU_REPO
+from eis1600.helper.repo import MIU_REPO
 
 
 class CheckFileEndingAction(Action):

@@ -10,7 +10,7 @@ from tqdm import tqdm
 from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, get_files_from_eis1600_dir, \
     write_to_readme
 from eis1600.miu.methods import disassemble_text
-from helper.repo import TEXT_REPO
+from eis1600.helper.repo import TEXT_REPO
 
 
 class CheckFileEndingAction(Action):

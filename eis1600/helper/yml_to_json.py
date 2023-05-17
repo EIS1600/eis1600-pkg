@@ -5,7 +5,7 @@ import jsonpickle
 from p_tqdm import p_uimap
 
 from eis1600.processing.preprocessing import get_yml
-from helper.repo import MC_REPO, TRAINING_DATA_REPO
+from eis1600.helper.repo import MC_REPO, TRAINING_DATA_REPO
 
 
 def main():
@@ -35,7 +35,10 @@ def main():
     for path, yml in res:
         yml_dict[path] = yml.to_json()
 
+    print(yml_dict)
+
     with open(MC_REPO + 'masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
+        jsonpickle.set_encoder_options('json', indent=4)
         json_str = jsonpickle.encode(yml_dict, unpicklable=False)
         fh.write(json_str)
 

@@ -11,53 +11,6 @@ thurayya_path = file_path.joinpath('toponyms.csv')
 provinces_path = file_path.joinpath('regions_gazetteer.csv')
 
 
-def toponyms_from_rows(row: pd.Series) -> YAMLToponym:
-    toponym = {
-            'uri': row['uri'],
-            'label': row['placeLabel'],
-            'geometry': {
-                    'type': row['geometry_type'],
-                    'coordinates': row['geometry_coords']
-            }
-    }
-    return YAMLToponym(toponym)
-
-
-class YAMLToponym:
-    def __init__(self, attr: Dict):
-        self.uri = ''
-        self.label = ''
-        self.geometry = {
-                'type': '',
-                'coordinates': [0, 0]
-        }
-
-        for key, val in attr.items():
-            self.__setattr__(key, val)
-
-    def as_dict(self) -> Dict:
-        return self.__dict__
-
-    @property
-    def attribute(self):
-        return self._attribute
-
-    def coords(self) -> List[float, float]:
-        return self.geometry['coordinates']
-
-    def to_json(self) -> Dict:
-        return self.__dict__
-
-    def __repr__(self) -> str:
-        return str(type(self)) + str(self.__dict__)
-
-    def __str__(self) -> str:
-        return str(self.__dict__)
-
-    def __hash__(self):
-        return hash(self.uri + str(self.geometry.get('coordinates')))
-
-
 @Singleton
 class Toponyms:
     """
@@ -84,9 +37,9 @@ class Toponyms:
             x, y = coords_list
             return [float(x), float(y)]
 
-        thurayya_df = pd.read_csv(thurayya_path, usecols=['uri', 'placeLabel', 'toponyms', 'province', 'typeLabel',
-                                                          'geometry_type', 'geometry_coords'],
-                                  converters={'toponyms': split_toponyms, 'geometry_coords': coords_as_list})
+        thurayya_df = pd.read_csv(thurayya_path, usecols=['uri', 'place_label', 'toponyms', 'province_uri',
+                                                          'type_label'],
+                                  converters={'toponyms': split_toponyms})
         provinces_df = pd.read_csv(provinces_path)
         prefixes = ['ب', 'و', 'وب']
 
@@ -95,6 +48,10 @@ class Toponyms:
             prefixed_variations = [prefix + top for prefix in prefixes for top in variations]
             return variations + prefixed_variations
 
+        uris = thurayya_df['uri'].to_list()
+        regions = [uri[:-1] + 'R' for uri in uris if uri[-1] == 'S' and uri[:-1] + 'R' in uris]
+        regions_idcs = thurayya_df.loc[thurayya_df['uri'].str.fullmatch('|'.join(regions))].index
+        thurayya_df.drop(index=regions_idcs, inplace=True)
         thurayya_df['toponyms'] = thurayya_df['toponyms'].apply(get_all_variations)
         Toponyms.__df = thurayya_df.explode('toponyms', ignore_index=True)
         Toponyms.__settlements = Toponyms.__df['toponyms'].to_list()
@@ -121,27 +78,7 @@ class Toponyms:
         return Toponyms.__rpl
 
     @staticmethod
-    def look_up_province(uri: str) -> YAMLToponym:
-        """
-
-        :param str uri: URI of the province to look up attributes
-        :return:
-        """
-        # TODO lookup provinces from provinces gazetteer
-        # TODO toponyms_from_rows(row)
-        province = {
-                'uri': uri,
-                'label': '',
-                'geometry': {
-                        'type': 'point',
-                        'coordinates': [0, 0]
-                }
-        }
-
-        return YAMLToponym(province)
-
-    @staticmethod
-    def look_up_entity(entity: str) -> Tuple[str, str, List[YAMLToponym], List[str]]:
+    def look_up_entity(entity: str) -> Tuple[str, str, List[str], List[str]]:
         """Look up tagged entity in settlements (there is no gazetteer of provinces so far).
 
         :param str entity: The token(s) which were tagged as toponym.
@@ -150,15 +87,12 @@ class Toponyms:
         """
         # TODO settlements or total?
         if entity in Toponyms.__settlements:
-            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'placeLabel',
-                                                                                          'province',
-                                                                                          'geometry_type',
-                                                                                          'geometry_coords']]
+            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'province_uri',
+                                                                                          'place_label']]
             uris = matches['uri'].to_list()
-            provinces = matches['province'].to_list()
-            place = matches['placeLabel'].unique()
+            provinces = matches['province_uri'].to_list()
+            place = matches['place_label'].unique()
 
-            settlements = [toponyms_from_rows(row) for idx, row in matches.iterrows()]
-            return '::'.join(place), '@' + '@'.join(uris) + '@', settlements, provinces
+            return '::'.join(place), '@' + '@'.join(uris) + '@', uris, provinces
         else:
             return entity, '', [], []

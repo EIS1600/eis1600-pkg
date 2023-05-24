@@ -182,6 +182,11 @@ def annotate_miu_file(path: str, logger: Logger = None, tsv_path=None, output_pa
         # TODO Needs to be run after the NASAB END tag was inserted
         df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, path, logger)
 
+        # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
+        # TODO 7. toponym categorization
+        # TODO 8. assign roles for persons
+        # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)
+
         # 6. save csv file
         df.to_csv(tsv_path, index=False, sep='\t')
 

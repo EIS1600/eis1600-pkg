@@ -19,8 +19,8 @@ def main():
     debug = args.debug
     with open(TRAINING_DATA_REPO + 'gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
-    infiles = [TRAINING_DATA_REPO + 'gold_standard/' + file for file in files_txt if Path(
-            TRAINING_DATA_REPO + 'gold_standard/' + file
+    infiles = [TRAINING_DATA_REPO + 'gold_standard_nasab/' + file for file in files_txt if Path(
+            TRAINING_DATA_REPO + 'gold_standard_nasab/' + file
     ).exists()]
 
     res = []
@@ -31,14 +31,15 @@ def main():
     else:
         res = p_uimap(get_yml, infiles)
 
-    yml_dict = {}
+    yml_dict = []
     for path, yml in res:
-        yml_dict[path] = yml.to_json()
-
-    print(yml_dict)
+        key = path.replace(TRAINING_DATA_REPO + 'gold_standard_nasab/', '').replace('.EIS1600', '')
+        author, text, version, UID = key.split('.')
+        yml_init = {'author': author, 'text': text, 'version': version, 'UID': UID}
+        yml_dict.append(yml.to_json(yml_init))
 
     with open(MC_REPO + 'masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
-        jsonpickle.set_encoder_options('json', indent=4)
+        jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(yml_dict, unpicklable=False)
         fh.write(json_str)
 

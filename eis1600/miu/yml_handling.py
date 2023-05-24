@@ -1,7 +1,7 @@
 from itertools import combinations
 from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
-from eis1600.gazetteers.Toponyms import Toponyms, YAMLToponym
+from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.markdown_methods import get_yrs_tag_value
 from eis1600.helper.EntityTags import EntityTags
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -104,8 +104,8 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
-    toponyms_set: Set[YAMLToponym] = set()
-    provinces_set: Set[YAMLToponym] = set()
+    toponyms_set: Set[str] = set()
+    provinces_set: Set[str] = set()
     nas_counter = 0
 
     m = ENTITY_TAGS_PATTERN.search(text_with_tags)
@@ -154,23 +154,25 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
 
     if toponyms_set:
         entities_dict['settlements'] = list(toponyms_set)
-        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(toponyms_set, 2)]
-        provinces_set = set([tg.look_up_province(p) for p in provinces_set])
+        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(toponyms_set, 2) if a != b]
         entities_dict['provinces'] = list(provinces_set)
-        entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2)]
+        entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2) if a != b]
 
     if entities_dict.get('dates'):
         dates = entities_dict.get('dates')
         birth_date = [d.get('date') for d in dates if d.get('cat') == 'B']
         death_date = [d.get('date') for d in dates if d.get('cat') == 'D']
+        alternative_death_date = [d.get('date') for d in dates if d.get('cat') == 'B']
         if death_date:
             entities_dict['max_date'] = max(death_date)
-        else:
-            entities_dict['max_date'] = max([d.get('date') for d in dates])
+        elif alternative_death_date:
+            entities_dict['max_date'] = max(alternative_death_date)
+        elif birth_date:
+            entities_dict['max_date'] = min(birth_date) + 70
 
         if birth_date:
             entities_dict['min_date'] = min(birth_date)
-        else:
+        elif entities_dict.get('max_date'):
             entities_dict['min_date'] = entities_dict.get('max_date') - 70
 
     yml_handler.add_tagged_entities(entities_dict)

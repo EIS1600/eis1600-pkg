@@ -3,7 +3,6 @@ from __future__ import annotations
 from ast import literal_eval
 from typing import Any, Dict, Optional
 
-from eis1600.gazetteers.Toponyms import YAMLToponym
 from eis1600.helper.markdown_patterns import MIU_HEADER
 from eis1600.helper.yml_methods import dict_to_yaml
 from eis1600.miu.HeadingTracker import HeadingTracker
@@ -53,13 +52,8 @@ class YAMLHandler:
                     values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
             elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
                 # Nested lists
-                nested_lists = literal_eval(val)
-                if key == 'settlements' or key == 'provinces':
-                    values = [YAMLToponym(toponym) for toponym in nested_lists]
-                elif key.startswith('edges'):
-                    values = [[YAMLToponym(edge[0]), YAMLToponym(edge[1])] for edge in nested_lists]
-                else:
-                    values = nested_lists
+                print(f'val: {val}')
+                values = literal_eval(val)
             else:
                 # List of other values
                 val_list = raw_val_list.split(', ')
@@ -150,10 +144,10 @@ class YAMLHandler:
             if val:
                 if key == 'category':
                     yaml_str += key + '    : \'' + val + '\'\n'
-                elif key == 'settlements' or key == 'provinces':
-                    yaml_str += f'{key}    : {[toponym.as_dict() for toponym in val]}\n'
-                elif key.startswith('edges'):
-                    yaml_str += f'{key}    : {[[edge[0].as_dict(), edge[1].as_dict()] for edge in val]}\n'
+                # elif key == 'settlements' or key == 'provinces':
+                #     yaml_str += f'{key}    : {[toponym.as_dict() for toponym in val]}\n'
+                # elif key.startswith('edges'):
+                #     yaml_str += f'{key}    : {[[edge[0].as_dict(), edge[1].as_dict()] for edge in val]}\n'
                 elif hasattr(val, 'get_yamlfied'):
                     yaml_str += f'{key}    : {val.get_yamlfied()}\n'
                 elif isinstance(val, dict):
@@ -164,16 +158,16 @@ class YAMLHandler:
 
         return yaml_str
 
-    def to_json(self) -> Dict:
-        json_dict = {}
+    def to_json(self, init) -> Dict:
+        json_dict = init
         for key, val in vars(self).items():
             if key != 'toponyms' and val:
                 # Toponym is only to control the entity and how it was identified
-                if key == 'settlements' or key == 'provinces':
-                    json_dict[key] = [elem.to_json() for elem in val]
-                elif key.startswith('edges'):
-                    json_dict[key] = [[edge[0].to_json(), edge[1].to_json()] for edge in val]
-                elif hasattr(val, 'to_json'):
+                # if key == 'settlements' or key == 'provinces':
+                #     json_dict[key] = [elem.to_json() for elem in val]
+                # elif key.startswith('edges'):
+                #     json_dict[key] = [[edge[0].to_json(), edge[1].to_json()] for edge in val]
+                if hasattr(val, 'to_json'):
                     json_dict[key] = val.to_json()
                 else:
                     json_dict[key] = val

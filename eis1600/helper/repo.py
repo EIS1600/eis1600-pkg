@@ -224,8 +224,8 @@ def get_files_from_eis1600_dir(
     path += 'data/'
     files = []
     for file in file_list:
-        author, work, text = file.split('.')[:3]
-        file_path = path + '/'.join([author, '.'.join([author, work]), '.'.join([author, work, text])]) + '.'
+        author, text, version = file.split('.')[:3]
+        file_path = path + '/'.join([author, '.'.join([author, text]), '.'.join([author, text, version])]) + '.'
         if file_ext_to and not glob(file_path + file_ext_to):
             # Only do if the target file does not exist
             if type(file_ext_from) == list:

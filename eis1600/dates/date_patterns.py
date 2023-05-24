@@ -74,7 +74,7 @@ DATE_PATTERN = re.compile(DATE)
 MONTH_PATTERN = re.compile(AR_MONTHS)
 
 DATE_CATEGORIES = {
-        'ولد': 'B', 'مولد': 'B', 'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفات': 'D', 'حج': 'P',
+        'ولد': 'B', 'مولد': 'B', 'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D', 'حج': 'P',
         'سمع': 'K', 'قرا': 'K', 'استقر': 'O', 'اجاز': 'K', 'انفصل': 'O', 'لقي': 'M'
 }
 DATE_CATEGORIES_NOR = normalize_dict(DATE_CATEGORIES)

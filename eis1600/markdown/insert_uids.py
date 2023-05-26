@@ -2,8 +2,8 @@ from tqdm import tqdm
 from p_tqdm import p_uimap
 from pathlib import Path
 
-import sys
-import os
+from sys import argv, exit
+from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
@@ -14,8 +14,8 @@ from eis1600.markdown.methods import insert_uids
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and os.path.isfile(input_arg):
-            filepath, fileext = os.path.splitext(input_arg)
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
             if fileext != '.EIS1600TMP':
                 parser.error('You need to input an EIS1600TMP file')
             else:
@@ -26,7 +26,7 @@ class CheckFileEndingAction(Action):
 
 def main():
     arg_parser = ArgumentParser(
-            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to insert UIDs in EIS1600TMP file(s) and thereby converting them to final EIS1600 
             file(s).
 -----
@@ -81,7 +81,7 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
             print(
                     'The input directory does not contain any EIS1600TMP files to process'
                     )
-            sys.exit()
+            exit()
 
         # Check if output directory exists else create that directory
         Path(output_dir).mkdir(exist_ok=True, parents=True)
@@ -104,7 +104,7 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
             print(
                     'There are no more EIS1600TMP files to process'
                     )
-            sys.exit()
+            exit()
 
         # Insert UIDs in the selected files, runs in parallel
         if verbose:

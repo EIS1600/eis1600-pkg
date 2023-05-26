@@ -1,22 +1,20 @@
-from functools import partial
-
-import sys
-import os
+from sys import argv, exit
+from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
+from functools import partial
 
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
 from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, get_files_from_eis1600_dir, \
-    write_to_readme
+    write_to_readme, TEXT_REPO
 from eis1600.miu.methods import disassemble_text
-from eis1600.helper.repo import TEXT_REPO
 
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and os.path.isfile(input_arg):
-            filepath, fileext = os.path.splitext(input_arg)
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
             if fileext != '.EIS1600':
                 parser.error('You need to input an EIS1600 file')
             else:
@@ -27,7 +25,7 @@ class CheckFileEndingAction(Action):
 
 def main():
     arg_parser = ArgumentParser(
-            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to disassemble EIS1600 file(s) into MIU file(s).
 -----
 Give a single EIS1600 file as input
@@ -63,7 +61,7 @@ Run without input arg to batch process all double-checked EIS1600 files from the
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')
         if not infiles:
             print('There are no EIS1600 files to process')
-            sys.exit()
+            exit()
 
         if verbose:
             for infile in tqdm(infiles):

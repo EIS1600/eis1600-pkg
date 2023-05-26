@@ -1,12 +1,22 @@
 from itertools import combinations
+from os import makedirs
+from os.path import dirname, split, splitext
 from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
 from eis1600.gazetteers.Toponyms import Toponyms
-from eis1600.helper.markdown_methods import get_yrs_tag_value
 from eis1600.helper.EntityTags import EntityTags
+from eis1600.helper.logging import setup_logger
+from eis1600.helper.markdown_methods import get_yrs_tag_value
+from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN, MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
+from eis1600.helper.repo import GAZETTEERS_REPO
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.YAMLHandler import YAMLHandler
-from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN, MIU_HEADER_PATTERN, NEWLINES_CROWD_PATTERN
+
+
+__log_filename_nasab = GAZETTEERS_REPO + 'logs/nasab_known.log'
+makedirs(dirname(__log_filename_nasab), exist_ok=True)
+LOGGER_NASAB_KNOWN = setup_logger('nasab_known', __log_filename_nasab)
+LOGGER_TOPONYMS_UNKNOWN = setup_logger('toponyms_unknown', GAZETTEERS_REPO + 'logs/toponyms_unknown.log')
 
 
 def create_yml_header(category: str, headings: Optional[HeadingTracker] = None) -> str:
@@ -30,8 +40,7 @@ def extract_yml_header_and_text(miu_file_object: TextIO, is_header: Optional[boo
     Splits the MIU file into a tuple of YAML header and text.
     :param TextIO miu_file_object: File object of the MIU file from which to extract YAML header and text.
     :param bool is_header: Indicates if the current MIU is the YAML header of the whole work and if so skips
-    removing
-    blank lines, defaults to False.
+    removing blank lines, defaults to False.
     :return (str, str): Tuple of the extracted YAML header and text.
     """
     text = ''
@@ -91,12 +100,16 @@ def add_to_entities_dict(
             entities_dict[cat] = [entity]
 
 
-def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler, filename: str) -> None:
+def add_annotated_entities_to_yml(
+        text_with_tags: str,
+        yml_handler: YAMLHandler,
+        file_path: str,
+) -> None:
     """Populates YAMLHeader with annotated entities.
 
     :param str text_with_tags: Text with inserted tags of the MIU.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
-    :param str filename: Filename of the current MIU (used in error msg).
+    :param str file_path: Filename of the current MIU (used in error msg).
     """
     # We do not need to differentiate between automated and manual tags
     text_with_tags = text_with_tags.replace('Ü', '')
@@ -120,15 +133,20 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
                 val, e_cat = get_yrs_tag_value(m.group(0))
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
-                print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {filename}')
+                print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {file_path}')
                 return
         elif cat == 'TOPONYM':
             place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
-            if len(list_of_uris) > 1:
-                yml_handler.set_ambigious_toponyms()
-            toponyms_set.update(list_of_uris)
-            provinces_set.update(list_of_provinces)
             add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uri})
+            if len(list_of_uris) == 0:
+                path, uri = split(file_path)
+                uri, ext = splitext(uri)
+                LOGGER_TOPONYMS_UNKNOWN.info(f'{uri},{entity}')
+            else:
+                toponyms_set.update(list_of_uris)
+                provinces_set.update(list_of_provinces)
+                if len(list_of_uris) > 1:
+                    yml_handler.set_ambigious_toponyms()
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
@@ -137,6 +155,7 @@ def add_annotated_entities_to_yml(text_with_tags: str, yml_handler: YAMLHandler,
                 nas_dict['nas_' + str(nas_counter)] = entity
                 nas_counter += 1
             add_to_entities_dict(entities_dict, cat, entity, tag)
+            LOGGER_NASAB_KNOWN.info(f'{tag},{entity}')
         else:
             add_to_entities_dict(entities_dict, cat, entity, tag)
 

@@ -1,15 +1,14 @@
-import logging
-from logging import Logger
+from logging import FileHandler, Formatter, getLogger, INFO, Logger
 
-formatter = logging.Formatter('%(message)s')
+formatter = Formatter('%(message)s')
 
 
-def setup_logger(name: str, log_file: str, level=logging.INFO) -> Logger:
+def setup_logger(name: str, log_file: str, level=INFO) -> Logger:
 
-    handler = logging.FileHandler(log_file, 'w')
+    handler = FileHandler(log_file, 'w', encoding='utf-8')
     handler.setFormatter(formatter)
 
-    logger = logging.getLogger(name)
+    logger = getLogger(name)
     logger.setLevel(level)
     logger.addHandler(handler)
 

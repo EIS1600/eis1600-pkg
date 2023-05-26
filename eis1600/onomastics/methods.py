@@ -1,17 +1,23 @@
-from logging import Logger
+from os import makedirs
+from os.path import dirname
 from pathlib import Path
 from typing import Optional
-
-import pandas as pd
 from numpy import nan
 from pandas import Series
+from pandas import DataFrame, notna
 
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
+from eis1600.helper.logging import setup_logger
+from eis1600.helper.repo import GAZETTEERS_REPO
 from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.onomastics.re_pattern import ABI, ABU, BN_BNT, CRF_PATTERN, IBN_IBNA, SHR_PATTERN, SPELLING, UMM
-from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags, write_updated_miu_to_file
+from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
+
+__log_filename = GAZETTEERS_REPO + 'logs/nasab_unknown.log'
+makedirs(dirname(__log_filename), exist_ok=True)
+LOGGER_NASAB_UNKNOWN = setup_logger('nasab_unknown', __log_filename)
 
 
 def get_nas(text: str) -> str:
@@ -70,10 +76,9 @@ def get_nas(text: str) -> str:
     return text_mnpld
 
 
-def tag_nasab(text: str, logger_nasab: Logger) -> str:
+def tag_nasab(text: str) -> str:
     """Annotate the nasab part of the MIU.
 
-    :param logger_nasab:
     :param str text: nasab part of the MIU as one single string with tagged and filtered NAS elements (NAS is
     connected with '_' and therefore does not match with the gazetteer).
     :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements,
@@ -117,27 +122,27 @@ def tag_nasab(text: str, logger_nasab: Logger) -> str:
 
         m = og.get_ngrams_regex().search(text_mnpld, end)
 
-    if logger_nasab:
-        # Log unidentified tokens as uni- and bi-grams
-        filtered = text_mnpld
-        m = og.get_ngrams_regex().search(filtered)
-        while m:
-            filtered = filtered[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + filtered[m.end():]
-            m = og.get_ngrams_regex().search(filtered, m.end())
-        tokens = [token for token in filtered.split() if not token.startswith('Ü')]
-        unknown_uni = [t for t in tokens if not ('_' in t or t in og.total() + tg.total())]
-        prev = None
-        unknown_bi = []
-        for t in tokens:
-            if not prev and not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+    # Log unidentified tokens as uni- and bi-grams
+    filtered = text_mnpld
+    m = og.get_ngrams_regex().search(filtered)
+    while m:
+        filtered = filtered[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + filtered[m.end():]
+        m = og.get_ngrams_regex().search(filtered, m.end())
+    tokens = [token for token in filtered.split() if not token.startswith('Ü')]
+    unknown_uni = [t for t in tokens if not ('_' in t or t in og.total() + tg.total())]
+    prev = None
+    unknown_bi = []
+    for t in tokens:
+        if not prev and not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+            prev = t
+        else:
+            if not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+                unknown_bi.append(prev + ' ' + t)
                 prev = t
             else:
-                if not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
-                    unknown_bi.append(prev + ' ' + t)
-                    prev = t
-                else:
-                    prev = None
-        logger_nasab.info('\n'.join(unknown_uni + unknown_bi))
+                prev = None
+    if unknown_uni or unknown_bi:
+        LOGGER_NASAB_UNKNOWN.info('\n'.join(unknown_uni + unknown_bi))
 
     return text_mnpld.replace('_', ' ')
 
@@ -162,7 +167,8 @@ def tag_spelling(text: str) -> str:
 
 
 def nasab_annotate_miu(
-        df: pd.DataFrame, yml_handler: YAMLHandler, file: str, logger_nasab: Optional[Logger],
+        df: DataFrame, yml_handler: YAMLHandler,
+        file: str,
         test: Optional[bool] = False
 ) -> Series:
     """Onomastic analysis of the nasab part of the MIU.
@@ -170,7 +176,6 @@ def nasab_annotate_miu(
     :param DataFrame df: DataFrame of the MIU.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param Path file: the MIU which was opened.
-    :param Logger logger_nasab: logs unrecognized uni- and bi-grams to a log file, optional.
     :param bool test: run on test data set, optional.
     :return Series: a series of the same length as the df containing the nasab tags corresponding to the tokens.
     """
@@ -205,7 +210,7 @@ def nasab_annotate_miu(
     count = 0
     spl_idcs = []
     for row in df.loc[nasab_idx].itertuples():
-        if pd.notna(row[4]):
+        if notna(row[4]):
             count = int(row[4][-1])
         if count > 0:
             count -= 1
@@ -215,7 +220,7 @@ def nasab_annotate_miu(
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
     text_w_mnpld_nas = get_nas(text)
-    tagged_onomastics = tag_nasab(text_w_mnpld_nas, logger_nasab)
+    tagged_onomastics = tag_nasab(text_w_mnpld_nas)
     ar_tokens, tags = get_tokens_and_tags(tagged_onomastics)
     df.loc[nasab_idx, 'NASAB_TAGS'] = tags
 
@@ -226,7 +231,7 @@ def nasab_annotate_miu(
     return df['NASAB_TAGS'].to_list()
 
 
-def nasab_annotation(file: str, logger_nasab: Logger, test: bool):
+def nasab_annotation(file: str, test: bool):
     """Only used for onomastic_annotation cmdline script."""
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
@@ -236,10 +241,10 @@ def nasab_annotation(file: str, logger_nasab: Logger, test: bool):
             df['NASAB_TAGS'] = Series([nan] * len(df))
         else:
             yml_handler.set_category('$')
-            df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab, test)
+            df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
     else:
         # Run on new data batch
-        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, logger_nasab, test)
+        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
     yml_handler.unset_reviewed()
 
     if test:

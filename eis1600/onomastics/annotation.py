@@ -5,11 +5,10 @@ import sys
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 
-from eis1600.helper.logging import setup_logger
 from p_tqdm import p_uimap
 
-from eis1600.onomastics.methods import nasab_annotation
 from eis1600.helper.repo import TRAINING_DATA_REPO
+from eis1600.onomastics.methods import nasab_annotation
 
 
 def main():
@@ -33,13 +32,12 @@ def main():
     else:
         infiles = glob(TRAINING_DATA_REPO + 'training_data_nasab_ML2/*.EIS1600')
 
-    logger_nasab = setup_logger('nasab_unknown', TRAINING_DATA_REPO + 'logs/nasab_unknown.log')
     if debug:
         for file in infiles:
             print(file)
-            nasab_annotation(file, logger_nasab, test)
+            nasab_annotation(file, test)
     else:
         res = []
-        res += p_uimap(partial(nasab_annotation, logger_nasab=logger_nasab, test=test), infiles)
+        res += p_uimap(partial(nasab_annotation, test=test), infiles)
 
     print('Done')

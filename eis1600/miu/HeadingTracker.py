@@ -1,6 +1,5 @@
 from __future__ import annotations
-import copy
-import json
+from copy import deepcopy
 
 from typing import Dict, Optional
 
@@ -42,7 +41,7 @@ class HeadingTracker:
         :return HeadingTracker: Deepcopy of the current state of the tracker.
         """
 
-        return copy.deepcopy(self)
+        return deepcopy(self)
 
     def get_yamlfied(self) -> str:
         """Stringifies HeadingTracker in YAML format, only includes levels which are set.

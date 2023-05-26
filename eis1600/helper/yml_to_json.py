@@ -1,4 +1,4 @@
-import sys
+from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 import jsonpickle
@@ -10,7 +10,7 @@ from eis1600.helper.repo import MC_REPO, TRAINING_DATA_REPO
 
 def main():
     arg_parser = ArgumentParser(
-            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to generate JSON from MIU YAMLHeaders.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')

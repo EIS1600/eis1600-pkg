@@ -1,8 +1,8 @@
-import re
-
-from importlib_resources import files
 from typing import List, Pattern
-import pandas as pd
+from importlib_resources import files
+from re import compile
+from pandas import concat, read_csv
+
 from eis1600.helper.Singleton import Singleton
 from openiti.helper.ara import denormalize
 
@@ -37,7 +37,7 @@ class Onomastics:
     __ngrams_regex = None
 
     def __init__(self) -> None:
-        oa_df = pd.read_csv(path)
+        oa_df = read_csv(path)
         oa_df['NGRAM'] = oa_df['NGRAM'].astype('uint8')
         oa_df['CATEGORY'] = oa_df['CATEGORY'].astype('category')
 
@@ -65,14 +65,14 @@ class Onomastics:
         abu_rows = oa_df.loc[oa_df['VALUE'].str.contains('أبو')]
         spelling_variations_1 = abu_rows.apply(rplc_to_aba, axis=1)
         spelling_variations_2 = abu_rows.apply(rplc_to_abi, axis=1)
-        df_abu_variations = pd.concat([oa_df.loc[oa_df['CATEGORY'] != 'END'], spelling_variations_1,
+        df_abu_variations = concat([oa_df.loc[oa_df['CATEGORY'] != 'END'], spelling_variations_1,
                                        spelling_variations_2])
 
         # Sort from longest to shortest ngrams - longest need to come first in regex otherwise only the shorter one
         # will be matched
         Onomastics.__ngrams = df_abu_variations.sort_values(by=['NGRAM'], ascending=False)
         ngrams = Onomastics.__ngrams['VALUE'].to_list()
-        Onomastics.__ngrams_regex = re.compile('(^| )(' + denormalize('|'.join(ngrams)) + ')')
+        Onomastics.__ngrams_regex = compile('(^| )(' + denormalize('|'.join(ngrams)) + ')')
 
     @staticmethod
     def exp() -> List[str]:

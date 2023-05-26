@@ -52,7 +52,6 @@ class YAMLHandler:
                     values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
             elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
                 # Nested lists
-                print(f'val: {val}')
                 values = literal_eval(val)
             else:
                 # List of other values

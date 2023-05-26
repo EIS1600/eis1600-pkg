@@ -1,22 +1,20 @@
-import sys
-import os
+from sys import argv, exit
+from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
 
-from eis1600.helper.logging import setup_logger
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.miu.methods import annotate_miu_file, get_mius
-from eis1600.helper.repo import MIU_REPO
 
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and os.path.isfile(input_arg):
-            filepath, fileext = os.path.splitext(input_arg)
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
             if fileext != '.IDs' and fileext != '.EIS1600':
                 parser.error('You need to input an IDs file or a single MIU file')
             else:
@@ -27,7 +25,7 @@ class CheckFileEndingAction(Action):
 
 def main():
     arg_parser = ArgumentParser(
-        prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+        prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
         description='''Script to NER annotate MIU file(s).
 -----
 Give an IDs file or a single MIU file as input
@@ -50,7 +48,7 @@ all files in the MIU directory are batch processed.
 
     if args.input:
         infile = './' + args.input
-        filepath, fileext = os.path.splitext(infile)
+        filepath, fileext = splitext(infile)
         if fileext == '.IDs':
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             print(f'NER annotate MIUs of {infile}')
@@ -72,16 +70,15 @@ all files in the MIU directory are batch processed.
         if not Path(input_dir).exists():
             print('Your working directory seems to be wrong, make sure it is set to the parent dir of '
                   '`EIS1600_MIUs/`.')
-            sys.exit()
+            exit()
 
         print(f'NER annotate MIU files')
         files_list = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'IDs')
         if not infiles:
             print('There are no IDs files to process')
-            sys.exit()
+            exit()
 
-        logger_nasab = setup_logger('nasab_unknown', 'logs/nasab_unknown.log')
         for infile in infiles:
             if verbose:
                 print(f'NER annotate MIUs of {infile}')
@@ -89,11 +86,11 @@ all files in the MIU directory are batch processed.
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             if args.parallel:
                 res = []
-                res += p_uimap(partial(annotate_miu_file, logger_nasab), mius)
+                res += p_uimap(partial(annotate_miu_file), mius)
             else:
                 for miu in tqdm(mius):
                     try:
-                        annotate_miu_file(miu, logger_nasab)
+                        annotate_miu_file(miu)
                     except Exception as e:
                         print(miu, e)
 

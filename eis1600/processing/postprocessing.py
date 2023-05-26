@@ -1,6 +1,7 @@
 from typing import Iterator, List, TextIO, Tuple, Union
 
-import pandas as pd
+from os import path
+from pandas import DataFrame, notna
 from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 
 from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN
@@ -9,7 +10,7 @@ from eis1600.miu.yml_handling import add_annotated_entities_to_yml
 
 
 def get_text_with_annotation_only(
-        text_and_tags: Union[Iterator[Tuple[Union[str, None], str, Union[List[str], None]]], pd.DataFrame]
+        text_and_tags: Union[Iterator[Tuple[Union[str, None], str, Union[List[str], None]]], DataFrame]
 ) -> str:
     """Returns the MIU text only with annotation tags, not page tags and section tags.
 
@@ -19,7 +20,7 @@ def get_text_with_annotation_only(
     sparse columns: sections, tokens, lists of tags.
     :return str: The MIU text with annotation only.
     """
-    if type(text_and_tags) is pd.DataFrame:
+    if type(text_and_tags) is DataFrame:
         text_and_tags_iter = text_and_tags.itertuples(index=False)
     else:
         text_and_tags_iter = text_and_tags.__iter__()
@@ -29,14 +30,14 @@ def get_text_with_annotation_only(
         if isinstance(tags, list):
             entity_tags = [tag for tag in tags if ENTITY_TAGS_PATTERN.fullmatch(tag)]
             text_with_annotation_only += ' ' + ' '.join(entity_tags)
-        if pd.notna(token):
+        if notna(token):
             text_with_annotation_only += ' ' + token
 
     return text_with_annotation_only
 
 
 def reconstruct_miu_text_with_tags(
-        text_and_tags: Union[Iterator[Tuple[Union[str, None], str, Union[List[str], None]]], pd.DataFrame]
+        text_and_tags: Union[Iterator[Tuple[Union[str, None], str, Union[List[str], None]]], DataFrame]
 ) -> str:
     """Reconstruct the MIU text from a zip object containing three columns: sections, tokens, lists of tags.
 
@@ -46,7 +47,7 @@ def reconstruct_miu_text_with_tags(
     sparse columns: sections, tokens, lists of tags.
     :return str: The reconstructed MIU text containing all the tags.
     """
-    if type(text_and_tags) is pd.DataFrame:
+    if type(text_and_tags) is DataFrame:
         text_and_tags_iter = text_and_tags.itertuples(index=False)
     else:
         text_and_tags_iter = text_and_tags.__iter__()
@@ -54,11 +55,11 @@ def reconstruct_miu_text_with_tags(
     reconstructed_text = heading
     # TODO NASAB tag after token
     for section, token, tags in text_and_tags_iter:
-        if pd.notna(section):
+        if notna(section):
             reconstructed_text += '\n\n' + section + '\n_ء_'
         if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
-        if pd.notna(token):
+        if notna(token):
             if token in UNICODE_PUNCT_CHARSET:
                 reconstructed_text += token
             else:
@@ -72,20 +73,24 @@ def reconstruct_miu_text_with_tags(
 
 def merge_tagslists(lst1, lst2):
     if isinstance(lst1, list):
-        if pd.notna(lst2):
+        if notna(lst2):
             lst1.append(lst2)
     else:
-        if pd.notna(lst2):
+        if notna(lst2):
             lst1 = [lst2]
     return lst1
 
 
-def write_updated_miu_to_file(miu_file_object: TextIO, yml_handler: YAMLHandler, df: pd.DataFrame) -> None:
+def write_updated_miu_to_file(
+        miu_file_object: TextIO,
+        yml_handler: YAMLHandler,
+        df: DataFrame,
+) -> None:
     """Write MIU file with annotations and populated YAML header.
 
     :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml_handler: The YAMLHandler of the MIU.
-    :param pd.DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
+    :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
     :return None:
     """
     if not yml_handler.is_reviewed():
@@ -99,7 +104,7 @@ def write_updated_miu_to_file(miu_file_object: TextIO, yml_handler: YAMLHandler,
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
     text_with_tags = get_text_with_annotation_only(df_subset)
-    add_annotated_entities_to_yml(text_with_tags, yml_handler, miu_file_object.name)
+    add_annotated_entities_to_yml(text_with_tags, yml_handler, path.realpath(miu_file_object.name))
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     miu_file_object.seek(0)

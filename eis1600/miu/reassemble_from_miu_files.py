@@ -1,5 +1,5 @@
-import sys
-import os
+from sys import argv, exit
+from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
@@ -9,8 +9,8 @@ from eis1600.miu.methods import reassemble_text
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and os.path.isfile(input_arg):
-            filepath, fileext = os.path.splitext(input_arg)
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
             if fileext != '.IDs':
                 parser.error('You need to input an IDs file')
             else:
@@ -21,7 +21,7 @@ class CheckFileEndingAction(Action):
 
 def main():
     arg_parser = ArgumentParser(
-        prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+        prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
         description='''Script to reassemble EIS1600 file(s) from MIU file(s).
 -----
 Give a single IDs file as input
@@ -59,7 +59,7 @@ Use -e <EIS1600_repo> to batch process all files in the EIS1600 directory.
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'IDs')
         if not infiles:
             print('There are no IDs files to process')
-            sys.exit()
+            exit()
 
         params = [(infile, out_path, verbose) for infile in infiles]
 
@@ -69,6 +69,6 @@ Use -e <EIS1600_repo> to batch process all files in the EIS1600 directory.
         print(
                 'Pass in a <uri.IDs> file to process a single file or use the -e option for batch processing'
         )
-        sys.exit()
+        exit()
 
     print('Done')

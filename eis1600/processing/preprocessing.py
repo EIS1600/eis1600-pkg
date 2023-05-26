@@ -3,13 +3,13 @@ from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.miu.yml_handling import extract_yml_header_and_text
 from typing import Iterator, List, TextIO, Tuple, Union
 
-import pandas as pd
+from pandas import DataFrame, options
 
 from camel_tools.tokenizers.word import simple_word_tokenize
 from eis1600.helper.markdown_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
 
 
-pd.options.mode.chained_assignment = None
+options.mode.chained_assignment = None
 
 
 def get_tokens_and_tags(tagged_text: str) -> Tuple[List[Union[str, None]], List[Union[str, None]]]:
@@ -88,7 +88,7 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, 
     return zip(sections, ar_tokens, tags)
 
 
-def get_yml_and_miu_df(miu_file_object: TextIO) -> Tuple[YAMLHandler, pd.DataFrame]:
+def get_yml_and_miu_df(miu_file_object: TextIO) -> Tuple[YAMLHandler, DataFrame]:
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
     :param TextIO miu_file_object: File object of the MIU file.
@@ -98,7 +98,7 @@ def get_yml_and_miu_df(miu_file_object: TextIO) -> Tuple[YAMLHandler, pd.DataFra
     yml_str, text = extract_yml_header_and_text(miu_file_object, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
     zipped = tokenize_miu_text(text)
-    df = pd.DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
+    df = DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
     df.mask(df == '', inplace=True)
 

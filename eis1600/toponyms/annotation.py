@@ -4,7 +4,7 @@
 from glob import glob
 from pathlib import Path
 
-import sys
+from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 
@@ -16,7 +16,7 @@ from eis1600.toponyms.methods import toponym_category_annotation
 
 def main():
     arg_parser = ArgumentParser(
-            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to annotate onomastic information in gold-standard MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')

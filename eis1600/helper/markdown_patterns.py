@@ -1,4 +1,4 @@
-import re
+from re import compile
 
 from eis1600.helper.EntityTags import EntityTags
 
@@ -17,66 +17,66 @@ WORD = r'(?:\s' + AR_STR + ')'
 
 # EIS1600 mARkdown
 UID = r'_ء_(#)?=(?P<UID>\d{12})= '
-UID_PATTERN = re.compile(UID)
+UID_PATTERN = compile(UID)
 MIU_UID = r'_ء_#=(?P<UID>\d{12})= '
-MIU_UID_PATTERN = re.compile(MIU_UID)
-HEADER_END_PATTERN = re.compile(r'(#META#Header#End#)\n')
+MIU_UID_PATTERN = compile(MIU_UID)
+HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
-MIU_HEADER_PATTERN = re.compile(MIU_HEADER)
-HEADING_PATTERN = re.compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
-EMPTY_PARAGRAPH_PATTERN = re.compile(UID + r'::UNDEFINED:: ~')
-EMPTY_FIRST_PARAGRAPH_PATTERN = re.compile(r'_ء_#=\d{12}=')
+MIU_HEADER_PATTERN = compile(MIU_HEADER)
+HEADING_PATTERN = compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
+EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::UNDEFINED:: ~')
+EMPTY_FIRST_PARAGRAPH_PATTERN = compile(r'_ء_#=\d{12}=')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
-PAGE_TAG_PATTERN = re.compile(PAGE_TAG)
+PAGE_TAG_PATTERN = compile(PAGE_TAG)
 ONLY_PAGE_TAG = UID + r'::UNDEFINED:: ~\n' + PAGE_TAG
-ONLY_PAGE_TAG_PATTERN = re.compile(ONLY_PAGE_TAG)
-PAGE_TAG_IN_BETWEEN_PATTERN = re.compile(
+ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
+PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
 # changing them
-MIU_TAG_PATTERN = re.compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
-CATEGORY_PATTERN = re.compile(r'[$|@]+(?:[A-Z]+[|])?')
+MIU_TAG_PATTERN = compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
+CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z]+[|])?')
 SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
-SECTION_PATTERN = re.compile(SECTION_TAG)
-SECTION_SPLITTER_PATTERN = re.compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
-TAG_PATTERN = re.compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
+SECTION_PATTERN = compile(SECTION_TAG)
+SECTION_SPLITTER_PATTERN = compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
+TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z0-9_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
-UID_TAG_AND_TEXT_SAME_LINE_PATTERN = re.compile(
+UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(
         r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
-MIU_TAG_AND_TEXT_PATTERN = re.compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # MIU entity tags
 entity_tags = '|'.join(EntityTags.instance().get_entity_tags())
-ENTITY_TAGS_PATTERN = re.compile(r'Ü?(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})(?:[A-Z0-9]+)?')
-YEAR_PATTERN = re.compile(r'Ü?Y\d{1,2}(?P<cat>[A-Z])(?P<written>\d{4})(?P<i>I)?Y(?P<real>\d{4})?')
-AGE_PATTERN = re.compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
+ENTITY_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})(?:[A-Z0-9]+)?')
+YEAR_PATTERN = compile(r'Ü?Y\d{1,2}(?P<cat>[A-Z])(?P<written>\d{4})(?P<i>I)?Y(?P<real>\d{4})?')
+AGE_PATTERN = compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
 nasab_tags = '|'.join(EntityTags.instance().get_nasab_tags())
-NASAB_TAGS_PATTERN = re.compile(r'Ü?(?P<entity>' + nasab_tags + r')(?P<length>\d{1,2})')
+NASAB_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + nasab_tags + r')(?P<length>\d{1,2})')
 
 # EIS1600 light mARkdown
-HEADING_OR_BIO_PATTERN = re.compile(r'# [|$]+')
-MIU_LIGHT_OR_EIS1600_PATTERN = re.compile(r'#|_ء_#')
+HEADING_OR_BIO_PATTERN = compile(r'# [|$]+')
+MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
 
 # Fix mARkdown files
-SPACES_CROWD_PATTERN = re.compile(r' +')
-NEWLINES_CROWD_PATTERN = re.compile(r'\n{3,}')
-SPACES_AFTER_NEWLINES_PATTERN = re.compile(r'\n +')
-POETRY_PATTERN = re.compile(
+SPACES_CROWD_PATTERN = compile(r' +')
+NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
+SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
+POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +
         AR_STR_AND_TAGS +
         r')*) ?'
 )
-BELONGS_TO_PREV_PARAGRAPH_PATTERN = re.compile(r'\n(.{1,10})\n')
-PAGE_TAG_ON_NEWLINE_PATTERN = re.compile(r'\n' + PAGE_TAG)
-PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = re.compile(
+BELONGS_TO_PREV_PARAGRAPH_PATTERN = compile(r'\n(.{1,10})\n')
+PAGE_TAG_ON_NEWLINE_PATTERN = compile(r'\n' + PAGE_TAG)
+PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = compile(
         '(' + AR_STR + ' ?)' + r'\n\n' + PAGE_TAG + r'\n\n' + '(' + AR_STR +
         ')'
 )
-NORMALIZE_BIO_CHR_MD_PATTERN = re.compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
-BIO_CHR_TO_NEWLINE_PATTERN = re.compile(TAG_AND_TEXT_SAME_LINE)
+NORMALIZE_BIO_CHR_MD_PATTERN = compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
+BIO_CHR_TO_NEWLINE_PATTERN = compile(TAG_AND_TEXT_SAME_LINE)
 
 # Fixed poetry old file path pattern
-FIXED_POETRY_OLD_PATH_PATTERN = re.compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')
+FIXED_POETRY_OLD_PATH_PATTERN = compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')

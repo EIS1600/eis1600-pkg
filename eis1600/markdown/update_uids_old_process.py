@@ -1,22 +1,19 @@
-from os.path import split, splitext
-
-from eis1600.markdown.UIDs import UIDs
 from typing import Optional
-
-import sys
-import os
+from sys import argv, exit
+from os.path import isfile, split, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
 from eis1600.helper.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, HEADING_OR_BIO_PATTERN, \
     MIU_LIGHT_OR_EIS1600_PATTERN, NEWLINES_CROWD_PATTERN, UID_PATTERN
+from eis1600.markdown.UIDs import UIDs
 
 
 class CheckFileEndingAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and os.path.isfile(input_arg):
-            filepath, fileext = os.path.splitext(input_arg)
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
             if fileext != '.EIS1600':
                 parser.error('You need to input an EIS1600 file')
             else:
@@ -92,7 +89,7 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
 def main():
     arg_parser = ArgumentParser(
-            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to insert UIDs in updated EIS1600 file(s).
 -----
 Give a single EIS1600 file as input
@@ -134,7 +131,7 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
             print(
                     'There are no more files to update'
             )
-            sys.exit()
+            exit()
 
         params = [(infile, verbose) for infile in infiles]
 
@@ -146,6 +143,6 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
         print(
                 'Pass in a <uri.EIS1600> file to process a single file or use the -e option for batch processing'
         )
-        sys.exit()
+        exit()
 
     print('Done')

@@ -1,4 +1,4 @@
-import re
+from re import compile
 
 from openiti.helper.ara import denormalize
 
@@ -70,8 +70,8 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
        r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
        r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?(?=(?:' + WORD + r'|[\s\.,]|$))'
 
-DATE_PATTERN = re.compile(DATE)
-MONTH_PATTERN = re.compile(AR_MONTHS)
+DATE_PATTERN = compile(DATE)
+MONTH_PATTERN = compile(AR_MONTHS)
 
 DATE_CATEGORIES = {
         'ولد': 'B', 'مولد': 'B', 'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D', 'حج': 'P',
@@ -80,4 +80,4 @@ DATE_CATEGORIES = {
 DATE_CATEGORIES_NOR = normalize_dict(DATE_CATEGORIES)
 
 AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES.keys()])
-DATE_CATEGORY_PATTERN = re.compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')')
+DATE_CATEGORY_PATTERN = compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')')

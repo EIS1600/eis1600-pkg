@@ -1,19 +1,17 @@
 from glob import glob
-from logging import Logger
 from os.path import splitext, split, exists
 from typing import List, Optional
 from pathlib import Path
 
-from eis1600.onomastics.methods import nasab_annotate_miu
-
 from eis1600.dates.methods import date_annotate_miu_text
-from eis1600.miu.HeadingTracker import HeadingTracker
-from eis1600.processing.preprocessing import get_yml_and_miu_df
-from eis1600.processing.postprocessing import write_updated_miu_to_file
-from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
-from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
+from eis1600.miu.HeadingTracker import HeadingTracker
+from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
+from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
+from eis1600.onomastics.methods import nasab_annotate_miu
+from eis1600.processing.postprocessing import write_updated_miu_to_file
+from eis1600.processing.preprocessing import get_yml_and_miu_df
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
@@ -155,7 +153,7 @@ def get_mius(infile: str) -> List[str]:
     return mius
 
 
-def annotate_miu_file(path: str, logger: Logger = None, tsv_path=None, output_path=None, force_annotation=False):
+def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotation=False):
     if output_path is None:
         output_path = path
     if tsv_path is None:
@@ -180,7 +178,7 @@ def annotate_miu_file(path: str, logger: Logger = None, tsv_path=None, output_pa
 
         # 5. annotate onomastic information
         # TODO Needs to be run after the NASAB END tag was inserted
-        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, path, logger)
+        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, path)
 
         # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
         # TODO 7. toponym categorization

@@ -1,11 +1,11 @@
-import re
+from re import compile
 from glob import glob
 from p_tqdm import p_uimap
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 
 
-sheikhuna = re.compile('[و]?شيخنا')
+sheikhuna = compile('[و]?شيخنا')
 
 
 def untag_sheikhuna(row):

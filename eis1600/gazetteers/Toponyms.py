@@ -1,14 +1,12 @@
 from __future__ import annotations
 from importlib_resources import files
 from typing import List, Tuple
-from pandas import concat, isna, read_csv
+from pandas import isna, read_csv
 
 from eis1600.helper.Singleton import Singleton
 from eis1600.helper.ar_normalization import denormalize_list
 
-file_path = files('eis1600.gazetteers.data')
-toponyms_path = file_path.joinpath('toponyms.csv')
-provinces_path = file_path.joinpath('regions.csv')
+toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.csv')
 
 
 @Singleton
@@ -32,15 +30,8 @@ class Toponyms:
         def split_toponyms(tops: str) -> List[str]:
             return tops.split('، ')
 
-        def coords_as_list(coords: str) -> List[float, float]:
-            coords_list = coords.strip('()').split(', ')
-            x, y = coords_list
-            return [float(x), float(y)]
-
-        thurayya_df = read_csv(toponyms_path, usecols=['uri', 'place_label', 'toponyms', 'province_uri',
-                                                       'type_label'], converters={'toponyms': split_toponyms})
-        provinces_df = read_csv(provinces_path, usecols=['uri', 'place_label', 'toponyms'],
-                                  converters={'toponyms': split_toponyms})
+        df = read_csv(toponyms_path, usecols=['uri', 'place_label', 'toponyms', 'province_uri', 'type_label'],
+                      converters={'toponyms': split_toponyms})
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 
         def get_all_variations(tops: List[str]) -> List[str]:
@@ -48,19 +39,13 @@ class Toponyms:
             prefixed_variations = [prefix + top for prefix in prefixes for top in variations]
             return variations + prefixed_variations
 
-        uris = thurayya_df['uri'].to_list()
-        regions = [uri[:-1] + 'R' for uri in uris if uri[-1] == 'S' and uri[:-1] + 'R' in uris]
-        regions_idcs = thurayya_df.loc[thurayya_df['uri'].str.fullmatch('|'.join(regions))].index
-        thurayya_df.drop(index=regions_idcs, inplace=True)
-        thurayya_df['toponyms'] = thurayya_df['toponyms'].apply(get_all_variations)
-        provinces_df['toponyms'] = provinces_df['toponyms'].apply(get_all_variations)
+        df['toponyms'] = df['toponyms'].apply(get_all_variations)
 
-        settlements = thurayya_df.explode('toponyms', ignore_index=True)
-        provinces = provinces_df.explode('toponyms', ignore_index=True)
+        topos = df.explode('toponyms', ignore_index=True)
 
-        Toponyms.__settlements = settlements['toponyms'].to_list()
-        Toponyms.__provinces = provinces['toponyms'].to_list()
-        Toponyms.__df = concat([settlements, provinces], ignore_index=True)
+        Toponyms.__settlements = topos.loc[topos['type_label'] != 'region', 'toponyms'].to_list()
+        Toponyms.__provinces = topos.loc[topos['type_label'] == 'region', 'toponyms'].to_list()
+        Toponyms.__df = topos
         Toponyms.__df.mask(isna(Toponyms.__df), '', inplace=True)
 
         Toponyms.__total = Toponyms.__settlements + Toponyms.__provinces

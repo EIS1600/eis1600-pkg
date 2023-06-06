@@ -3,7 +3,6 @@ from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.disambig.mle import MLEDisambiguator
 from camel_tools.tagger.default import DefaultTagger
 from camel_tools.utils.dediac import dediac_ar
-
 from typing import Union
 
 
@@ -12,6 +11,11 @@ class CamelToolsModels:
     __mled_disambiguator = None
     __lemmatizer = None
     __ner_tagger = None
+    __nasab_tagger = None
+    __onomastic_tagger = None
+    __NASAB_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_nasab/"
+    __NER_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_ner/"
+    __ONOMASTIC_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_onomastic/"
 
     @staticmethod
     def getInstance():
@@ -19,6 +23,20 @@ class CamelToolsModels:
         if CamelToolsModels.__ner_tagger is None or CamelToolsModels.__lemmatizer is None:
             CamelToolsModels()
         return CamelToolsModels.__ner_tagger, CamelToolsModels.__lemmatizer, CamelToolsModels.__pos_tagger
+
+    @staticmethod
+    def getNasabModel():
+        """ Static access method. """
+        if CamelToolsModels.__nasab_tagger is None:
+            CamelToolsModels.__nasab_tagger = NERecognizer(CamelToolsModels.__NASAB_MODEL_PATH)
+        return CamelToolsModels.__nasab_tagger
+
+    @staticmethod
+    def getOnomasticModel():
+        """ Static access method. """
+        if CamelToolsModels.__onomastic_tagger is None:
+            CamelToolsModels.__onomastic_tagger = NERecognizer(CamelToolsModels.__ONOMASTIC_MODEL_PATH)
+        return CamelToolsModels.__onomastic_tagger
 
     def __init__(self):
         """ Virtually private constructor. """
@@ -28,7 +46,7 @@ class CamelToolsModels:
             CamelToolsModels.__mled_disambiguator = MLEDisambiguator.pretrained()
             CamelToolsModels.__lemmatizer = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'lex')
             CamelToolsModels.__pos_tagger = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'pos')
-            CamelToolsModels.__ner_tagger = NERecognizer.pretrained()
+            CamelToolsModels.__ner_tagger = NERecognizer(CamelToolsModels.__NER_MODEL_PATH) # .pretrained
 
 
 def lemmatize_and_tag_ner(tokens: Union[str, list]) -> list:

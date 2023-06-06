@@ -205,7 +205,7 @@ def nasab_annotate_miu(
 
     tagged_spelling = tag_spelling(text)
     ar_tokens, tags = get_tokens_and_tags(tagged_spelling)
-    df.loc[nasab_idx, 'NASAB_TAGS'] = tags
+    df.loc[nasab_idx, 'ONONMASTIC_TAGS'] = tags
 
     count = 0
     spl_idcs = []
@@ -222,13 +222,13 @@ def nasab_annotate_miu(
     text_w_mnpld_nas = get_nas(text)
     tagged_onomastics = tag_nasab(text_w_mnpld_nas)
     ar_tokens, tags = get_tokens_and_tags(tagged_onomastics)
-    df.loc[nasab_idx, 'NASAB_TAGS'] = tags
+    df.loc[nasab_idx, 'ONONMASTIC_TAGS'] = tags
 
     if idx != len(df):
         # TODO make NASAB stay on same line
         df.loc[idx - 1, 'NASAB_END'] = 'NASAB'
 
-    return df['NASAB_TAGS'].to_list()
+    return df['ONONMASTIC_TAGS'].to_list()
 
 
 def nasab_annotation(file: str, test: bool):

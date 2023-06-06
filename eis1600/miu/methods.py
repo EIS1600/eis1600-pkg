@@ -8,7 +8,7 @@ from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTER
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text
+from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_tag, insert_onomastic_tags
 from eis1600.onomastics.methods import nasab_annotate_miu
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
@@ -176,9 +176,15 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
 
-        # 5. annotate onomastic information
+        # Insert nasab tag with the pretrained transformer model
+        df['NASAB_TAGS'] = insert_nasab_tag(df)
+        df['ONONMASTIC_TAGS'] = insert_onomastic_tags(df)
+
+        print(df.head())
+
+        # 5. annotate onomastic information (Rule-Based model)
         # TODO Needs to be run after the NASAB END tag was inserted
-        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, path)
+        # df['ONONMASTIC_TAGS'] = nasab_annotate_miu(df, yml_handler, path)
 
         # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
         # TODO 7. toponym categorization
@@ -192,11 +198,11 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         if output_path == path:
             write_updated_miu_to_file(
                 miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                 'DATE_TAGS', 'NASAB_TAGS']]
+                                                 'DATE_TAGS', 'NASAB_TAGS', 'ONONMASTIC_TAGS']]
                 )
         else:
             with open(output_path, 'w', encoding='utf-8') as out_file_object:
                 write_updated_miu_to_file(
                         out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                         'DATE_TAGS', 'NASAB_TAGS']]
+                                                         'DATE_TAGS', 'NASAB_TAGS', 'ONONMASTIC_TAGS']]
                 )

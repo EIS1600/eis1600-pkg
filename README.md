@@ -45,6 +45,8 @@ In case you have an older version installed, use:
 $ pip install --upgrade eis1600
 ```
 
+**Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
+
 ## Set Up Virtual Environment and Install the EIS1600 PKG there
 
 To not mess with other python installations, we recommend installing the package in a virual environment.

@@ -13,9 +13,9 @@ class CamelToolsModels:
     __ner_tagger = None
     __nasab_tagger = None
     __onomastic_tagger = None
-    __NASAB_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_nasab/"
-    __NER_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_ner/"
-    __ONOMASTIC_MODEL_PATH = "../EIS1600_pretrained_models/camelbert-ca-finetuned_onomastic/"
+    __NASAB_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_nasab/"
+    __NER_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_ner/"
+    __ONOMASTIC_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_onomastic/"
 
     @staticmethod
     def getInstance():

@@ -30,7 +30,6 @@ def normalize_bio_chr_md(paragraph: str) -> str:
     elif md == '@ RAW':
         return NORMALIZE_BIO_CHR_MD_PATTERN.sub('# @@@', paragraph)
     else:
-        print(md)
         return paragraph
 
 

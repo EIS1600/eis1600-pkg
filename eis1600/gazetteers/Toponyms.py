@@ -43,8 +43,8 @@ class Toponyms:
 
         topos = df.explode('toponyms', ignore_index=True)
 
-        Toponyms.__settlements = topos.loc[topos['type_label'] != 'region', 'toponyms'].to_list()
-        Toponyms.__provinces = topos.loc[topos['type_label'] == 'region', 'toponyms'].to_list()
+        Toponyms.__settlements = topos.loc[topos['type_label'] != 'province', 'toponyms'].to_list()
+        Toponyms.__provinces = topos.loc[topos['type_label'] == 'province', 'toponyms'].to_list()
         Toponyms.__df = topos
         Toponyms.__df.mask(isna(Toponyms.__df), '', inplace=True)
 

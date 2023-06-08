@@ -12,6 +12,7 @@ from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_
 from eis1600.onomastics.methods import nasab_annotate_miu
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
+from eis1600.toponyms.methods import toponym_category_annotate_miu
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
@@ -176,25 +177,27 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
 
-        # Insert nasab tag with the pretrained transformer model
+        # 5. insert BNASAB and ENASAB tags with the pretrained transformer model
         df['NASAB_TAGS'] = insert_nasab_tag(df)
+
+        # 6. annotate onomastic information
         df['ONONMASTIC_TAGS'] = insert_onomastic_tags(df)
 
-        print(df.head())
-
-        # 5. annotate onomastic information (Rule-Based model)
-        # TODO Needs to be run after the NASAB END tag was inserted
+        # 5. annotate onomastic information (Rule-Based model, an alternative to ML model insert_onomastic_tags
         # df['ONONMASTIC_TAGS'] = nasab_annotate_miu(df, yml_handler, path)
 
         # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
-        # TODO 7. toponym categorization
+
+        # 7. toponym categorization
+        df['NER_TAGS'] = toponym_category_annotate_miu(df['TOKENS'], df['NER_TAGS'])
+
         # TODO 8. assign roles for persons
         # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)
 
-        # 6. save csv file
+        # 10. save csv file
         df.to_csv(tsv_path, index=False, sep='\t')
 
-        # 7. reconstruct the text, populate yml with annotated entities and save it to the output file
+        # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
         if output_path == path:
             write_updated_miu_to_file(
                 miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',

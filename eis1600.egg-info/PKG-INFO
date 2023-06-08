@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.9.3
+Version: 0.9.4
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -53,6 +53,8 @@ Description: # EIS1600 Tools
         $ pip install --upgrade eis1600
         ```
         
+        **Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
+        
         ## Set Up Virtual Environment and Install the EIS1600 PKG there
         
         To not mess with other python installations, we recommend installing the package in a virual environment.
@@ -103,6 +105,7 @@ Description: # EIS1600 Tools
         |
         |---| eis_env
         |---| EIS1600_MIUs
+        |---| EIS1600_Pretrained_Models (optional)
         |---| gazetteers
         |---| Master_Chronicle
         |---| OpenITI_EIS1600_Texts
@@ -171,7 +174,15 @@ Description: # EIS1600 Tools
         
         ### Annotation
         
-        NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastics.
+        NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastic information.
+        
+        **Note** Can only be run if package was installed with *NER* flag AND if the ML models are in the [EIS1600_Pretrained_Models](#structure-of-the-working-directory) directory.
+        
+        If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
+        Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `EIS1600_MIUs/`).
+        ```shell
+        $ annotate_mius -p
+        ```
         
         To annotate all MIU files of a text give the IDs file as argument.
         Can be used with `-p` option to run in parallel.
@@ -182,12 +193,6 @@ Description: # EIS1600 Tools
         To annotate an individual MIU file, give MIU file as argument.
         ```shell
         $ annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
-        ```
-        
-        If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
-        Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `OpenITI_EIS1600_MIUs/`).
-        ```shell
-        $ annotate_mius -p
         ```
         
         ### Only Onomastic Annotation

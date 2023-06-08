@@ -101,6 +101,7 @@ def camel2md_as_list(labels: list) -> List[str]:
         converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
     return converted_tokens
 
+
 def insert_nasab_tag(df) -> list:
     tokens = df['TOKENS'].fillna('').to_list()
     nasab_tagger = CamelToolsModels.getNasabModel()
@@ -115,7 +116,6 @@ def insert_nasab_tag(df) -> list:
         #     else:
         #         shortend_list_of_tokens.append("_")
     nasab_labels = nasab_tagger.predict_sentence(shortend_list_of_tokens)
-    print(list(zip(shortend_list_of_tokens, nasab_labels)))
     punct = "..،_" + string.punctuation
     nasab = ['_']
     nasab_started = False
@@ -139,7 +139,6 @@ def insert_nasab_tag(df) -> list:
                     nasab.append('')
     if nasab_started:
         nasab[-1] = "ENASAB"
-    print(nasab)
     # merge the shortend list
     if len(tokens) > __shortend_list_limit:
         nasab.extend([''] * (len(tokens) - __shortend_list_limit))

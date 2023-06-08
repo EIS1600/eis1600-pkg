@@ -167,7 +167,8 @@ def tag_spelling(text: str) -> str:
 
 
 def nasab_annotate_miu(
-        df: DataFrame, yml_handler: YAMLHandler,
+        df: DataFrame,
+        yml_handler: YAMLHandler,
         file: str,
         test: Optional[bool] = False
 ) -> Series:
@@ -231,8 +232,12 @@ def nasab_annotate_miu(
     return df['ONONMASTIC_TAGS'].to_list()
 
 
-def nasab_annotation(file: str, test: bool):
-    """Only used for onomastic_annotation cmdline script."""
+def nasab_annotation(file: str, test: Optional[bool] = False):
+    """Helper to run onomastic annotation standalone as cmdline script.
+
+    :param str file: Path of the miu file to annotate.
+    :param bool test: Indicating if the script is run with test data, defaults to false.
+    """
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
     if test:

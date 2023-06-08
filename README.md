@@ -97,6 +97,7 @@ The `EIS1600` directory has the following structure:
 |
 |---| eis_env
 |---| EIS1600_MIUs
+|---| EIS1600_Pretrained_Models (optional)
 |---| gazetteers
 |---| Master_Chronicle
 |---| OpenITI_EIS1600_Texts
@@ -165,7 +166,15 @@ $ reassemble_from_miu_files -e <MIU_repo>
 
 ### Annotation
 
-NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastics.
+NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastic information.
+
+**Note** Can only be run if package was installed with *NER* flag AND if the ML models are in the [EIS1600_Pretrained_Models](#structure-of-the-working-directory) directory.
+
+If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `EIS1600_MIUs/`).
+```shell
+$ annotate_mius -p
+```
 
 To annotate all MIU files of a text give the IDs file as argument.
 Can be used with `-p` option to run in parallel.
@@ -176,12 +185,6 @@ $ annotate_mius <uri>.IDs
 To annotate an individual MIU file, give MIU file as argument.
 ```shell
 $ annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
-```
-
-If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
-Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `OpenITI_EIS1600_MIUs/`).
-```shell
-$ annotate_mius -p
 ```
 
 ### Only Onomastic Annotation

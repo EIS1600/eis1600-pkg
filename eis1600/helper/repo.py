@@ -260,7 +260,6 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
             out_path += infile.split('data')[0][2:]
         elif infile != './':
             depth = len(infile.split('/'))
-            print(depth)
             if depth == 1:
                 out_path += '../../../../'
             elif depth == 2:

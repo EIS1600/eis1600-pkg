@@ -34,6 +34,7 @@ all files in the MIU directory are batch processed.
 '''
         )
     arg_parser.add_argument('-v', '--verbose', action='store_true')
+    arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-p', '--parallel', help='parallel processing', action='store_true')
     arg_parser.add_argument('-f', '--force', help='force re-annotation', action='store_true')
     arg_parser.add_argument(

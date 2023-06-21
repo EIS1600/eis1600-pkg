@@ -72,14 +72,14 @@ class Toponyms:
         """Look up tagged entity in settlements (there is no gazetteer of provinces so far).
 
         :param str entity: The token(s) which were tagged as toponym.
-        :return: placeLabel(s) as str, URI(s) as str, list of settlement uri(s), list of province uri(s),
+        :return: placeLabel(s) as str, URI(s)-tag as str, list of settlement uri(s), list of province uri(s),
         list of settlement(s) coordinates, list of province(s) coordinates.
         """
         if entity in Toponyms.__total:
             matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'province_uri',
                                                                                           'place_label']]
             uris = matches['uri'].to_list()
-            provinces = matches['province_uri'].to_list()
+            provinces = [m for m in matches['province_uri'].to_list() if m != '']
             place = matches['place_label'].unique()
 
             return '::'.join(place), '@' + '@'.join(uris) + '@', uris, provinces

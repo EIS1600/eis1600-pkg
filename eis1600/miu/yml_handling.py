@@ -117,7 +117,7 @@ def add_annotated_entities_to_yml(
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
-    toponyms_set: Set[str] = set()
+    settlements_set: Set[str] = set()
     provinces_set: Set[str] = set()
     nas_counter = 0
 
@@ -136,15 +136,20 @@ def add_annotated_entities_to_yml(
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {file_path}')
                 return
         elif cat == 'TOPONYM':
-            place, uri, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
-            add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uri})
+            place, tag, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
+            add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': tag})
             if len(list_of_uris) == 0:
                 path, uri = split(file_path)
                 uri, ext = splitext(uri)
                 LOGGER_TOPONYMS_UNKNOWN.info(f'{uri},{entity}')
             else:
-                toponyms_set.update(list_of_uris)
-                provinces_set.update(list_of_provinces)
+                if len(list_of_provinces) > 0:
+                    settlements_set.update(list_of_uris)
+                    provinces_set.update(list_of_provinces)
+                else:
+                    # if there is no province URI that means the toponym is a province and should therefore be added
+                    # to provinces and not settlements
+                    provinces_set.update(list_of_uris)
                 if len(list_of_uris) > 1:
                     yml_handler.set_ambigious_toponyms()
         elif cat == 'ONOMASTIC':
@@ -171,9 +176,10 @@ def add_annotated_entities_to_yml(
         # Sort dict by keys
         entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
 
-    if toponyms_set:
-        entities_dict['settlements'] = list(toponyms_set)
-        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(toponyms_set, 2) if a != b]
+    if settlements_set:
+        entities_dict['settlements'] = list(settlements_set)
+        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(settlements_set, 2) if a != b]
+    if provinces_set:
         entities_dict['provinces'] = list(provinces_set)
         entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2) if a != b]
 

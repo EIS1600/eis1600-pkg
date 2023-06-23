@@ -5,13 +5,16 @@ from openiti.helper.ara import denormalize
 from eis1600.helper.ar_normalization import normalize_dict
 
 
+# TODO Annotate hajja -> Mekka
+# TODO Annotate jāwara -> Medina
+
 TOPONYM_CATEGORIES = {
         'ولد': 'B', 'مولد': 'B',
         'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D',
+        'دفن': 'G',
         'سمع': 'K', 'روى': 'K', 'روا': 'K', 'قرا': 'K', 'اجاز': 'K', 'حدث': 'K',
-        'لقي': 'M',
-        'استقر': 'O', 'انفصل': 'O', 'ولي': 'O', 'قاضي': 'O', 'نائب': 'O', 'أعمال': 'O',
-        'حج': 'P',
+        'استقر': 'O', 'انفصل': 'O', 'ولي': 'O', 'قاضي': 'O', 'نائب': 'O', 'صاحب': 'O', 'أعمال': 'O',
+        'حج': 'V',
         'سكن': 'R', 'نزل': 'R', 'نزيل': 'R', 'من اهل': 'R', 'استوطن': 'R', 'كان من': 'R', 'نشأ': 'R'
 }
 TOPONYM_CATEGORIES_NOR = normalize_dict(TOPONYM_CATEGORIES)

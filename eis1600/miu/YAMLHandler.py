@@ -23,11 +23,11 @@ class YAMLHandler:
     """
     # Only attributes named in the following list are allowed to be added to the YAMLHeader - add any new attribute
     # to that list
-    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambigious_toponyms', 'toponyms',
-                              'settlements', 'provinces', 'edges_settlements', 'edges_provinces']
+    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambiguous_toponyms', 'toponyms',
+                              'settlements', 'provinces', 'edges_settlements', 'edges_provinces', 'books', 'miscs']
 
     @staticmethod
-    def __parse_yml_val(val: str, key: Optional[str] = None) -> Any:
+    def __parse_yml_val(val: str) -> Any:
         if val.isdigit():
             return int(val)
         if len(val.split('.')) == 2 and val.split('.')[0].isdigit() and val.split('.')[1].isdigit():
@@ -85,13 +85,13 @@ class YAMLHandler:
                 if intend and intend == len(level) and val != '':
                     # Stay on level and add key, val to the respective dict
                     curr_dict = level[-1][1]
-                    curr_dict[key] = YAMLHandler.__parse_yml_val(val, key)
+                    curr_dict[key] = YAMLHandler.__parse_yml_val(val)
                 elif val == '':
                     # Go one level deeper, add key and empty dict for that new level
                     level.append((key, {}))
                 else:
                     # Add key, val to the top level
-                    yml[key] = YAMLHandler.__parse_yml_val(val, key)
+                    yml[key] = YAMLHandler.__parse_yml_val(val)
 
         if len(level):
             dict_key = level[-1][0]
@@ -108,7 +108,7 @@ class YAMLHandler:
         self.dates_headings = None
 
         for key in YAMLHandler.__attr_from_annotation:
-            if key == 'ambigious_toponyms':
+            if key == 'ambiguous_toponyms':
                 self.__setattr__(key, False)
             else:
                 self.__setattr__(key, None)
@@ -117,6 +117,9 @@ class YAMLHandler:
             for key, val in yml.items():
                 if key == 'headings':
                     val = HeadingTracker(val)
+                if key == 'ambigious':
+                    # Fix typo
+                    key = 'ambiguous'
                 self.__setattr__(key, val)
 
     @classmethod
@@ -127,8 +130,8 @@ class YAMLHandler:
     def set_category(self, category: str) -> None:
         self.category = category
 
-    def set_ambigious_toponyms(self) -> None:
-        self.ambigious_toponyms = True
+    def set_ambiguous_toponyms(self) -> None:
+        self.ambiguous_toponyms = True
 
     def set_headings(self, headings: HeadingTracker) -> None:
         self.headings = headings
@@ -143,10 +146,6 @@ class YAMLHandler:
             if val:
                 if key == 'category':
                     yaml_str += key + '    : \'' + val + '\'\n'
-                # elif key == 'settlements' or key == 'provinces':
-                #     yaml_str += f'{key}    : {[toponym.as_dict() for toponym in val]}\n'
-                # elif key.startswith('edges'):
-                #     yaml_str += f'{key}    : {[[edge[0].as_dict(), edge[1].as_dict()] for edge in val]}\n'
                 elif hasattr(val, 'get_yamlfied'):
                     yaml_str += f'{key}    : {val.get_yamlfied()}\n'
                 elif isinstance(val, dict):
@@ -161,11 +160,6 @@ class YAMLHandler:
         json_dict = init
         for key, val in vars(self).items():
             if key != 'toponyms' and val:
-                # Toponym is only to control the entity and how it was identified
-                # if key == 'settlements' or key == 'provinces':
-                #     json_dict[key] = [elem.to_json() for elem in val]
-                # elif key.startswith('edges'):
-                #     json_dict[key] = [[edge[0].to_json(), edge[1].to_json()] for edge in val]
                 if hasattr(val, 'to_json'):
                     json_dict[key] = val.to_json()
                 else:
@@ -188,8 +182,10 @@ class YAMLHandler:
     def add_tagged_entities(self, entities_dict: dict) -> None:
         for key in YAMLHandler.__attr_from_annotation:
             # Clear old entities
-            if key != 'ambigious_toponyms':
+            if key != 'ambiguous_toponyms':
                 self.__setattr__(key, None)
+            elif hasattr(self, 'ambiguous_toponyms'):
+                self.__delattr__('ambiguous_toponyms')
         for key in YAMLHandler.__attr_from_annotation:
             # Set new entities in same order
             if key in entities_dict.keys():

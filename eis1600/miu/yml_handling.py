@@ -68,7 +68,8 @@ def extract_yml_header_and_text(miu_file_object: TextIO, is_header: Optional[boo
 
 
 def add_to_entities_dict(
-        entities_dict: Dict, cat: str,
+        entities_dict: Dict,
+        cat: str,
         entity: Union[str, Tuple[str, Union[int, str]], List[Tuple[str, str]], List[str], Tuple[int, str], Dict],
         tag: Optional[str] = None
 ) -> None:
@@ -77,7 +78,7 @@ def add_to_entities_dict(
     :param Dict entities_dict: Dict containing previous tagged entities.
     :param str cat: Category of the entity.
     :param Union[str|int] entity: Entity - might be int if entity is a date, otherwise str.
-    :param str tag: Onomastic classification, used to differentiate between onomastic elements, optional.
+    :param str tag: Optional, onomastic classification used to differentiate between onomastic elements, defaults to None.
     """
     cat = cat.lower() + 's'
     if tag:
@@ -107,6 +108,8 @@ def add_annotated_entities_to_yml(
 ) -> None:
     """Populates YAMLHeader with annotated entities.
 
+    Extract annotated entities as metadata. While doing so, identify toponyms and calculate active period for the
+    biographee.
     :param str text_with_tags: Text with inserted tags of the MIU.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param str file_path: Filename of the current MIU (used in error msg).
@@ -117,14 +120,19 @@ def add_annotated_entities_to_yml(
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
+    nas_counter = 0
     settlements_set: Set[str] = set()
     provinces_set: Set[str] = set()
-    nas_counter = 0
+    ambiguous_toponyms = False
 
     m = ENTITY_TAGS_PATTERN.search(text_with_tags)
     while m:
         tag = m.group('entity')
         length = int(m.group('length'))
+        sub_cat = None
+        if m.group('sub_cat'):
+            # Person, toponyms and books are sub-classified based on their relation to the biographee
+            sub_cat = m.group('sub_cat')
         entity = ' '.join(text_with_tags[m.end():].split(maxsplit=length)[:length])
 
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
@@ -136,8 +144,12 @@ def add_annotated_entities_to_yml(
                 print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {file_path}')
                 return
         elif cat == 'TOPONYM':
-            place, tag, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
-            add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': tag})
+            # Identify toponym
+            place, uris_tag, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
+            if sub_cat:
+                add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uris_tag, 'cat': sub_cat})
+            else:
+                add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uris_tag})
             if len(list_of_uris) == 0:
                 path, uri = split(file_path)
                 uri, ext = splitext(uri)
@@ -151,7 +163,8 @@ def add_annotated_entities_to_yml(
                     # to provinces and not settlements
                     provinces_set.update(list_of_uris)
                 if len(list_of_uris) > 1:
-                    yml_handler.set_ambigious_toponyms()
+                    # The toponym is ambiguous and matched multiple entries in our gazetteer
+                    ambiguous_toponyms = True
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
@@ -161,6 +174,9 @@ def add_annotated_entities_to_yml(
                 nas_counter += 1
             add_to_entities_dict(entities_dict, cat, entity, tag)
             LOGGER_NASAB_KNOWN.info(f'{tag},{entity}')
+        elif cat == 'BOOK':
+            if sub_cat:
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
         else:
             add_to_entities_dict(entities_dict, cat, entity, tag)
 
@@ -176,6 +192,7 @@ def add_annotated_entities_to_yml(
         # Sort dict by keys
         entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
 
+    # Generate edges
     if settlements_set:
         entities_dict['settlements'] = list(settlements_set)
         entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(settlements_set, 2) if a != b]
@@ -183,21 +200,38 @@ def add_annotated_entities_to_yml(
         entities_dict['provinces'] = list(provinces_set)
         entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2) if a != b]
 
+    # Extrapolate active period for the biographee
+    # TODO dates_headings are not analysed yet
     if entities_dict.get('dates'):
         dates = entities_dict.get('dates')
         birth_date = [d.get('date') for d in dates if d.get('cat') == 'B']
         death_date = [d.get('date') for d in dates if d.get('cat') == 'D']
-        alternative_death_date = [d.get('date') for d in dates if d.get('cat') == 'B']
+        alternative_dates = [d.get('date') for d in dates]
+        age_at_death = None
+        if entities_dict.get('ages') and [a.get('age') for a in entities_dict.get('ages') if a.get('cat') == 'D']:
+            age_at_death = max([a.get('age') for a in entities_dict.get('ages') if a.get('cat') == 'D'])
+
         if death_date:
             entities_dict['max_date'] = max(death_date)
-        elif alternative_death_date:
-            entities_dict['max_date'] = max(alternative_death_date)
         elif birth_date:
-            entities_dict['max_date'] = min(birth_date) + 70
+            if age_at_death:
+                entities_dict['max_date'] = min(birth_date) + age_at_death
+            else:
+                # TODO better approximation for active period
+                entities_dict['max_date'] = min(birth_date) + 70
+        elif alternative_dates:
+            entities_dict['max_date'] = max(alternative_dates)
 
         if birth_date:
             entities_dict['min_date'] = min(birth_date)
         elif entities_dict.get('max_date'):
-            entities_dict['min_date'] = entities_dict.get('max_date') - 70
+            if type(age_at_death) == 'int':
+                entities_dict.get('max_date') - age_at_death
+            else:
+                # TODO better approximation for active period
+                entities_dict['min_date'] = entities_dict.get('max_date') - 70
 
+    # Entities, which are not listed in 'YAMLHandler.__attr_from_annotation' are ignored
     yml_handler.add_tagged_entities(entities_dict)
+    if ambiguous_toponyms:
+        yml_handler.set_ambiguous_toponyms()

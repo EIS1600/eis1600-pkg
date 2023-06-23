@@ -1,7 +1,7 @@
 from eis1600.miu.YAMLHandler import YAMLHandler
 
 from eis1600.miu.yml_handling import extract_yml_header_and_text
-from typing import Iterator, List, TextIO, Tuple, Union
+from typing import Iterator, List, Optional, TextIO, Tuple, Union
 
 from pandas import DataFrame, options
 
@@ -32,12 +32,16 @@ def get_tokens_and_tags(tagged_text: str) -> Tuple[List[Union[str, None]], List[
     return ar_tokens, tags
 
 
-def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, None], List[Union[str, None]]]]:
+def tokenize_miu_text(
+        text: str,
+        keep_automatic_tags: Optional[bool] = False
+) -> Iterator[Tuple[Union[str, None], Union[str, None], List[Union[str, None]]]]:
     """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
 
     Takes an MIU text and returns a zip object of three sparse columns: sections, tokens, lists of tags. Elements can
     be None because of sparsity.
-    :param text: MIU text content to process.
+    :param str text: MIU text content to process.
+    :param bool keep_automatic_tags: Optional, if True keep automatic annotation (Ü-tags), defaults to False.
     :return Iterator: Returns a zip object containing three sparse columns: sections, tokens, lists of tags. Elements
     can be None because of sparsity.
     """
@@ -64,7 +68,7 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, 
             tag = None
             for t in tokens:
                 if TAG_PATTERN.match(t):
-                    if not t.startswith('Ü'):
+                    if not t.startswith('Ü') or keep_automatic_tags:
                         # Do not add automated tags to the list - they come from the csv anyway
                         # There might be multiple tags in front of a token - Page, NEWLINE, NER tag, ...
                         if tag:
@@ -88,16 +92,20 @@ def tokenize_miu_text(text: str) -> Iterator[Tuple[Union[str, None], Union[str, 
     return zip(sections, ar_tokens, tags)
 
 
-def get_yml_and_miu_df(miu_file_object: TextIO) -> Tuple[YAMLHandler, DataFrame]:
+def get_yml_and_miu_df(
+        miu_file_object: TextIO,
+        keep_automatic_tags: Optional[bool] = False
+) -> Tuple[YAMLHandler, DataFrame]:
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
     :param TextIO miu_file_object: File object of the MIU file.
+    :param bool keep_automatic_tags: Optional, if True keep automatic annotation (Ü-tags), defaults to False.
     :return Tuple[YAMLHandler, DataFrame]: YAMLHandler and DataFrame containing the columns 'SECTIONS', 'TOKENS',
     'TAGS_LISTS'.
     """
     yml_str, text = extract_yml_header_and_text(miu_file_object, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
-    zipped = tokenize_miu_text(text)
+    zipped = tokenize_miu_text(text, keep_automatic_tags)
     df = DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
     df.mask(df == '', inplace=True)

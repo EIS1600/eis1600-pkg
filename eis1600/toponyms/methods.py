@@ -12,7 +12,7 @@ def add_category_to_tag(
         category: Literal['B', 'D', 'K', 'M', 'O', 'P', 'R', 'X'],
 ) -> Union[str, List[str]]:
     if isinstance(tag_or_tag_list, list):
-        return [t if not t.startswith('T') else t + category for t in tag_or_tag_list]
+        return [t if not t.startswith('T') else 'Ü' + t + category for t in tag_or_tag_list]
     else:
         return tag_or_tag_list + category
 
@@ -52,14 +52,15 @@ def toponym_category_annotate_miu(s_tokens: Series, s_tags: Series) -> Series:
     return s_new_tags
 
 
-def toponym_category_annotation(file: str, test: Optional[bool] = False):
+def toponym_category_annotation(file: str, test: Optional[bool] = False, keep_automatic_tags: Optional[bool] = False):
     """Helper to run toponyms category annotation standalone as cmdline script.
 
     :param str file: Path of the miu file to annotate.
-    :param bool test: Indicating if the script is run with test data, defaults to false.
+    :param bool test: Optional, indicating if the script is run with test data, defaults to false.
+    :param bool keep_automatic_tags: Optional, if True keep automatic annotation (Ü-tags), defaults to False.
     """
     with open(file, 'r', encoding='utf-8') as miu_file_object:
-        yml_handler, df = get_yml_and_miu_df(miu_file_object)
+        yml_handler, df = get_yml_and_miu_df(miu_file_object, keep_automatic_tags)
 
     df['TAGS_LISTS'] = toponym_category_annotate_miu(df['TOKENS'], df['TAGS_LISTS'])
 

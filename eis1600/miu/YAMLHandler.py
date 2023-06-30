@@ -159,7 +159,7 @@ class YAMLHandler:
     def to_json(self, init) -> Dict:
         json_dict = init
         for key, val in vars(self).items():
-            if key != 'toponyms' and val:
+            if val:
                 if hasattr(val, 'to_json'):
                     json_dict[key] = val.to_json()
                 else:

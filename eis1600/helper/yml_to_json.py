@@ -5,7 +5,7 @@ import jsonpickle
 from p_tqdm import p_uimap
 
 from eis1600.processing.preprocessing import get_yml
-from eis1600.helper.repo import MC_REPO, TRAINING_DATA_REPO
+from eis1600.helper.repo import BACKEND_REPO, TRAINING_DATA_REPO
 
 
 def main():
@@ -19,8 +19,8 @@ def main():
     debug = args.debug
     with open(TRAINING_DATA_REPO + 'gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
-    infiles = [TRAINING_DATA_REPO + 'gold_standard_nasab/' + file for file in files_txt if Path(
-            TRAINING_DATA_REPO + 'gold_standard_nasab/' + file
+    infiles = [TRAINING_DATA_REPO + 'gold_standard_topo/' + file for file in files_txt if Path(
+            TRAINING_DATA_REPO + 'gold_standard_topo/' + file
     ).exists()]
 
     res = []
@@ -38,7 +38,7 @@ def main():
         yml_init = {'author': author, 'text': text, 'version': version, 'UID': UID}
         yml_dict.append(yml.to_json(yml_init))
 
-    with open(MC_REPO + 'masterchronicleapp/src/data.json', 'w', encoding='utf-8') as fh:
+    with open(BACKEND_REPO + 'data.json', 'w', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(yml_dict, unpicklable=False)
         fh.write(json_str)

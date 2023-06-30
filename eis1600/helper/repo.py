@@ -23,6 +23,8 @@ TEXT_REPO = 'OpenITI_EIS1600_Texts/'
 TRAINING_DATA_REPO = 'Training_Data/'
 GAZETTEERS_REPO = 'gazetteers/'
 MC_REPO = 'MasterChronicle/'
+BACKEND_REPO = 'backend/'
+TOPO_TRAINING_REPO = 'topo_training/data/'
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:

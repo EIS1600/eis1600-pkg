@@ -7,12 +7,14 @@ from re import compile
 from json import dump
 from p_tqdm import p_uimap
 
-from eis1600.helper.repo import TRAINING_DATA_REPO
+from eis1600.helper.repo import TOPO_TRAINING_REPO, TRAINING_DATA_REPO
 from eis1600.miu.methods import get_yml_and_miu_df
+from eis1600.toponyms.toponym_categories import TOPONYM_CATEGORIES
 
-
-TOP_PATTERN = compile("T(?P<num_tokens>\d)(?P<category>[BDKMPR])")
-categories = ["TOB", "TOD", "TOK", "TOM", "TOP", "TOR"]
+print(TOPONYM_CATEGORIES)
+CATS = ''.join(TOPONYM_CATEGORIES)
+TOP_PATTERN = compile(r"T(?P<num_tokens>\d)(?P<category>[" + CATS + "])")
+categories = ["TO" + c for c in TOPONYM_CATEGORIES]
 BIO = ["B", "I"]
 
 labels = [bi + "-" + c for c in categories for bi in BIO] + ["O"]
@@ -39,7 +41,7 @@ def top_tag_to_bio(md_tag):
 
 def md_to_bio(file: str) -> Union[Dict, None]:
     with open(file, 'r', encoding='utf-8') as miu_file_object:
-        yml_handler, df = get_yml_and_miu_df(miu_file_object)
+        yml_handler, df = get_yml_and_miu_df(miu_file_object, keep_automatic_tags=True)
 
     if not yml_handler.is_bio():
         return None
@@ -97,7 +99,10 @@ def main():
         res = []
         res += p_uimap(md_to_bio, infiles)
 
-        with open('toponyms_category_training_data.json', 'w', encoding='utf-8') as fh:
+        print(len(res))
+        print(len([r for r in res if r is not None]))
+
+        with open(TOPO_TRAINING_REPO + 'toponyms_category_training_data.json', 'w', encoding='utf-8') as fh:
             dump([r for r in res if r is not None], fh, indent=4, ensure_ascii=False)
 
     print('Done')

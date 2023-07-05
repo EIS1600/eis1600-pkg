@@ -152,12 +152,9 @@ def insert_nasab_tag(df) -> list:
     __shortend_list_limit = 120
     if len(tokens) > __shortend_list_limit:
         shortend_list_of_tokens = tokens[1:__shortend_list_limit]
-        # print(tokens[:__shortend_list_limit], tokens)
-        # for token in tokens[1:__shortend_list_limit]:
-        #     if token is not None:
-        #         shortend_list_of_tokens.append(token)
-        #     else:
-        #         shortend_list_of_tokens.append("_")
+    for idx, t in enumerate(shortend_list_of_tokens):
+        if t.strip() == "":
+            shortend_list_of_tokens[idx] = "-"
     nasab_labels = nasab_tagger.predict_sentence(shortend_list_of_tokens)
     punct = "..،_" + string.punctuation
     nasab = ['_']
@@ -167,25 +164,19 @@ def insert_nasab_tag(df) -> list:
             # Start a new NASAB
             nasab.append("BNASAB")
             nasab_started = True
+        elif label == "I-NASAB":
+            nasab.append('')
         else:
-            if label == "I-NASAB":
-                nasab.append('')
+            if nasab_started:
+                nasab.append("ENASAB")
+                nasab_started = False
             else:
-                if nasab_started:
-                    if token.strip() in punct:
-                        nasab[-1] = "ENASAB"
-                        nasab.append("")
-                    else:
-                        nasab.append("ENASAB")
-                    nasab_started = False
-                else:
-                    nasab.append('')
+                nasab.append('')
     if nasab_started:
         nasab[-1] = "ENASAB"
     # merge the shortend list
     if len(tokens) > __shortend_list_limit:
         nasab.extend([''] * (len(tokens) - __shortend_list_limit))
-
     return nasab
 
 
@@ -211,5 +202,4 @@ def insert_onomastic_tags(df):
             onomastic_tags[start_nasab_id + i] = tag
 
     df['ONONMASTIC_TAGS'] = onomastic_tags
-
     return df['ONONMASTIC_TAGS']

@@ -105,7 +105,7 @@ def camel2md(labels: list) -> List[str]:
                 else:
                     converted_tokens.append(default_str)
     if len(temp_tokens) > 0 and temp_class is not None:
-        converted_tokens.append(f"{temp_class}{len(temp_tokens)}")
+        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")
         converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
     return converted_tokens
 

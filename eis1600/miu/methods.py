@@ -8,7 +8,8 @@ from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTER
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_tag, insert_onomastic_tags
+from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_tag, insert_onomastic_tags,\
+    aggregate_STFCON_classes, merge_ner_with_person_classes
 from eis1600.onomastics.methods import nasab_annotate_miu
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
@@ -169,10 +170,12 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
         # 2. annotate NEs and lemmatize
-        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'] = annotate_miu_text(df)
+        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], ST_labels, FCO_labels = annotate_miu_text(df)
 
         # 3. convert cameltools labels format to markdown format
-        df['NER_TAGS'] = camel2md_as_list(df['NER_LABELS'].tolist())
+        aggregated_stfco_labels = aggregate_STFCON_classes(ST_labels, FCO_labels)
+        ner_tags = camel2md_as_list(df['NER_LABELS'].tolist())
+        df['NER_TAGS'] = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
 
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)

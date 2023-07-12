@@ -9,6 +9,9 @@ ONES = {
         'واحد': 1, 'احدى': 1, 'احد': 1, 'اثنين': 2, 'اثنتين': 2, 'اثنتي': 2, 'ثلاث': 3, 'ثلث': 3, 'اربع': 4, 'خمس': 5,
         'ست': 6, 'سبع': 7, 'ثماني': 8, 'ثمان': 8, 'تسع': 9
 }
+# TODO integrate
+INDETERMINATES = ['بضع', 'في حدود', 'نيف']
+
 ONES_NOR = normalize_dict(ONES)
 TEN = {
         'عشرة': 10, 'عشري': 10, 'عشر': 10, 'عشرين': 20, 'ثلاثين': 30, 'اربعين': 40, 'خمسين': 50, 'ستين': 60,
@@ -66,18 +69,27 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(:?ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(:?و)?(:?ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
        r'(?:\s(?:(?:من\s)?(?:شهر\s)?)?(?:ال)?(?P<month>' + AR_MONTHS + r')(?:\s(?:من|ف[يى])(?:\sشهور)?)?)?' + \
-       r'\s(?P<sana>سن[ةه]|عام)(?:\s(?P<ones>' + AR_ONES + r'))?' + \
-       r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
-       r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?(?=(?:' + WORD + r'|[\s\.,]|$))'
+       r'\s(?P<sana>سن[ةه]|عام)' + \
+       r'(?P<year>' + \
+              r'(?:\s(?P<ones>' + AR_ONES + r'))?' + \
+              r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
+              r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?' + \
+       r')' + \
+       r'(?=(?:' + WORD + r'|[\s\.,]|$))'
 
 DATE_PATTERN = compile(DATE)
 MONTH_PATTERN = compile(AR_MONTHS)
 
-DATE_CATEGORIES = {
-        'ولد': 'B', 'مولد': 'B', 'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D', 'حج': 'P',
-        'سمع': 'K', 'قرا': 'K', 'استقر': 'O', 'اجاز': 'K', 'انفصل': 'O', 'لقي': 'M'
+DATE_CATEGORIES_DICT = {
+        'ولد': 'B', 'مولد': 'B',
+        'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D',
+        'حج': 'P',
+        'سمع': 'K', 'قرا': 'K', 'اجاز': 'K',
+        'استقر': 'O', 'انفصل': 'O'
 }
-DATE_CATEGORIES_NOR = normalize_dict(DATE_CATEGORIES)
+DATE_CATEGORIES_NOR = normalize_dict(DATE_CATEGORIES_DICT)
 
-AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES.keys()])
+AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES_DICT.keys()])
 DATE_CATEGORY_PATTERN = compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')')
+
+DATE_CATEGORIES = list(set(DATE_CATEGORIES_DICT.values())) + ["X"]

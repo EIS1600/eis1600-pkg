@@ -13,11 +13,11 @@ TOPONYM_CATEGORIES_DICT = {
         'مات': 'D', 'موت': 'D', 'توفي': 'D', 'وفاة': 'D',
         'دفن': 'G',
         'سمع': 'K', 'روى': 'K', 'روا': 'K', 'قرا': 'K', 'اجاز': 'K', 'حدث': 'K',
-        'استقر': 'O', 'انفصل': 'O', 'ولي': 'O', 'قاضي': 'O', 'نائب': 'O', 'صاحب': 'O', 'أعمال': 'O',
+        'استقر': 'R', 'انفصل': 'R', 'ولي': 'R', 'قاضي': 'R', 'نائب': 'R', 'صاحب': 'R', 'أعمال': 'R',
         # 'حج': 'V',
         'سكن': 'R', 'نزل': 'R', 'نزيل': 'R', 'من اهل': 'R', 'استوطن': 'R', 'كان من': 'R', 'نشأ': 'R'
 }
-TOPONYM_CATEGORIES = list(set(TOPONYM_CATEGORIES_DICT.values())) + ["X"]
+TOPONYM_CATEGORIES = list(set(TOPONYM_CATEGORIES_DICT.values())) + ['X']
 TOPONYM_CATEGORIES_NOR = normalize_dict(TOPONYM_CATEGORIES_DICT)
 
 AR_TOPONYM_CATEGORIES = '|'.join([denormalize(key) for key in TOPONYM_CATEGORIES_DICT.keys()])

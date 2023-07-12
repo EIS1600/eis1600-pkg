@@ -21,6 +21,7 @@ from eis1600.helper.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 MIU_REPO = 'EIS1600_MIUs/'
 TEXT_REPO = 'OpenITI_EIS1600_Texts/'
 TRAINING_DATA_REPO = 'Training_Data/'
+TRAINING_RESULTS_REPO = 'Training_Results/'
 GAZETTEERS_REPO = 'gazetteers/'
 MC_REPO = 'MasterChronicle/'
 BACKEND_REPO = 'backend/'

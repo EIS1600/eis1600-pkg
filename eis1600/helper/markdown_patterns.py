@@ -52,7 +52,7 @@ MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?
 entity_tags = '|'.join(EntityTags.instance().get_entity_tags())
 ENTITY_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})(?:(?P<sub_cat>[A-Z]+)|['
                                                                r'A-Z0-9]+)?\b')
-YEAR_PATTERN = compile(r'Ü?Y\d{1,2}(?P<cat>[A-Z])(?P<written>\d{4})(?P<i>I)?Y(?P<real>\d{4})?')
+YEAR_PATTERN = compile(r'Ü?Y(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])(?P<written>\d{4}|None)(?P<i>I)?Y(?P<real>\d{4})?')
 AGE_PATTERN = compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
 nasab_tags = '|'.join(EntityTags.instance().get_nasab_tags())
 NASAB_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + nasab_tags + r')(?P<length>\d{1,2})')

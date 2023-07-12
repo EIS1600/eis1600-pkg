@@ -6,5 +6,9 @@ p_tqdm
 importlib_resources
 jsonpickle
 
+[EVAL]
+evaluate
+seqeval
+
 [NER]
 camel-tools

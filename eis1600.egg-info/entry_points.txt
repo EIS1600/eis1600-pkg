@@ -2,13 +2,14 @@
 annotate_mius = eis1600.nlp.ner_annotate_mius:main [ner]
 convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
+eval_date_model = eis1600.helper.eval_date_model:main [eval]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
 insert_uids = eis1600.markdown.insert_uids:main
-md_tags_to_bio = eis1600.helper.md_tags_to_bio:main
 miu_random_revisions = eis1600.helper.miu_random_revisions:main
 miu_stats = eis1600.stats.miu_stats:main
 onomastic_annotation = eis1600.onomastics.annotation:main
 reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main
+top_tags_to_bio = eis1600.helper.top_tags_to_bio:main
 toponym_annotation = eis1600.toponyms.annotation:main
 update_uids = eis1600.markdown.update_uids:main
 xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main

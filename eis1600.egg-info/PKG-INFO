@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 0.9.6
+Version: 0.9.7
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -249,3 +249,4 @@ Classifier: Intended Audience :: Science/Research
 Requires-Python: >=3.7, <3.9
 Description-Content-Type: text/markdown
 Provides-Extra: NER
+Provides-Extra: EVAL

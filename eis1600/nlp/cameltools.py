@@ -20,9 +20,8 @@ class CamelToolsModels:
     __NASAB_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_nasab/"
     __NER_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_ner/"
     __ONOMASTIC_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_onomastic/"
-    # TODO: @Tariq, here is something at odds, the path for the following two models are not correct!
-    __STN_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_onomastic/"
-    __FCON_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_onomastic/"
+    __STN_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_person_classification_STN/"
+    __FCON_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_person_classification_FCN/"
     __TOPO_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_toponyms/"
 
     @staticmethod

@@ -53,11 +53,10 @@ def main():
             description='''Script to annotate onomastic information in gold-standard MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
-    arg_parser.add_argument('-K', '--keep', action='store_true')
 
     args = arg_parser.parse_args()
     debug = args.debug
-    keep = args.keep
+    keep = True
 
     with open(TRAINING_DATA_REPO + 'gold_standard.txt', 'r', encoding='utf-8') as fh:
         files_txt = fh.read().splitlines()
@@ -69,9 +68,9 @@ def main():
 
     res = []
     if debug:
-        for file in infiles[20:40]:
+        for file in infiles[40:60]:
             print(file)
-            res.append(get_tops_true(file, label_dict))
+            res.append(get_tops_true(file, label_dict, keep))
     else:
         res += p_uimap(partial(get_tops_true, label_dict=label_dict, keep_automatic_tags=keep), infiles)
 

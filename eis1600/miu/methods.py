@@ -10,11 +10,10 @@ from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTER
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_tag, insert_onomastic_tags,\
-    aggregate_STFCON_classes, merge_ner_with_person_classes, merge_ner_with_toponym_classes
+from eis1600.nlp.utils import annotate_miu_text, insert_nasab_tag, insert_onomastic_tags,aggregate_STFCON_classes, \
+    merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
-from eis1600.toponyms.methods import toponym_category_annotate_miu
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
@@ -176,9 +175,9 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
 
         # 3. convert cameltools labels format to markdown format
         aggregated_stfco_labels = aggregate_STFCON_classes(ST_labels, FCO_labels)
-        ner_tags = camel2md_as_list(df['NER_LABELS'].tolist())
+        ner_tags = bio_to_md(df['NER_LABELS'].to_list())  # camel2md_as_list(df['NER_LABELS'].tolist())
         ner_tags_with_person_classes = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
-        toponym_labels_md = bio_to_md(toponym_labels)
+        toponym_labels_md = bio_to_md(toponym_labels, sub_class=True)
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
 
         # 4. annotate dates

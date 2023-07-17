@@ -28,6 +28,7 @@ def get_text_with_annotation_only(
     text_with_annotation_only = ''
     for section, token, tags in text_and_tags_iter:
         if isinstance(tags, list):
+            print(tags)
             entity_tags = [tag for tag in tags if ENTITY_TAGS_PATTERN.fullmatch(tag)]
             text_with_annotation_only += ' ' + ' '.join(entity_tags)
         if notna(token):
@@ -98,6 +99,7 @@ def write_updated_miu_to_file(
         df['ÜTAGS'] = df['TAGS_LISTS']
         for col in columns_of_automated_tags:
             if col in df.columns:
+                print(col, df['ÜTAGS'].to_list())
                 df['ÜTAGS'] = df.apply(lambda x: merge_tagslists(x['ÜTAGS'], x[col]), axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'ÜTAGS']]
     else:

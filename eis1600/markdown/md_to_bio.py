@@ -99,19 +99,24 @@ def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[
                     if sub_class:
                         converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
                     else:
-                        converted_tokens.append(f"Ü{temp_class[0]}{len(temp_tokens)}")  # e.g. ÜP3
+                        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
                     # Mask I-tags with nan
                     converted_tokens.extend([nan] * (len(temp_tokens) - 1))
-                elif _label == 'O':
-                    converted_tokens.append(nan)
+                    temp_tokens = []
                 if _label[0] == 'B':
                     # Start new entity
                     if _label[2:] == 'LOC':
                         _label = _label.replace('LOC', 'TOX')
-                    temp_class = _label[2]
+                        temp_class = _label[2]
+                    elif _label[2:] in ['ISM', 'NAS', 'KUN', 'LAQ', 'NSB', 'SHR']:
+                        temp_class = _label[2:]
+                    else:
+                        temp_class = _label[2]
                     if sub_class:
                         temp_sub_class = _label[-1]
                     temp_tokens = [_label]
+                elif _label == 'O':
+                    converted_tokens.append(nan)
             elif _label[0] == 'I':
                 temp_tokens.append(_label)
             else:
@@ -122,7 +127,7 @@ def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[
         if sub_class:
             converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
         else:
-            converted_tokens.append(f"Ü{temp_class[0]}{len(temp_tokens)}")  # e.g. ÜP3
+            converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
         converted_tokens.extend([nan] * (len(temp_tokens) - 1))
 
     return converted_tokens

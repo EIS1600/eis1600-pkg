@@ -1,6 +1,10 @@
 from typing import List
 import string
 
+from eis1600.markdown.md_to_bio import bio_to_md
+from numpy import nan
+from pandas import notna
+
 from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
 
 
@@ -74,7 +78,7 @@ def aggregate_STFCON_classes(st_list: list, fco_list: list) -> List[str]:
 def merge_ner_with_person_classes(ner_labels, aggregated_stfco_labels):
     merged_labels = []
     for a, b in zip(ner_labels, aggregated_stfco_labels):
-        if a[:2] == "ÜP":
+        if notna(a) and a[:2] == "ÜP":
             postfix = "X"
             if b.strip() != "":
                 postfix = b.strip()
@@ -86,7 +90,7 @@ def merge_ner_with_person_classes(ner_labels, aggregated_stfco_labels):
 def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[str]) -> List[str]:
     merged_labels = []
     for a, b in zip(ner_labels, toponym_labels):
-        if a[:2] == 'ÜT' or a == 'O' and b:
+        if notna(a) and a[:2] == 'ÜT':
             if b:
                 merged_labels.append(b)
             else:
@@ -94,75 +98,6 @@ def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[s
         else:
             merged_labels.append(a)
     return merged_labels
-
-
-def camel2md(labels: list) -> List[str]:
-    default_str = ''
-
-    converted_tokens, temp_tokens, temp_class = [], [], None
-    for _label in labels:
-        if _label is None:
-            converted_tokens.append(default_str)
-        else:
-            # Check if the first letter of the label is 'o' or 'B' a Beginning of an NE
-            if _label[0] in ['O', 'B', '_']:
-                if len(temp_tokens) > 0 and temp_class is not None:
-                    converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
-                    converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
-                    # reset temp variables
-                    temp_tokens, temp_class = [], None
-
-                if _label in ['O', '_']:
-                    converted_tokens.append(default_str)
-                else:
-                    temp_tokens.append(_label)
-                    temp_class = _label[2:]
-
-            else:
-                if temp_class is not None:
-                    temp_tokens.append(_label)
-                else:
-                    converted_tokens.append(default_str)
-    if len(temp_tokens) > 0 and temp_class is not None:
-        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")
-        converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
-    return converted_tokens
-
-
-def camel2md_as_list(labels: list) -> List[str]:
-    default_str = ''
-    types_mapping = {
-        'LOC': 'ÜT',
-        'PERS': 'ÜP'
-    }
-    converted_tokens, temp_tokens, temp_class = [], [], None
-    for _label in labels:
-        if _label is None:
-            converted_tokens.append(default_str)
-        else:
-            # Check if the first letter of the label is 'o' or 'B' a Beginning of an NE
-            if _label[0] in ['O', 'B', '_']:
-                if len(temp_tokens) > 0 and temp_class is not None:
-                    converted_tokens.append(f"{types_mapping.get(temp_class, 'ÜM')}{len(temp_tokens)}")  # e.g. ÜP3
-                    converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
-                    # reset temp variables
-                    temp_tokens, temp_class = [], None
-
-                if _label in ['O', '_']:
-                    converted_tokens.append(default_str)
-                else:
-                    temp_tokens.append(_label)
-                    temp_class = _label[2:]
-
-            else:
-                if temp_class is not None:
-                    temp_tokens.append(_label)
-                else:
-                    converted_tokens.append(default_str)
-    if len(temp_tokens) > 0 and temp_class is not None:
-        converted_tokens.append(f"{types_mapping.get(temp_class, 'ÜM')}{len(temp_tokens)}")
-        converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
-    return converted_tokens
 
 
 def insert_nasab_tag(df) -> list:
@@ -185,24 +120,24 @@ def insert_nasab_tag(df) -> list:
             nasab.append("BNASAB")
             nasab_started = True
         elif label == "I-NASAB":
-            nasab.append('')
+            nasab.append(nan)
         else:
             if nasab_started:
                 nasab.append("ENASAB")
                 nasab_started = False
             else:
-                nasab.append('')
+                nasab.append(nan)
     if nasab_started:
         nasab[-1] = "ENASAB"
     # merge the shortend list
     if len(tokens) > __shortend_list_limit:
-        nasab.extend([''] * (len(tokens) - __shortend_list_limit))
+        nasab.extend([nan] * (len(tokens) - __shortend_list_limit))
     return nasab
 
 
 def insert_onomastic_tags(df):
     onomastic_tagger = CamelToolsModels.getOnomasticModel()
-    onomastic_tags = [None] * len(df['TOKENS'])
+    onomastic_tags = [nan] * len(df['TOKENS'])
     start_nasab_id, end_nasab_id = -1, -1
 
     # Find BNASAB & ENASAB
@@ -216,7 +151,7 @@ def insert_onomastic_tags(df):
     if 0 < start_nasab_id < end_nasab_id:
         nasab_tokens = df['TOKENS'].to_list()[start_nasab_id:end_nasab_id]
         onomastic_labels = onomastic_tagger.predict_sentence(nasab_tokens)
-        ono_tags = camel2md(onomastic_labels)
+        ono_tags = bio_to_md(onomastic_labels)
 
         for i, tag in enumerate(ono_tags):
             onomastic_tags[start_nasab_id + i] = tag

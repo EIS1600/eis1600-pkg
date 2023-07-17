@@ -10,7 +10,7 @@ from p_tqdm import p_uimap
 from numpy import nan
 
 from eis1600.helper.repo import TOPO_TRAINING_REPO, TRAINING_DATA_REPO
-from eis1600.markdown.md_to_bio import get_label_dict, md_to_bio
+from eis1600.markdown.md_to_bio import get_bio_dict, md_to_bio
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.toponyms.toponym_categories import TOPONYM_CATEGORIES
 
@@ -65,7 +65,7 @@ def main():
     infiles = [TRAINING_DATA_REPO + 'gold_standard_topo/' + file for file in files_txt if Path(
             TRAINING_DATA_REPO + 'gold_standard_topo/' + file).exists()]
 
-    label_dict = get_label_dict('TO', TOPONYM_CATEGORIES)
+    label_dict = get_bio_dict('TO', TOPONYM_CATEGORIES)
 
     res = []
     if debug:

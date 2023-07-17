@@ -9,6 +9,7 @@ jsonpickle
 [EVAL]
 evaluate
 seqeval
+tensorflow
 
 [NER]
 camel-tools

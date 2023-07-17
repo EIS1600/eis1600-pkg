@@ -20,14 +20,19 @@ from eis1600.helper.EvalResultsEncoder import EvalResultsEncoder
 from eis1600.helper.markdown_patterns import YEAR_PATTERN
 from eis1600.helper.repo import TRAINING_DATA_REPO, TRAINING_RESULTS_REPO
 from eis1600.miu.methods import get_yml_and_miu_df
-from eis1600.markdown.md_to_bio import get_label_dict, md_to_bio
+from eis1600.markdown.md_to_bio import get_bio_dict, md_to_bio
 
 
 def reconstruct_automated_tag(row) -> str:
     return 'ÜY' + row['num_tokens'] + row['cat'] + row['written'] + 'Y'
 
 
-def get_year_true_pred(row) -> Series:
+def get_year_true_pred(row: Series) -> Series:
+    """Get numerical values for ground-truth and prediction.
+
+    :param Series row: row has values for 'written_true' and 'written_pred'.
+    :return Series: Series of 'true' and 'pred'.
+    """
     if notna(row['written_true']):
         v_true = int(row['written_true'])
     else:
@@ -41,7 +46,15 @@ def get_year_true_pred(row) -> Series:
     return Series([v_true, v_pred], index=['true', 'pred'])
 
 
-def get_dates_true_and_pred(file: str, label_dict: Dict) -> Tuple[DataFrame, Dict, Dict]:
+def get_dates_true_and_pred(file: str, bio_dict: Dict) -> Tuple[DataFrame, Dict, Dict]:
+    """Get ground-truth and prediction on labels and numerical values for MIU.
+
+    :param str file: file path for MIU file.
+    :param Dict bio_dict: BIO labels dictionary.
+    :return Tuple[DataFrame, Dict, Dict]: DataFrame year contains two columns ('true' and 'pred'), the other two are
+    dictionaries, one with the BIO labels derived from the ground-truth and the other with the BIO labels based on
+    the predictions.
+    """
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
@@ -82,20 +95,20 @@ def get_dates_true_and_pred(file: str, label_dict: Dict) -> Tuple[DataFrame, Dic
             'DATES_TRUE',
             YEAR_PATTERN,
             'YY',
-            label_dict
+            bio_dict
     )
     bio_pred = md_to_bio(
             df[['TOKENS', 'DATES_PRED']],
             'DATES_PRED',
             YEAR_PATTERN,
             'YY',
-            label_dict
+            bio_dict
     )
 
     return year, bio_true, bio_pred
 
 
-def eval_dates_entity_recognition_and_classification(truth: List[List[str]], predictions: List[List[str]]):
+def eval_dates_entity_recognition_and_classification(truth: List[List[str]], predictions: List[List[str]]) -> Dict:
     """Evaluates predicted BIO-labels based on their ground-truth.
 
     Evaluates predicted BIO-labels based on their ground-truth, giving each of the following metrics for every class:
@@ -104,13 +117,20 @@ def eval_dates_entity_recognition_and_classification(truth: List[List[str]], pre
     :param List[List[str]] truth: A list of records, where each record is a list of the true BIO-tags for that text.
     :param List[List[str]] predictions: A list of records, where each record is a list of the predicted BIO-tags for
     that text.
+    :return Dict: Dict containing the evaluation results: precision, recall, F1 for each class.
     """
     all_metrics = evaluate.load("seqeval").compute(predictions=predictions, references=truth)
 
     return all_metrics
 
 
-def eval_year(year: DataFrame):
+def eval_year(year: DataFrame) -> Dict:
+    """Evaluates the predictions of the numerical value of all recognized date with MAPE and MAE.
+
+    :param DataFrame year: DataFrame with two columns, column 'true' with the ground-truth values and column 'pred'
+    with the predicted values.
+    :return Dict: Dict containing the evaluation results: Mean Average Percentage Error and Mean Average Error.
+    """
     all_metrics = {}
     truth = constant(year['true'].astype('float32'))
     predictions = constant(year['pred'].astype('float32'))
@@ -142,15 +162,16 @@ def main():
     infiles = [TRAINING_DATA_REPO + 'gold_standard/' + file for file in files_txt if Path(
             TRAINING_DATA_REPO + 'gold_standard/' + file).exists()]
 
-    label_dict = get_label_dict('YY', DATE_CATEGORIES)
+    # BIO labels for dates have this pattern: [BI]-YY[<DATE_CATEGORIES>]
+    bio_dict = get_bio_dict('YY', DATE_CATEGORIES)
 
     res = []
     if debug:
         for i, file in enumerate(infiles[1180:]):
             print(i + 1180, file)
-            res.append(get_dates_true_and_pred(file, label_dict))
+            res.append(get_dates_true_and_pred(file, bio_dict))
     else:
-        res += p_uimap(partial(get_dates_true_and_pred, label_dict=label_dict), infiles)
+        res += p_uimap(partial(get_dates_true_and_pred, label_dict=bio_dict), infiles)
 
         years, truth, predictions = zip(*res)
 

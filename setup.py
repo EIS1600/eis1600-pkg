@@ -43,7 +43,7 @@ setup(name='eis1600',
               'importlib_resources',
               'jsonpickle'
       ],
-      extras_require={'NER': ['camel-tools'], 'EVAL': ['evaluate', 'seqeval']},
+      extras_require={'NER': ['camel-tools'], 'EVAL': ['evaluate', 'seqeval', 'tensorflow']},
       classifiers=['Programming Language :: Python :: 3',
                    'License :: OSI Approved :: MIT License',
                    'Operating System :: OS Independent',

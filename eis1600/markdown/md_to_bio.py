@@ -1,8 +1,9 @@
-from typing import Dict, List, Pattern
+from typing import Dict, List, Optional, Pattern
+from numpy import nan
 from pandas import DataFrame
 
 
-def get_label_dict(bio_main_class: str, categories: List[str]) -> Dict:
+def get_bio_dict(bio_main_class: str, categories: List[str]) -> Dict:
     """
 
     :param str bio_main_class: String of two letters which are used to indicate the main entity, e.g. 'YY' for dates,
@@ -11,9 +12,9 @@ def get_label_dict(bio_main_class: str, categories: List[str]) -> Dict:
     :return:
     """
     categories = [bio_main_class + c for c in categories]
-    BIO = ["B", "I"]
+    bio = ["B", "I"]
 
-    labels = [bi + "-" + c for c in categories for bi in BIO] + ["O"]
+    labels = [bi + "-" + c for c in categories for bi in bio] + ["O"]
     label_dict = {}
 
     for i, label in enumerate(labels):
@@ -22,20 +23,20 @@ def get_label_dict(bio_main_class: str, categories: List[str]) -> Dict:
     return label_dict
 
 
-def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class: str, label_dict: Dict) -> Dict:
-    """Parses EIS100 mARkdown tags to BIO annotation.
+def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class: str, bio_dict: Dict) -> Dict:
+    """Parses EIS100 mARkdown tags to BIO labels.
 
     :param DataFrame df: DataFrame must have these two columns: 'TOKENS' and a second column named <column_name> which
-    contains the EIS1600 tags to parse to the BIO tags.
-    :param str column_name: Name of the DataFrames column which contains the EIS1600 tags to parse to BIO tags.
+    contains the EIS1600 tags to parse to the BIO labels.
+    :param str column_name: Name of the DataFrames column which contains the EIS1600 tags to parse to BIO labels.
     :param Pattern pattern: Pattern must match named capturing groups for: 'num_tokens' and 'cat'.
     :param str bio_main_class: String of two letters which are used to indicate the main entity, e.g. 'YY' for dates,
     'TO' for toponyms, etc.
-    :param Dict label_dict: dictionary whose keys are the BIO labels and the values are integers (see method
+    :param Dict bio_dict: dictionary whose keys are the BIO labels and the values are integers (see method
     get_label_dict in this file).
     :return: Dictionary with three entries: 'tokens', a list of the tokens which have been classified; 'ner_tags',
-    a list of the numerical representation of the BIO classes assigned to the tokens; 'ner_classes', a list of the
-    str representation of the BIO classes assigned to the tokens.
+    a list of the numerical representation of the BIO labels assigned to the tokens; 'ner_classes', a list of the
+    str representation of the BIO labels assigned to the tokens.
     """
     if any(df[column_name].notna()):
         s_notna = df[column_name].loc[df[column_name].notna()]
@@ -59,7 +60,7 @@ def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class:
     else:
         df["BIO"] = "O"
 
-    df["BIO_IDS"] = df["BIO"].apply(lambda bio_tag: label_dict[bio_tag])
+    df["BIO_IDS"] = df["BIO"].apply(lambda bio_tag: bio_dict[bio_tag])
     idcs = df["TOKENS"].loc[df["TOKENS"].notna()].index
 
     return {
@@ -68,3 +69,60 @@ def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class:
             "ner_classes": df["BIO"].loc[idcs].to_list()
     }
 
+
+def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[str]:
+    """Converts BIO labels to EIS1600 tags.
+
+    Converter method for BIO labels to EIS100 tags. BI labels must follow this pattern: [BI]-[AMPTY].* with
+    * [A]ge
+    * [M]ISC
+    * [P]erson
+    * [T]oponym
+    * [Y]ear
+    Usually, EIS1600 BIO labels have a three letter code: [YY][BDKP] with YY for year and [BDKP] for the sub-class.
+    :param List[str] bio_labels: List containing the BIO label for each token.
+    :param bool sub_class: if set to true, last char of BIO label indicates sub-class, e.g. YYB for date with
+    sub-class date of birth, defaults to false.
+    :return List[str]: List containing the respective EIS1600 tags
+    """
+    converted_tokens, temp_tokens, temp_class, temp_sub_class = [], [], None, None
+
+    for _label in bio_labels:
+        if _label is None:
+            converted_tokens.append(nan)
+        else:
+            # Check if the first letter of the label is 'O' or 'B' because this will terminate the previous entity
+            # and 'B' will additionally start a new entity
+            if _label[0] in ['O', 'B']:
+                if len(temp_tokens):
+                    # Generate EIS1600 tag for entity
+                    if sub_class:
+                        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
+                    else:
+                        converted_tokens.append(f"Ü{temp_class[0]}{len(temp_tokens)}")  # e.g. ÜP3
+                    # Mask I-tags with nan
+                    converted_tokens.extend([nan] * (len(temp_tokens) - 1))
+                elif _label == 'O':
+                    converted_tokens.append(nan)
+                if _label[0] == 'B':
+                    # Start new entity
+                    if _label[2:] == 'LOC':
+                        _label = _label.replace('LOC', 'TOX')
+                    temp_class = _label[2]
+                    if sub_class:
+                        temp_sub_class = _label[-1]
+                    temp_tokens = [_label]
+            elif _label[0] == 'I':
+                temp_tokens.append(_label)
+            else:
+                converted_tokens.append(nan)
+
+    if len(temp_tokens):
+        # Add last entity
+        if sub_class:
+            converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
+        else:
+            converted_tokens.append(f"Ü{temp_class[0]}{len(temp_tokens)}")  # e.g. ÜP3
+        converted_tokens.extend([nan] * (len(temp_tokens) - 1))
+
+    return converted_tokens

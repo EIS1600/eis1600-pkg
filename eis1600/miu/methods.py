@@ -3,14 +3,15 @@ from os.path import splitext, split, exists
 from typing import List, Optional
 from pathlib import Path
 
+from eis1600.markdown.md_to_bio import bio_to_md
+
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.nlp.utils import camel2md_as_list, annotate_miu_text, insert_nasab_tag, insert_onomastic_tags,\
-    aggregate_STFCON_classes, merge_ner_with_person_classes
-from eis1600.onomastics.methods import nasab_annotate_miu
+    aggregate_STFCON_classes, merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.toponyms.methods import toponym_category_annotate_miu
@@ -169,13 +170,16 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 1. open miu file and disassemble the file to its parts
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
-        # 2. annotate NEs and lemmatize
-        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], ST_labels, FCO_labels = annotate_miu_text(df)
+        # 2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information
+        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
+            toponym_labels = annotate_miu_text(df)
 
         # 3. convert cameltools labels format to markdown format
         aggregated_stfco_labels = aggregate_STFCON_classes(ST_labels, FCO_labels)
         ner_tags = camel2md_as_list(df['NER_LABELS'].tolist())
-        df['NER_TAGS'] = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
+        ner_tags_with_person_classes = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
+        toponym_labels_md = bio_to_md(toponym_labels)
+        df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
 
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
@@ -186,15 +190,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 6. annotate onomastic information
         df['ONONMASTIC_TAGS'] = insert_onomastic_tags(df)
 
-        # 5. annotate onomastic information (Rule-Based model, an alternative to ML model insert_onomastic_tags
-        # df['ONONMASTIC_TAGS'] = nasab_annotate_miu(df, yml_handler, path)
-
         # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
-
-        # 7. toponym categorization
-        df['NER_TAGS'] = toponym_category_annotate_miu(df['TOKENS'], df['NER_TAGS'])
-
-        # TODO 8. assign roles for persons
         # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)
 
         # 10. save csv file

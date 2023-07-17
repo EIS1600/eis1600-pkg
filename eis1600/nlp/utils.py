@@ -5,7 +5,7 @@ from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
 
 
 def annotate_miu_text(df):
-    lemmas, ner_tags, pos_tags, st_tags, fco_tags = ['_'], ['_'], ['_'], ['_'], ['_']
+    lemmas, ner_tags, pos_tags, root_tags, st_tags, fco_tags, toponym_tags = ['_'], ['_'], ['_'], ['_'], ['_'], ['_'], ['_']
     section_id, temp_tokens = None, []
     for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].fillna('').to_list()))[1:]:
         _section, _token = entry[0], entry[1]
@@ -14,12 +14,15 @@ def annotate_miu_text(df):
             if len(temp_tokens) > 0:
                 # 1. process the previous section
                 _labels = lemmatize_and_tag_ner(temp_tokens)
-                _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags, _st_tags, _fco_tags = zip(*_labels)
+                _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags, _root_tags, _st_tags, _fco_tags, _toponym_tags = zip(
+                        *_labels)
                 ner_tags.extend(_ner_tags)
                 lemmas.extend(_dediac_lemmas)
                 pos_tags.extend(_pos_tags)
+                root_tags.extend(_root_tags)
                 fco_tags.extend(_fco_tags)
                 st_tags.extend(_st_tags)
+                toponym_tags.extend(_toponym_tags)
                 # 2. reset variables
                 section_id, temp_tokens = None, []
 
@@ -28,14 +31,16 @@ def annotate_miu_text(df):
 
     if len(temp_tokens) > 0:
         _labels = lemmatize_and_tag_ner(temp_tokens)
-        _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags, _st_tags, _fco_tags = zip(*_labels)
+        _, _ner_tags, _lemmas, _dediac_lemmas, _pos_tags, _root_tags, _st_tags, _fco_tags, _toponym_tags = zip(*_labels)
         ner_tags.extend(_ner_tags)
         lemmas.extend(_dediac_lemmas)
         pos_tags.extend(_pos_tags)
+        root_tags.extend(_root_tags)
         fco_tags.extend(_fco_tags)
         st_tags.extend(_st_tags)
+        toponym_tags.extend(_toponym_tags)
 
-    return ner_tags, lemmas, pos_tags, st_tags, fco_tags
+    return ner_tags, lemmas, pos_tags, root_tags, st_tags, fco_tags, toponym_tags
 
 
 def aggregate_STFCON_classes(st_list: list, fco_list: list) -> List[str]:
@@ -77,6 +82,20 @@ def merge_ner_with_person_classes(ner_labels, aggregated_stfco_labels):
         merged_labels.append(a)
     return merged_labels
 
+
+def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[str]) -> List[str]:
+    merged_labels = []
+    for a, b in zip(ner_labels, toponym_labels):
+        if a[:2] == 'ÜT' or a == 'O' and b:
+            if b:
+                merged_labels.append(b)
+            else:
+                merged_labels.append(a + 'X')
+        else:
+            merged_labels.append(a)
+    return merged_labels
+
+
 def camel2md(labels: list) -> List[str]:
     default_str = ''
 
@@ -85,7 +104,7 @@ def camel2md(labels: list) -> List[str]:
         if _label is None:
             converted_tokens.append(default_str)
         else:
-            # Check if the first letter of the label is 'o' or 'B' a Begining of an NE
+            # Check if the first letter of the label is 'o' or 'B' a Beginning of an NE
             if _label[0] in ['O', 'B', '_']:
                 if len(temp_tokens) > 0 and temp_class is not None:
                     converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
@@ -109,6 +128,7 @@ def camel2md(labels: list) -> List[str]:
         converted_tokens.extend([default_str] * (len(temp_tokens) - 1))
     return converted_tokens
 
+
 def camel2md_as_list(labels: list) -> List[str]:
     default_str = ''
     types_mapping = {
@@ -120,7 +140,7 @@ def camel2md_as_list(labels: list) -> List[str]:
         if _label is None:
             converted_tokens.append(default_str)
         else:
-            # Check if the first letter of the label is 'o' or 'B' a Begining of an NE
+            # Check if the first letter of the label is 'o' or 'B' a Beginning of an NE
             if _label[0] in ['O', 'B', '_']:
                 if len(temp_tokens) > 0 and temp_class is not None:
                     converted_tokens.append(f"{types_mapping.get(temp_class, 'ÜM')}{len(temp_tokens)}")  # e.g. ÜP3
@@ -193,7 +213,7 @@ def insert_onomastic_tags(df):
             end_nasab_id = idx
             break
 
-    if start_nasab_id > 0 and end_nasab_id > start_nasab_id:
+    if 0 < start_nasab_id < end_nasab_id:
         nasab_tokens = df['TOKENS'].to_list()[start_nasab_id:end_nasab_id]
         onomastic_labels = onomastic_tagger.predict_sentence(nasab_tokens)
         ono_tags = camel2md(onomastic_labels)

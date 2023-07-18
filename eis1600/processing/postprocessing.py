@@ -61,10 +61,7 @@ def reconstruct_miu_text_with_tags(
         if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
         if notna(token):
-            if token in UNICODE_PUNCT_CHARSET:
-                reconstructed_text += token
-            else:
-                reconstructed_text += ' ' + token
+            reconstructed_text += ' ' + token
 
     reconstructed_text += '\n\n'
     reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')

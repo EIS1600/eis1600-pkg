@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Pattern
+from typing import Dict, List, Optional, Pattern, Tuple, Union
 from numpy import nan
 from pandas import DataFrame
 
@@ -70,6 +70,21 @@ def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class:
     }
 
 
+def get_temp_class_es(_label: Union[str, None], sub_class: bool) -> Tuple[str, Union[None, str]]:
+    temp_sub_class = None
+    if _label[2:] == 'LOC':
+        _label = _label.replace('LOC', 'TOX')
+        temp_class = _label[2]
+    elif _label[2:] in ['ISM', 'NAS', 'KUN', 'LAQ', 'NSB', 'SHR']:
+        temp_class = _label[2:]
+    else:
+        temp_class = _label[2]
+    if sub_class:
+        temp_sub_class = _label[-1]
+
+    return temp_class, temp_sub_class
+
+
 def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[str]:
     """Converts BIO labels to EIS1600 tags.
 
@@ -103,22 +118,18 @@ def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[
                     # Mask I-tags with nan
                     converted_tokens.extend([nan] * (len(temp_tokens) - 1))
                     temp_tokens = []
+                    temp_class = None
+                    temp_sub_class = None
                 if _label[0] == 'B':
                     # Start new entity
-                    if _label[2:] == 'LOC':
-                        _label = _label.replace('LOC', 'TOX')
-                        temp_class = _label[2]
-                    elif _label[2:] in ['ISM', 'NAS', 'KUN', 'LAQ', 'NSB', 'SHR']:
-                        temp_class = _label[2:]
-                    else:
-                        temp_class = _label[2]
-                    if sub_class:
-                        temp_sub_class = _label[-1]
+                    temp_class, temp_sub_class = get_temp_class_es(_label, sub_class)
                     temp_tokens = [_label]
                 elif _label == 'O':
                     converted_tokens.append(nan)
             elif _label[0] == 'I':
                 temp_tokens.append(_label)
+                if temp_class is None:
+                    temp_class, temp_sub_class = get_temp_class_es(_label, sub_class)
             else:
                 converted_tokens.append(nan)
 

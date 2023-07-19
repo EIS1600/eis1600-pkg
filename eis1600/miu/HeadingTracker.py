@@ -24,7 +24,7 @@ class HeadingTracker:
         self.h4 = None
         self.page_tag = None
 
-        if headings_dict:
+        if headings_dict and type(headings_dict) == dict:
             for key, val in headings_dict.items():
                 self.__setattr__(key, val)
 

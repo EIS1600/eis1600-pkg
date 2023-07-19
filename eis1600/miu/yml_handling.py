@@ -1,4 +1,5 @@
 from itertools import combinations
+from operator import itemgetter
 from os import makedirs
 from os.path import dirname, split, splitext
 from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
@@ -86,15 +87,15 @@ def add_to_entities_dict(
     if cat in entities_dict.keys():
         if cat == 'onomastics' and tag:
             if tag in entities_dict[cat].keys():
-                entities_dict[cat][tag].append(entity)
+                entities_dict[cat][tag].add(entity)
             else:
-                entities_dict[cat][tag] = [entity]
+                entities_dict[cat][tag] = {entity}
         else:
             entities_dict[cat].append(entity)
     else:
         if cat == 'onomastics' and tag:
             entities_dict[cat] = {}
-            entities_dict[cat][tag] = [entity]
+            entities_dict[cat][tag] = {entity}
         elif isinstance(entity, list):
             entities_dict[cat] = entity
         else:
@@ -190,7 +191,10 @@ def add_annotated_entities_to_yml(
 
     if 'onomastics' in entities_dict.keys():
         # Sort dict by keys
-        entities_dict['onomastics'] = dict(sorted(entities_dict.get('onomastics').items()))
+        entities_dict['onomastics'] = dict(sorted(
+                [(k, list(v)) if isinstance(v, set) else (k, v) for k,  v in entities_dict.get('onomastics').items()],
+                key=itemgetter(0)
+        ))
 
     # Generate edges
     if settlements_set:

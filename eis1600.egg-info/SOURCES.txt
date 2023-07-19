@@ -16,9 +16,12 @@ eis1600/gazetteers/Onomastics.py
 eis1600/gazetteers/Toponyms.py
 eis1600/gazetteers/__init__.py
 eis1600/gazetteers/data/__init__.py
+eis1600/gazetteers/data/days_gazetteer.csv
+eis1600/gazetteers/data/months_gazetteer.csv
 eis1600/gazetteers/data/onomastic_gazetteer.csv
 eis1600/gazetteers/data/spelling_gazetteer.csv
 eis1600/gazetteers/data/toponyms_gazetteer.csv
+eis1600/gazetteers/data/years_gazetteer.csv
 eis1600/helper/EntityTags.py
 eis1600/helper/EvalResultsEncoder.py
 eis1600/helper/Singleton.py

@@ -8,13 +8,13 @@ from eis1600.dates.Date import Date
 from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
     DAY_ONES_NOR, \
     DAY_TEN_NOR, MONTHS_NOR, \
-    WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR
+    WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR
 from eis1600.processing.preprocessing import get_tokens_and_tags
 
 
 def parse_year(m: Match[str]) -> (int, int):
     year = 0
-    length = 1  # word sana
+    length = len(m.group('sana').split())  # (?P<sana>سنة|عام|في حدود)
     if m.group('ones'):
         year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
         length += 1
@@ -24,6 +24,9 @@ def parse_year(m: Match[str]) -> (int, int):
     if m.group('hundred'):
         year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
         length += len(m.group('hundred').split())
+    if m.group('thousand'):
+        year += THOUSAND_NOR.get(normalize_ara_heavy(m.group('thousand')))
+        length += 1
 
     return year, length
 

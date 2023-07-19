@@ -90,7 +90,7 @@ def write_updated_miu_to_file(
     :return None:
     """
     if not yml_handler.is_reviewed():
-        columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS', 'NASAB_TAGS', 'ONONMASTIC_TAGS']
+        columns_of_automated_tags = ['NER_TAGS', 'DATE_TAGS', 'NASAB_TAGS', 'ONOMASTIC_TAGS']
         df['ÜTAGS'] = df['TAGS_LISTS']
         for col in columns_of_automated_tags:
             if col in df.columns:

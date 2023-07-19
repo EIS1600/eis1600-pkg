@@ -171,25 +171,25 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
 
         # 2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
-            toponym_labels = annotate_miu_text(df)
+            df['TOPONYM_LABELS'] = annotate_miu_text(df)
 
         # 3. convert cameltools labels format to markdown format
         aggregated_stfco_labels = aggregate_STFCON_classes(ST_labels, FCO_labels)
         ner_tags = bio_to_md(df['NER_LABELS'].to_list())  # camel2md_as_list(df['NER_LABELS'].tolist())
         ner_tags_with_person_classes = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
-        toponym_labels_md = bio_to_md(toponym_labels, sub_class=True)
+        toponym_labels_md = bio_to_md(df['TOPONYM_LABELS'].to_list(), sub_class=True)
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
 
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
 
-        # 5. insert BNASAB and ENASAB tags with the pretrained transformer model
+        # 5. insert BONOM and EONOM tags with the pretrained transformer model
         df['NASAB_TAGS'] = insert_nasab_tag(df)
 
         # 6. annotate onomastic information
-        df['ONONMASTIC_TAGS'] = insert_onomastic_tags(df)
+        df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df)
 
-        # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambigious toponyms flag
+        # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambiguous toponyms flag
         # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)
 
         # 10. save csv file
@@ -198,12 +198,12 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
         if output_path == path:
             write_updated_miu_to_file(
-                miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                 'DATE_TAGS', 'NASAB_TAGS', 'ONONMASTIC_TAGS']]
+                miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'NASAB_TAGS',
+                                                  'ONOMASTIC_TAGS', 'NER_TAGS']]
                 )
         else:
             with open(output_path, 'w', encoding='utf-8') as out_file_object:
                 write_updated_miu_to_file(
-                        out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NER_TAGS',
-                                                         'DATE_TAGS', 'NASAB_TAGS', 'ONONMASTIC_TAGS']]
+                        out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'NASAB_TAGS',
+                                                          'ONOMASTIC_TAGS', 'NER_TAGS']]
                 )

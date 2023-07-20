@@ -86,21 +86,19 @@ def write_updated_miu_to_file(
 
     :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml_handler: The YAMLHandler of the MIU.
-    :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'] and optional 'ÜTAGS_LISTS'.
+    :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'].
     :return None:
     """
     if not yml_handler.is_reviewed():
         columns_of_automated_tags = ['DATE_TAGS', 'NASAB_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
-        df['ÜTAGS'] = df['TAGS_LISTS']
         for col in columns_of_automated_tags:
             if col in df.columns:
-                df['ÜTAGS'] = df.apply(lambda x: merge_tagslists(x['ÜTAGS'], x[col]), axis=1)
-        df_subset = df[['SECTIONS', 'TOKENS', 'ÜTAGS']]
+                df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)
+        df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
     else:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
-    text_with_tags = get_text_with_annotation_only(df_subset)
-    add_annotated_entities_to_yml(text_with_tags, yml_handler, path.realpath(miu_file_object.name))
+    add_annotated_entities_to_yml(df_subset, yml_handler, path.realpath(miu_file_object.name))
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     miu_file_object.seek(0)

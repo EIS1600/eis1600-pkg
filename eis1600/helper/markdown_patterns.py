@@ -50,12 +50,13 @@ MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?
 
 # MIU entity tags
 entity_tags = '|'.join(EntityTags.instance().get_entity_tags())
-ENTITY_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})(?:(?P<sub_cat>[A-Z]+)|['
-                                                               r'A-Z0-9]+)?\b')
+ENTITY_TAGS_PATTERN = compile(r'\bÜ?(?P<full_tag>'
+                              r'(?P<entity>' + entity_tags + r')(?P<length>\d{1,2})'
+                                                             r'(?:(?P<sub_cat>[A-Z]+)|['r'A-Z0-9]+)?)\b')
 YEAR_PATTERN = compile(r'Ü?Y(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])(?P<written>\d{4}|None)(?P<i>I)?Y(?P<real>\d{4})?')
 AGE_PATTERN = compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
-nasab_tags = '|'.join(EntityTags.instance().get_nasab_tags())
-NASAB_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + nasab_tags + r')(?P<length>\d{1,2})')
+onom_tags = '|'.join(EntityTags.instance().get_onom_tags())
+ONOM_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + onom_tags + r')(?P<length>\d{1,2})')
 
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = compile(r'# [|$]+')

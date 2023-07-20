@@ -23,8 +23,9 @@ class YAMLHandler:
     """
     # Only attributes named in the following list are allowed to be added to the YAMLHeader - add any new attribute
     # to that list
-    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambiguous_toponyms', 'toponyms',
-                              'settlements', 'provinces', 'edges_settlements', 'edges_provinces', 'books', 'miscs']
+    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambiguous_toponyms', 'persons',
+                              'toponyms', 'settlements', 'provinces', 'edges_settlements', 'edges_provinces',
+                              'books', 'miscs']
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
@@ -95,10 +96,18 @@ class YAMLHandler:
                     # Add key, val to the top level
                     yml[key] = YAMLHandler.__parse_yml_val(val)
 
-        if len(level):
+        while len(level) > 0:
             dict_key = level[-1][0]
             dict_val = level[-1][1]
-            yml[dict_key] = dict_val
+            if len(level) > 1:
+                level[-2][1][dict_key] = dict_val
+            else:
+                yml[dict_key] = dict_val
+            level.pop()
+
+        # This is fix for old files, nas should be part of onomastics
+        if hasattr(yml, 'nas'):
+            delattr(yml, 'nas')
 
         return yml
 

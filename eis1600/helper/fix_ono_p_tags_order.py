@@ -7,10 +7,10 @@ from re import compile
 
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.processing.postprocessing import write_updated_miu_to_file
+from eis1600.helper.markdown_patterns import onom_tags
 from eis1600.helper.repo import TRAINING_DATA_REPO
 
-ONO_TAGS = '|'.join(['ISM', 'NAS', 'KUN', 'LQB', 'NSB', 'SHR'])
-PATTERN = compile(r'(ÜP\d+[A-Z]),((?:BONOM,)?Ü(?:' + ONO_TAGS + r')\d)')
+PATTERN = compile(r'(ÜP\d+[A-Z]),((?:BONOM,)?Ü(?:' + onom_tags + r')\d)')
 
 
 def fix_ono_o_tag_order(file) -> bool:
@@ -63,7 +63,7 @@ def main():
         res = []
 
         if debug:
-            for i, file in enumerate(infiles[428:429]):
+            for i, file in enumerate(infiles[:10]):
                 print(f'{i} {file}')
                 res.append(fix_ono_o_tag_order(file))
         else:

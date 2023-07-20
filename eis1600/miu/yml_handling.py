@@ -4,6 +4,8 @@ from os import makedirs
 from os.path import dirname, split, splitext
 from typing import Dict, List, Optional, Set, TextIO, Tuple, Union
 
+from pandas import DataFrame, notna
+
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.EntityTags import EntityTags
 from eis1600.helper.logging import setup_logger
@@ -103,7 +105,7 @@ def add_to_entities_dict(
 
 
 def add_annotated_entities_to_yml(
-        text_with_tags: str,
+        df: DataFrame,
         yml_handler: YAMLHandler,
         file_path: str,
 ) -> None:
@@ -111,12 +113,11 @@ def add_annotated_entities_to_yml(
 
     Extract annotated entities as metadata. While doing so, identify toponyms and calculate active period for the
     biographee.
-    :param str text_with_tags: Text with inserted tags of the MIU.
+    :param DataFrame df: DataFrame with two columns 'TAGS_LISTS' and 'TOKENS'.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param str file_path: Filename of the current MIU (used in error msg).
     """
     # We do not need to differentiate between automated and manual tags
-    text_with_tags = text_with_tags.replace('Ü', '')
     tg = Toponyms.instance()
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
     entities_dict = {}
@@ -126,28 +127,31 @@ def add_annotated_entities_to_yml(
     provinces_set: Set[str] = set()
     ambiguous_toponyms = False
 
-    m = ENTITY_TAGS_PATTERN.search(text_with_tags)
-    while m:
-        tag = m.group('entity')
-        length = int(m.group('length'))
-        sub_cat = None
-        if m.group('sub_cat'):
-            # Person, toponyms and books are sub-classified based on their relation to the biographee
-            sub_cat = m.group('sub_cat')
-        entity = ' '.join(text_with_tags[m.end():].split(maxsplit=length)[:length])
+    # Get all tags with their information extracted into individual elements
+    s_notna = df['TAGS_LISTS'].loc[df['TAGS_LISTS'].notna()].apply(lambda tag_list: ','.join(tag_list))
+    df_matches = s_notna.str.extractall(ENTITY_TAGS_PATTERN).dropna(how='all')
 
+    # Interpret extracted information for each tag
+    for index_tuple, row in df_matches.iterrows():
+        # Since there can be multiple tags for the same tokens df_matches has a multi-index
+        index = index_tuple[0]
+        tag = row['entity']
+        length = int(row['length'])
+        sub_cat = row['sub_cat']
+        entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
+
         if cat == 'DATE' or cat == 'AGE':
             try:
-                val, e_cat = get_yrs_tag_value(m.group(0))
+                val, e_cat = get_yrs_tag_value(row['full_tag'])
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
-                print(f'Tag is neither year nor age: {m.group(0)}\nCheck: {file_path}')
+                print(f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}')
                 return
         elif cat == 'TOPONYM':
             # Identify toponym
             place, uris_tag, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
-            if sub_cat:
+            if notna(sub_cat):
                 add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uris_tag, 'cat': sub_cat})
             else:
                 add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uris_tag})
@@ -173,15 +177,14 @@ def add_annotated_entities_to_yml(
             elif tag.startswith('NAS'):
                 nas_dict['nas_' + str(nas_counter)] = entity
                 nas_counter += 1
-            add_to_entities_dict(entities_dict, cat, entity, tag)
+            else:
+                add_to_entities_dict(entities_dict, cat, entity, tag)
             LOGGER_NASAB_KNOWN.info(f'{tag},{entity}')
         elif cat == 'BOOK':
-            if sub_cat:
+            if notna(sub_cat):
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
         else:
             add_to_entities_dict(entities_dict, cat, entity, tag)
-
-        m = ENTITY_TAGS_PATTERN.search(text_with_tags, m.end())
 
     if nas_dict != {}:
         if 'onomastics' in entities_dict.keys():

@@ -4,6 +4,7 @@ convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 eval_date_model = eis1600.helper.eval_date_model:main [eval]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
+fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main
 insert_uids = eis1600.markdown.insert_uids:main
 miu_random_revisions = eis1600.helper.miu_random_revisions:main
 miu_stats = eis1600.stats.miu_stats:main

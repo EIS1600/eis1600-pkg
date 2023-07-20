@@ -53,6 +53,8 @@ class YAMLHandler:
             elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
                 # Nested lists
                 values = literal_eval(val)
+            elif raw_val_list == '':
+                return None
             else:
                 # List of other values
                 val_list = raw_val_list.split(', ')

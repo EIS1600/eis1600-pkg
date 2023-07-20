@@ -11,7 +11,7 @@ from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
 def annotate_miu_text(df):
     lemmas, ner_tags, pos_tags, root_tags, st_tags, fco_tags, toponym_tags = ['_'], ['_'], ['_'], ['_'], ['_'], ['_'], ['_']
     section_id, temp_tokens = None, []
-    for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].fillna('').to_list()))[1:]:
+    for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].fillna('-').to_list()))[1:]:
         _section, _token = entry[0], entry[1]
         if _section is not None:
             # Start a new section
@@ -101,7 +101,7 @@ def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[s
 
 
 def insert_nasab_tag(df) -> list:
-    tokens = df['TOKENS'].fillna('').to_list()
+    tokens = df['TOKENS'].fillna('-').to_list()
     nasab_tagger = CamelToolsModels.getNasabModel()
     shortend_list_of_tokens = tokens[1:]
     __shortend_list_limit = 120
@@ -117,18 +117,18 @@ def insert_nasab_tag(df) -> list:
     for token, label in zip(shortend_list_of_tokens, nasab_labels):
         if label == "B-NASAB":
             # Start a new NASAB
-            nasab.append("BNASAB")
+            nasab.append("BONOM")
             nasab_started = True
         elif label == "I-NASAB":
             nasab.append(nan)
         else:
             if nasab_started:
-                nasab.append("ENASAB")
+                nasab.append("EONOM")
                 nasab_started = False
             else:
                 nasab.append(nan)
     if nasab_started:
-        nasab[-1] = "ENASAB"
+        nasab[-1] = "EONOM"
     # merge the shortend list
     if len(tokens) > __shortend_list_limit:
         nasab.extend([nan] * (len(tokens) - __shortend_list_limit))
@@ -142,14 +142,14 @@ def insert_onomastic_tags(df):
 
     # Find BNASAB & ENASAB
     for idx, tag in enumerate(df['NASAB_TAGS'].to_list()):
-        if "BNASAB" == tag:
+        if "BONOM" == tag:
             start_nasab_id = idx
-        elif "ENASAB" == tag:
+        elif "EONOM" == tag:
             end_nasab_id = idx
             break
 
     if 0 < start_nasab_id < end_nasab_id:
-        nasab_tokens = df['TOKENS'].to_list()[start_nasab_id:end_nasab_id]
+        nasab_tokens = df['TOKENS'].fillna('-').to_list()[start_nasab_id:end_nasab_id]
         onomastic_labels = onomastic_tagger.predict_sentence(nasab_tokens)
         ono_tags = bio_to_md(onomastic_labels)
 

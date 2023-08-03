@@ -26,6 +26,7 @@ GAZETTEERS_REPO = 'gazetteers/'
 MC_REPO = 'MasterChronicle/'
 BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
+STATISTICS_REPO = 'research_data/'
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:

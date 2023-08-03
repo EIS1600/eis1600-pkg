@@ -66,6 +66,9 @@ eis1600/onomastics/re_pattern.py
 eis1600/processing/__init__.py
 eis1600/processing/postprocessing.py
 eis1600/processing/preprocessing.py
+eis1600/statistics/__init__.py
+eis1600/statistics/count_tokens_per_miu.py
+eis1600/statistics/methods.py
 eis1600/stats/__init__.py
 eis1600/stats/methods.py
 eis1600/stats/miu_stats.py

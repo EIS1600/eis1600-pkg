@@ -181,7 +181,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
 
         # 4. annotate dates
-        df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], yml_handler)
+        df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], path, yml_handler)
 
         # 5. insert BONOM and EONOM tags with the pretrained transformer model
         df['NASAB_TAGS'] = insert_nasab_tag(df)

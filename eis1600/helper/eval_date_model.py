@@ -70,7 +70,7 @@ def get_dates_true_and_pred(file: str, bio_dict: Dict) -> Tuple[DataFrame, Dict,
         df['DATES_TRUE'] = nan
 
     # Predict dates based on the text as EIS1600 tags
-    df['DATES_PRED'] = date_annotate_miu_text(df[['TOKENS']])
+    df['DATES_PRED'] = date_annotate_miu_text(df[['TOKENS']], file)
 
     if any(df['DATES_PRED'].notna()):
         df_pred = df['DATES_PRED'].str.extract(YEAR_PATTERN).dropna(how='all')

@@ -1,7 +1,6 @@
 from sys import argv, exit
 from os.path import isfile, split, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
-from functools import partial
 from pathlib import Path
 
 from numpy import number
@@ -28,7 +27,7 @@ class CheckFileEndingAction(Action):
 def main():
     arg_parser = ArgumentParser(
             prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
-            description='''Script to NER annotate MIU file(s).
+            description='''Script to count tokens per MIU file(s).
 -----
 Give an IDs file or a single MIU file as input
 otherwise 
@@ -72,12 +71,20 @@ all files in the MIU directory are batch processed.
             exit()
 
         for infile in infiles:
-            mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
-            res = []
-            res += p_uimap(count_tokens, mius)
-
             file_path, uri = split(infile)
             uri, ext = splitext(uri)
+            if not debug:
+                print(uri)
+
+            mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
+            res = []
+            if debug:
+                for i, miu in enumerate(mius):
+                    print(f'{i} {miu}')
+                    res.append(count_tokens(miu))
+            else:
+                res += p_uimap(count_tokens, mius)
+
             author, work, text = uri.split('.')
             out_path = STATISTICS_REPO + 'token_count/data/' + '/'.join([author, '.'.join([author, work])]) + '/'
             dir_path = Path(out_path)

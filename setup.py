@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.0.1',
+      version='1.0.2',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -35,7 +35,7 @@ setup(name='eis1600',
                   'yml_to_json = eis1600.helper.yml_to_json:main'
           ],
       },
-      python_requires='>=3.7, <3.9',
+      python_requires='>=3.7',
       install_requires=[
               'openiti',
               'pandas',

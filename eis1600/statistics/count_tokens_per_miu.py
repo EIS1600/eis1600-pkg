@@ -63,6 +63,12 @@ all files in the MIU directory are batch processed.
                   '`EIS1600_MIUs/`.')
             exit()
 
+        data_path = STATISTICS_REPO + 'token_count/data/'
+        Path(data_path).mkdir(parents=True, exist_ok=True)
+        stats_path = STATISTICS_REPO + 'token_count/stats/'
+        Path(stats_path).mkdir(parents=True, exist_ok=True)
+
+
         print(f'Count tokens per MIU')
         files_list = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'IDs')
@@ -85,17 +91,11 @@ all files in the MIU directory are batch processed.
             else:
                 res += p_uimap(count_tokens, mius)
 
-            author, work, text = uri.split('.')
-            out_path = STATISTICS_REPO + 'token_count/data/' + '/'.join([author, '.'.join([author, work])]) + '/'
-            dir_path = Path(out_path)
-            dir_path.mkdir(parents=True, exist_ok=True)
-            path = dir_path.__str__() + '/' + uri
-
             df = DataFrame(res, columns=['URI', 'CATEGORY', 'NUMBER_OF_TOKENS'])
             df = df.astype({'CATEGORY': 'category', 'NUMBER_OF_TOKENS': 'int32'})
-            df.to_csv(path + '.csv', index=False)
+            df.to_csv(data_path + uri + '.csv', index=False)
             
-            df.describe(include=[number, 'category']).to_csv(path + '_info.csv')
-            df.groupby('CATEGORY').describe().to_csv(path + '_info_per_type.csv')
+            df.describe(include=[number, 'category']).to_csv(stats_path + uri + '_info.csv')
+            df.groupby('CATEGORY').describe().to_csv(stats_path + uri + '_info_per_type.csv')
 
     print('Done')

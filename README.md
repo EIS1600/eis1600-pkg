@@ -45,6 +45,12 @@ In case you have an older version installed, use:
 $ pip install --upgrade eis1600
 ```
 
+The package comes with different options, to install camel-tools use.
+Check also their installation instructions because atm they require additional packages [https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation](https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation)
+```shell
+$ pip install eis1600[NER]
+```
+
 **Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
 
 ## Set Up Virtual Environment and Install the EIS1600 PKG there

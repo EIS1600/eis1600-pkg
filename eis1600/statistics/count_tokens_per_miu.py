@@ -51,7 +51,12 @@ all files in the MIU directory are batch processed.
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             print(f'NER annotate MIUs of {infile}')
             res = []
-            res += p_uimap(count_tokens, mius)
+            if debug:
+                for i, miu in enumerate(mius):
+                    print(f'{i} {miu}')
+                    res.append(count_tokens(miu))
+            else:
+                res += p_uimap(count_tokens, mius)
         else:
             print(f'NER annotate {infile}')
             count_tokens(infile)
@@ -76,11 +81,11 @@ all files in the MIU directory are batch processed.
             print('There are no IDs files to process')
             exit()
 
-        for infile in infiles:
+        for n, infile in enumerate(infiles):
             file_path, uri = split(infile)
             uri, ext = splitext(uri)
             if not debug:
-                print(uri)
+                print(f'{n} {uri}')
 
             mius = get_mius(infile)[1:]  # First element is path to the OPENITI HEADER
             res = []

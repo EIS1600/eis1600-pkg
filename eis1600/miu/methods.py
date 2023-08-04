@@ -1,5 +1,6 @@
 from glob import glob
 from os.path import splitext, split, exists
+from sys import exit
 from typing import List, Optional
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from eis1600.markdown.md_to_bio import bio_to_md
 
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
-    MIU_UID_PATTERN, PAGE_TAG_PATTERN
+    MIU_UID_PATTERN, PAGE_TAG_PATTERN, PARAGRAPH_TAG_MISSING, SIMPLE_MARKDOWN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.nlp.utils import annotate_miu_text, insert_nasab_tag, insert_onomastic_tags,aggregate_STFCON_classes, \
@@ -47,8 +48,13 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     mal_formatted = []
 
     with open(infile, 'r', encoding='utf8') as text:
+        header_text = text.read().split('#META#Header#End#')
+        if PARAGRAPH_TAG_MISSING.search(header_text[1]) or SIMPLE_MARKDOWN.search(header_text[1]):
+            raise ValueError(f'The mARkdown is not correct, there are paragraphs without an according tag or there is '
+                             f'still some simple-mARkdown in this file. Run `update_uids` on {infile}')
         with open(ids_file, 'w', encoding='utf8') as ids_tree:
             with open(yml_data, 'w', encoding='utf-8') as yml_data_fh:
+                text.seek(0)
                 for text_line in iter(text):
                     if HEADER_END_PATTERN.match(text_line):
                         uid = 'header'

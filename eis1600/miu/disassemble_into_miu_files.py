@@ -1,4 +1,4 @@
-import logging
+from logging import ERROR
 from sys import argv, exit
 from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
@@ -76,7 +76,7 @@ Run without input arg to batch process all double-checked EIS1600 files from the
                     update_uids(infile)
                     disassemble_text(infile, out_path, verbose)
                 except ValueError as e:
-                    logger.log(infile, logging.ERROR)
+                    logger.log(infile, ERROR)
         else:
             res = []
             res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)

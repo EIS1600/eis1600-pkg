@@ -1,3 +1,4 @@
+from sys import exit
 from typing import Optional
 
 from os.path import split, splitext
@@ -139,7 +140,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
+    text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
@@ -224,7 +225,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
+    text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []

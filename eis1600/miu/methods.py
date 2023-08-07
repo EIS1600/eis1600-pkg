@@ -1,6 +1,5 @@
 from glob import glob
 from os.path import splitext, split, exists
-from sys import exit
 from typing import List, Optional
 from pathlib import Path
 

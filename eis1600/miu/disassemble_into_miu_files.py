@@ -1,8 +1,12 @@
+import logging
 from sys import argv, exit
 from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from functools import partial
 
+from eis1600.helper.logging import setup_logger
+
+from eis1600.markdown.methods import update_uids
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
@@ -65,11 +69,14 @@ Run without input arg to batch process all double-checked EIS1600 files from the
             exit()
 
         if verbose:
-            for infile in tqdm(infiles):
+            logger = setup_logger('disassemble', 'disassemble.log')
+            for i, infile in tqdm(enumerate(infiles)):
                 try:
+                    print(f'{i} {infile}')
+                    update_uids(infile)
                     disassemble_text(infile, out_path, verbose)
-                except Exception as e:
-                    print(infile, e)
+                except ValueError as e:
+                    logger.log(infile, logging.ERROR)
         else:
             res = []
             res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)

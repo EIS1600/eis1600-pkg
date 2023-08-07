@@ -73,10 +73,9 @@ Run without input arg to batch process all double-checked EIS1600 files from the
             for i, infile in tqdm(enumerate(infiles)):
                 try:
                     print(f'{i} {infile}')
-                    update_uids(infile)
                     disassemble_text(infile, out_path, verbose)
                 except ValueError as e:
-                    logger.log(infile, ERROR)
+                    logger.log(ERROR, infile)
         else:
             res = []
             res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)

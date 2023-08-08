@@ -6,7 +6,6 @@ from functools import partial
 
 from eis1600.helper.logging import setup_logger
 
-from eis1600.markdown.methods import update_uids
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
@@ -38,7 +37,7 @@ or
 Run without input arg to batch process all double-checked EIS1600 files from the AUTOREPORT.
 '''
     )
-    arg_parser.add_argument('-v', '--verbose', action='store_true')
+    arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600 file to process',
@@ -46,13 +45,14 @@ Run without input arg to batch process all double-checked EIS1600 files from the
     )
     args = arg_parser.parse_args()
 
-    verbose = args.verbose
+    debug = args.debug
+    errors = False
 
     if args.input:
         infile = './' + args.input
         out_path = get_path_to_other_repo(infile, 'MIU')
         print(f'Disassemble {infile}')
-        disassemble_text(infile, out_path, verbose)
+        disassemble_text(infile, out_path, debug)
         infiles = [infile.split('/')[-1]]
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
@@ -68,19 +68,28 @@ Run without input arg to batch process all double-checked EIS1600 files from the
             print('There are no EIS1600 files to process')
             exit()
 
-        if verbose:
+        if debug:
             logger = setup_logger('disassemble', 'disassemble.log')
             for i, infile in tqdm(enumerate(infiles)):
                 try:
                     print(f'{i} {infile}')
-                    disassemble_text(infile, out_path, verbose)
+                    disassemble_text(infile, out_path, debug)
                 except ValueError as e:
-                    logger.log(ERROR, infile)
+                    errors = True
+                    logger.log(ERROR, f'{infile}\n{e}')
         else:
             res = []
-            res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)
+            try:
+                res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)
+            except ValueError as e:
+                print(e)
+                print('There is the option to run disassembling with `-D` flag which will collect all files with '
+                      'mARkdown errors and their error message into a log file.')
 
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
 
-    print('Done')
+    if errors:
+        print('Some files had errors and could not be processed, check `disassemble.log`')
+    else:
+        print('Done')

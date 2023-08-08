@@ -67,6 +67,7 @@ MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
 # Fix mARkdown files
 SPACES_CROWD_PATTERN = compile(r' +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
+NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +

@@ -6,10 +6,11 @@ from os.path import split, splitext
 from eis1600.markdown.UIDs import UIDs
 from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
     HEADER_END_PATTERN, \
-    MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
+    NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
     PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
-    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
+    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, PARAGRAPH_TAG_MISSING, SIMPLE_MARKDOWN, SPACES_CROWD_PATTERN, \
+    NEWLINES_CROWD_PATTERN, \
     POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, \
@@ -142,6 +143,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
+    text = NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -227,6 +229,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     header = header_and_text[0] + header_and_text[1]
     text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
+    text = NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 

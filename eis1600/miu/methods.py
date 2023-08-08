@@ -15,7 +15,6 @@ from eis1600.nlp.utils import annotate_miu_text, insert_nasab_tag, insert_onomas
     merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
-from markdown.methods import check_mARkdown
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:

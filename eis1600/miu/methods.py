@@ -61,7 +61,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                 error += '\n * There is simple mARkdown left.'
             if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
                 error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-            if POETRY_ATTACHED_AFTER_PAGE_TAG.seach(header_text[1]):
+            if POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
                 error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
             raise ValueError(

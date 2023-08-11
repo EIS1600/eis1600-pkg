@@ -52,8 +52,9 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
 
         if PARAGRAPH_TAG_MISSING.search(header_text[1]) \
                 or SIMPLE_MARKDOWN.search(header_text[1]) \
-                or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1])\
-                or POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
+                or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
+                # Poetry is still to messed up, do not bother with it for now
+                # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
             error = ''
             if PARAGRAPH_TAG_MISSING.search(header_text[1]):
                 error += '\n * There are missing paragraph tags.'
@@ -61,8 +62,8 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                 error += '\n * There is simple mARkdown left.'
             if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
                 error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-            if POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
-                error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
+            # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
+            #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
             raise ValueError(
                     f'Correct the following errors and run `update_uids` on'

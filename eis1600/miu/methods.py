@@ -65,8 +65,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                 error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
             raise ValueError(
-                    f'The mARkdown is not correct, there are paragraphs without an according tag or there is '
-                    f'still some simple-mARkdown in this file. Correct the errors and run `update_uids` on'
+                    f'Correct the following errors and run `update_uids` on'
                     f' {infile} {error}'
             )
 

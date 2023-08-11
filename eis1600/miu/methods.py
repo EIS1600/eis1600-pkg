@@ -8,7 +8,7 @@ from eis1600.markdown.md_to_bio import bio_to_md
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, \
     NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_PATTERN, \
-    MIU_UID_PATTERN, PAGE_TAG_PATTERN, PARAGRAPH_TAG_MISSING, POETRY_ATTACHED_AFTER_PAGETAG, SIMPLE_MARKDOWN
+    MIU_UID_PATTERN, PAGE_TAG_PATTERN, PARAGRAPH_TAG_MISSING, POETRY_ATTACHED_AFTER_PAGE_TAG, SIMPLE_MARKDOWN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.nlp.utils import annotate_miu_text, insert_nasab_tag, insert_onomastic_tags, aggregate_STFCON_classes, \
@@ -53,7 +53,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
         if PARAGRAPH_TAG_MISSING.search(header_text[1]) \
                 or SIMPLE_MARKDOWN.search(header_text[1]) \
                 or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1])\
-                or POETRY_ATTACHED_AFTER_PAGETAG.search(header_text[1]):
+                or POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
             error = ''
             if PARAGRAPH_TAG_MISSING.search(header_text[1]):
                 error += '\n * There are missing paragraph tags.'
@@ -61,7 +61,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                 error += '\n * There is simple mARkdown left.'
             if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
                 error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-            if POETRY_ATTACHED_AFTER_PAGETAG.seach(header_text[1]):
+            if POETRY_ATTACHED_AFTER_PAGE_TAG.seach(header_text[1]):
                 error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
             raise ValueError(

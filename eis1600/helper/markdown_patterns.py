@@ -24,11 +24,11 @@ HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = compile(MIU_HEADER)
 HEADING_PATTERN = compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
-EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::UNDEFINED:: ~')
+EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::[A-Z]+:: ~')
 EMPTY_FIRST_PARAGRAPH_PATTERN = compile(r'_ء_#=\d{12}=')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = compile(PAGE_TAG)
-ONLY_PAGE_TAG = UID + r'::UNDEFINED:: ~\n' + PAGE_TAG
+ONLY_PAGE_TAG = UID + r'::[A-Z]+:: ~\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR

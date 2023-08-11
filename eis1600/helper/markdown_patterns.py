@@ -33,8 +33,9 @@ ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
-PARAGRAPH_TAG_MISSING = compile('\n\n[^_]')
+PARAGRAPH_TAG_MISSING = compile('(\n\n[^_])|(\n\n' + MIU_UID + '[^\n]+\n(?:_ء_ )?)' + AR_CHR)
 SIMPLE_MARKDOWN = compile('\n#')
+POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
 # changing them

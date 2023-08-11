@@ -167,7 +167,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) > 1:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
+                                '\n'.join(heading_and_text[1:])
                 text_updated.append(paragraph)
             # TODO elif paragraph.startswith('::')
             elif '%~%' in paragraph:
@@ -274,19 +274,26 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) > 1:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
+                                '\n'.join(heading_and_text[1:])
             elif not UID_PATTERN.match(paragraph):
-                section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
+                cat = 'POETRY' if '%' in paragraph else 'UNDEFINED'
+                section_header = '' if paragraph.startswith('::') else f'::{cat}:: ~\n'
                 paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
             elif UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
                 paragraph = UID_TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\2\n\3', paragraph)
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
+                cat = 'POETRY' if '%' in '\n'.join(heading_and_text[1:]) else 'UNDEFINED'
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::{cat}:: ~\n' + '\n'.join(
+                        heading_and_text[1:]
+                        )
             elif MIU_TAG_AND_TEXT_PATTERN.match(paragraph):
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
+                cat = 'POETRY' if '%' in '\n'.join(heading_and_text[1:]) else 'UNDEFINED'
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::{cat}:: ~\n' + '\n'.join(
+                        heading_and_text[1:]
+                        )
 
             if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
                 # Add page tags to previous paragraph if there is no other information contained in the current

@@ -49,7 +49,10 @@ NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(
         r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
-MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+
+# Catches MIU tags for BIO, CHR and PARATEXT, EDITOR, etc. (everything in between pipes).
+# Does not catch HEADERS!
+MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'(?:[$@]+?|\|[A-Z]+\|)(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # MIU entity tags
 entity_tags = '|'.join(EntityTags.instance().get_entity_tags())

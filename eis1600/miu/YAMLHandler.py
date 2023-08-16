@@ -113,7 +113,7 @@ class YAMLHandler:
 
     def __init__(self, yml: Optional[Dict] = None) -> None:
         self.reviewed = 'NOT REVIEWED'
-        self.reviewer = None
+        self.reviewer = 'RESEARCHER'
         self.category = None
         self.headings = None
         self.dates_headings = None

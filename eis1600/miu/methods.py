@@ -174,7 +174,8 @@ def get_mius(infile: str) -> List[str]:
         ids.extend([line[:-1] for line in ids_file.readlines()])
 
     for i, miu_id in enumerate(ids):
-        mius.extend(glob(file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'))
+        if miu_id != 'preface':
+            mius.extend(glob(file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'))
 
     return mius
 

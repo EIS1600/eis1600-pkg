@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.0.0',
+      version='1.0.3',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -18,8 +18,10 @@ setup(name='eis1600',
           'console_scripts': [
                   'annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
                   'convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main',
+                  'count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main',
                   'disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main',
                   'eval_date_model = eis1600.helper.eval_date_model:main [EVAL]',
+                  'eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [EVAL]',
                   'fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main',
                   'fix_miu_annotation = eis1600.helper.fix_miu_annotation:main',
                   'insert_uids = eis1600.markdown.insert_uids:main',
@@ -34,7 +36,7 @@ setup(name='eis1600',
                   'yml_to_json = eis1600.helper.yml_to_json:main'
           ],
       },
-      python_requires='>=3.7, <3.9',
+      python_requires='>=3.7',
       install_requires=[
               'openiti',
               'pandas',

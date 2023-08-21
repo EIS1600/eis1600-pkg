@@ -1,4 +1,3 @@
-from functools import partial
 from pathlib import Path
 from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
@@ -14,13 +13,13 @@ import evaluate
 from tensorflow import constant
 from tensorflow.python.keras.metrics import MeanAbsoluteError, MeanAbsolutePercentageError
 
-from eis1600.dates.date_patterns import DATE_CATEGORIES
+from eis1600.dates.date_patterns import DATE_CATEGORIES_REPLACEMENTS, DATE_LABEL_DICT
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.helper.EvalResultsEncoder import EvalResultsEncoder
 from eis1600.helper.markdown_patterns import YEAR_PATTERN
 from eis1600.helper.repo import TRAINING_DATA_REPO, TRAINING_RESULTS_REPO
 from eis1600.miu.methods import get_yml_and_miu_df
-from eis1600.markdown.md_to_bio import get_bio_dict, md_to_bio
+from eis1600.markdown.md_to_bio import md_to_bio
 
 
 def reconstruct_automated_tag(row) -> str:
@@ -46,7 +45,7 @@ def get_year_true_pred(row: Series) -> Series:
     return Series([v_true, v_pred], index=['true', 'pred'])
 
 
-def get_dates_true_and_pred(file: str, bio_dict: Dict) -> Tuple[DataFrame, Dict, Dict]:
+def get_dates_true_and_pred(file: str) -> Tuple[DataFrame, Dict, Dict]:
     """Get ground-truth and prediction on labels and numerical values for MIU.
 
     :param str file: file path for MIU file.
@@ -95,14 +94,18 @@ def get_dates_true_and_pred(file: str, bio_dict: Dict) -> Tuple[DataFrame, Dict,
             'DATES_TRUE',
             YEAR_PATTERN,
             'YY',
-            bio_dict
+            DATE_LABEL_DICT,
+            True,
+            DATE_CATEGORIES_REPLACEMENTS
     )
     bio_pred = md_to_bio(
             df[['TOKENS', 'DATES_PRED']],
             'DATES_PRED',
             YEAR_PATTERN,
             'YY',
-            bio_dict
+            DATE_LABEL_DICT,
+            True,
+            DATE_CATEGORIES_REPLACEMENTS
     )
 
     return year, bio_true, bio_pred
@@ -162,16 +165,13 @@ def main():
     infiles = [TRAINING_DATA_REPO + 'gold_standard/' + file for file in files_txt if Path(
             TRAINING_DATA_REPO + 'gold_standard/' + file).exists()]
 
-    # BIO labels for dates have this pattern: [BI]-YY[<DATE_CATEGORIES>]
-    bio_dict = get_bio_dict('YY', DATE_CATEGORIES)
-
     res = []
     if debug:
-        for i, file in enumerate(infiles[1180:]):
-            print(i + 1180, file)
-            res.append(get_dates_true_and_pred(file, bio_dict))
+        for i, file in enumerate(infiles):
+            print(i, file)
+            res.append(get_dates_true_and_pred(file))
     else:
-        res += p_uimap(partial(get_dates_true_and_pred, label_dict=bio_dict), infiles)
+        res += p_uimap(get_dates_true_and_pred, infiles)
 
         years, truth, predictions = zip(*res)
 

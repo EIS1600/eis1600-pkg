@@ -138,7 +138,11 @@ def add_annotated_entities_to_yml(
         tag = row['entity']
         length = int(row['length'])
         sub_cat = row['sub_cat']
-        entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
+        try:
+            entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
+        except TypeError:
+            print(f'Something is at odd here: {row["full_tag"]}\nCheck: {file_path}')
+            return
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
 
         if cat == 'DATE' or cat == 'AGE':

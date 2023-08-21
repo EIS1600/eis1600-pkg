@@ -1,12 +1,16 @@
+from logging import ERROR
 from sys import argv, exit
 from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from functools import partial
 
+from eis1600.helper.logging import setup_logger
+
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import get_path_to_other_repo, read_files_from_autoreport, get_files_from_eis1600_dir, \
+from eis1600.helper.repo import MIU_REPO, get_path_to_other_repo, read_files_from_autoreport, \
+    get_files_from_eis1600_dir, \
     write_to_readme, TEXT_REPO
 from eis1600.miu.methods import disassemble_text
 
@@ -33,7 +37,7 @@ or
 Run without input arg to batch process all double-checked EIS1600 files from the AUTOREPORT.
 '''
     )
-    arg_parser.add_argument('-v', '--verbose', action='store_true')
+    arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600 file to process',
@@ -41,19 +45,20 @@ Run without input arg to batch process all double-checked EIS1600 files from the
     )
     args = arg_parser.parse_args()
 
-    verbose = args.verbose
+    debug = args.debug
+    errors = False
 
     if args.input:
         infile = './' + args.input
         out_path = get_path_to_other_repo(infile, 'MIU')
         print(f'Disassemble {infile}')
-        disassemble_text(infile, out_path, verbose)
+        disassemble_text(infile, out_path, debug)
         infiles = [infile.split('/')[-1]]
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
     else:
         input_dir = TEXT_REPO
-        out_path = get_path_to_other_repo(input_dir, 'MIU')
+        out_path = MIU_REPO + 'data/'
 
         print(f'Disassemble double-checked EIS1600 files from the AUTOREPORT')
         files_list = read_files_from_autoreport(input_dir)
@@ -63,17 +68,28 @@ Run without input arg to batch process all double-checked EIS1600 files from the
             print('There are no EIS1600 files to process')
             exit()
 
-        if verbose:
-            for infile in tqdm(infiles):
+        if debug:
+            logger = setup_logger('disassemble', 'disassemble.log')
+            for i, infile in tqdm(enumerate(infiles)):
                 try:
-                    disassemble_text(infile, out_path, verbose)
-                except Exception as e:
-                    print(infile, e)
+                    print(f'{i} {infile}')
+                    disassemble_text(infile, out_path, debug)
+                except ValueError as e:
+                    errors = True
+                    logger.log(ERROR, f'{infile}\n{e}')
         else:
             res = []
-            res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)
+            try:
+                res += p_uimap(partial(disassemble_text, out_path=out_path), infiles)
+            except ValueError as e:
+                print(e)
+                print('There is the option to run disassembling with `-D` flag which will collect all files with '
+                      'mARkdown errors and their error message into a log file.')
 
         path = out_path.split('data')[0]
         write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
 
-    print('Done')
+    if errors:
+        print('Some files had errors and could not be processed, check `disassemble.log`')
+    else:
+        print('Done')

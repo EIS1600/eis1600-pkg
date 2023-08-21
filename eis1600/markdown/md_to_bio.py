@@ -13,10 +13,9 @@ def get_bio_dict(bio_main_class: str, categories: List[str]) -> Dict:
     :param List[str] categories: List of letters used for the categories.
     :return:
     """
-    categories = [bio_main_class + c for c in categories]
     bio = ["B", "I"]
 
-    labels = [bi + "-" + c for c in categories for bi in bio] + ["O"]
+    labels = [bi + "-" + bio_main_class + c for c in categories for bi in bio] + ["O"]
     label_dict = {}
 
     for i, label in enumerate(labels):
@@ -25,7 +24,10 @@ def get_bio_dict(bio_main_class: str, categories: List[str]) -> Dict:
     return label_dict
 
 
-def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class: str, bio_dict: Dict) -> Dict:
+def md_to_bio(
+        df: DataFrame, column_name: str, pattern: Pattern, bio_main_class: str, bio_dict: Dict,
+        less_categories: Optional[bool] = False, replacements: Optional[Dict] = None
+) -> Dict:
     """Parses EIS100 mARkdown tags to BIO labels.
 
     :param DataFrame df: DataFrame must have these two columns: 'TOKENS' and a second column named <column_name> which
@@ -36,6 +38,8 @@ def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class:
     'TO' for toponyms, etc.
     :param Dict bio_dict: dictionary whose keys are the BIO labels and the values are integers (see method
     get_label_dict in this file).
+    :param less_categories: Flag to indicate combining certain classes into broader categories.
+    :param replacements: If less_categories is true, this is a dictionary with the replacement for the categories.
     :return: Dictionary with three entries: 'tokens', a list of the tokens which have been classified; 'ner_tags',
     a list of the numerical representation of the BIO labels assigned to the tokens; 'ner_classes', a list of the
     str representation of the BIO labels assigned to the tokens.
@@ -50,18 +54,20 @@ def md_to_bio(df: DataFrame, column_name: str, pattern: Pattern, bio_main_class:
             for index, row in df_matches.iterrows():
                 processed_tokens = 0
                 num_tokens = int(row['num_tokens'])
+                cat = row['cat']
+                if less_categories and cat in replacements.keys():
+                    cat = replacements.get(cat)
                 while processed_tokens < num_tokens:
                     if processed_tokens == 0:
-                        df.loc[index, 'BIO'] = 'B-' + bio_main_class + row['cat']
+                        df.loc[index, 'BIO'] = 'B-' + bio_main_class + cat
                     else:
-                        df.loc[index + processed_tokens, 'BIO'] = 'I-' + bio_main_class + row['cat']
+                        df.loc[index + processed_tokens, 'BIO'] = 'I-' + bio_main_class + cat
 
                     processed_tokens += 1
 
             df["BIO"].loc[df["BIO"].isna()] = "O"
     else:
         df["BIO"] = "O"
-
     df["BIO_IDS"] = df["BIO"].apply(lambda bio_tag: bio_dict[bio_tag])
     idcs = df["TOKENS"].loc[df["TOKENS"].notna()].index
 

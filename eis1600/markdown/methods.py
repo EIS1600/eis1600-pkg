@@ -5,10 +5,11 @@ from os.path import split, splitext
 from eis1600.markdown.UIDs import UIDs
 from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
     HEADER_END_PATTERN, \
-    MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
+    NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_AND_TEXT_PATTERN, NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
     PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
-    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, NEWLINES_CROWD_PATTERN, \
+    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, SPACES_CROWD_PATTERN, \
+    NEWLINES_CROWD_PATTERN, \
     POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_PATTERN, UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, \
@@ -139,8 +140,9 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
+    text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
+    text = NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -164,7 +166,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) > 1:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
+                                '\n'.join(heading_and_text[1:])
                 text_updated.append(paragraph)
             # TODO elif paragraph.startswith('::')
             elif '%~%' in paragraph:
@@ -224,8 +226,9 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     # disassemble text into paragraphs
     header_and_text = HEADER_END_PATTERN.split(text)
     header = header_and_text[0] + header_and_text[1]
-    text = header_and_text[2][1:]  # Ignore second new line after #META#Header#End#
+    text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
+    text = NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.sub('\n\n', text)
     text = text.split('\n\n')
     text_updated = []
 
@@ -270,19 +273,26 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) > 1:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
-                                heading_and_text[1]
+                                '\n'.join(heading_and_text[1:])
             elif not UID_PATTERN.match(paragraph):
-                section_header = '' if paragraph.startswith('::') else '::UNDEFINED:: ~\n'
+                cat = 'POETRY' if '%' in paragraph else 'UNDEFINED'
+                section_header = '' if paragraph.startswith('::') else f'::{cat}:: ~\n'
                 paragraph = f'_ء_={uids.get_uid()}= {section_header}' + paragraph
             elif UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
                 paragraph = UID_TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\2\n\3', paragraph)
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
+                cat = 'POETRY' if '%' in '\n'.join(heading_and_text[1:]) else 'UNDEFINED'
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::{cat}:: ~\n' + '\n'.join(
+                        heading_and_text[1:]
+                        )
             elif MIU_TAG_AND_TEXT_PATTERN.match(paragraph):
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
-                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + heading_and_text[1]
+                cat = 'POETRY' if '%' in '\n'.join(heading_and_text[1:]) else 'UNDEFINED'
+                paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::{cat}:: ~\n' + '\n'.join(
+                        heading_and_text[1:]
+                        )
 
             if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
                 # Add page tags to previous paragraph if there is no other information contained in the current

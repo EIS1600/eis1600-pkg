@@ -113,10 +113,11 @@ class YAMLHandler:
 
     def __init__(self, yml: Optional[Dict] = None) -> None:
         self.reviewed = 'NOT REVIEWED'
-        self.reviewer = None
+        self.reviewer = 'RESEARCHER'
         self.category = None
         self.headings = None
         self.dates_headings = None
+        self.number_of_tokens = None
 
         for key in YAMLHandler.__attr_from_annotation:
             if key == 'ambiguous_toponyms':
@@ -140,6 +141,9 @@ class YAMLHandler:
 
     def set_category(self, category: str) -> None:
         self.category = category
+
+    def set_number_of_tokens(self, number_of_tokens: int) -> None:
+        self.number_of_tokens = number_of_tokens
 
     def set_ambiguous_toponyms(self) -> None:
         self.ambiguous_toponyms = True

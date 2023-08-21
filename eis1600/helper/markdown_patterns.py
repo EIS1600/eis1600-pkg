@@ -24,15 +24,18 @@ HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = compile(MIU_HEADER)
 HEADING_PATTERN = compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
-EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::UNDEFINED:: ~')
+EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::[A-Z]+:: ~')
 EMPTY_FIRST_PARAGRAPH_PATTERN = compile(r'_ء_#=\d{12}=')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = compile(PAGE_TAG)
-ONLY_PAGE_TAG = UID + r'::UNDEFINED:: ~\n' + PAGE_TAG
+ONLY_PAGE_TAG = UID + r'::[A-Z]+:: ~\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
+PARAGRAPH_TAG_MISSING = compile('(\n\n[^_])|(\n\n' + MIU_UID + '[^\n]+\n(?:_ء_ )?)' + AR_CHR)
+SIMPLE_MARKDOWN = compile('\n#')
+POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
 # changing them
@@ -46,7 +49,10 @@ NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(
         r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
-MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'[$@]+?(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+
+# Catches MIU tags for BIO, CHR and PARATEXT, EDITOR, etc. (everything in between pipes).
+# Does not catch HEADERS!
+MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'(?:[$@]+?|\|[A-Z]+\|)(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # MIU entity tags
 entity_tags = '|'.join(EntityTags.instance().get_entity_tags())
@@ -55,6 +61,7 @@ ENTITY_TAGS_PATTERN = compile(r'\bÜ?(?P<full_tag>'
                                                              r'(?:(?P<sub_cat>[A-Z]+)|['r'A-Z0-9]+)?)\b')
 YEAR_PATTERN = compile(r'Ü?Y(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])(?P<written>\d{4}|None)(?P<i>I)?Y(?P<real>\d{4})?')
 AGE_PATTERN = compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,3})(?P<i>I)?A(?P<real>\d{2,3})?')
+TOPONYM_PATTERN = compile(r'Ü?T(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])')
 onom_tags = '|'.join(EntityTags.instance().get_onom_tags())
 ONOM_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + onom_tags + r')(?P<length>\d{1,2})')
 
@@ -65,6 +72,7 @@ MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
 # Fix mARkdown files
 SPACES_CROWD_PATTERN = compile(r' +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
+NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +

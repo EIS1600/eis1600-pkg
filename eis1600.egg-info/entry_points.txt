@@ -1,8 +1,10 @@
 [console_scripts]
 annotate_mius = eis1600.nlp.ner_annotate_mius:main [ner]
 convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main
+count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 eval_date_model = eis1600.helper.eval_date_model:main [eval]
+eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [eval]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
 fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main
 insert_uids = eis1600.markdown.insert_uids:main

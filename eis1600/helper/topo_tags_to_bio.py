@@ -1,3 +1,4 @@
+from datetime import date
 from functools import partial
 from typing import Dict, Optional
 from pathlib import Path
@@ -10,9 +11,9 @@ from p_tqdm import p_uimap
 from numpy import nan
 
 from eis1600.helper.repo import TOPO_TRAINING_REPO, TRAINING_DATA_REPO
-from eis1600.markdown.md_to_bio import get_bio_dict, md_to_bio
+from eis1600.markdown.md_to_bio import md_to_bio
 from eis1600.processing.preprocessing import get_yml_and_miu_df
-from eis1600.toponyms.toponym_categories import TOPONYM_CATEGORIES
+from eis1600.toponyms.toponym_categories import TOPONYM_CATEGORIES, TOPONYM_LABEL_DICT, TOPONYM_LESS_LABEL_DICT, TOPONYM_CATEGORIES_REPLACEMENTS
 
 CATS = ''.join(TOPONYM_CATEGORIES)
 TOP_PATTERN = compile(r"T(?P<num_tokens>\d)(?P<cat>[" + CATS + "])")
@@ -22,7 +23,7 @@ def reconstruct_automated_tag(row) -> str:
     return 'ÜT' + row['num_tokens'] + row['cat']
 
 
-def get_tops_true(file: str, label_dict: Dict, keep_automatic_tags: Optional[bool] = False) -> Dict:
+def get_tops_true(file: str, keep_automatic_tags: Optional[bool] = False) -> Dict:
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object, keep_automatic_tags)
 
@@ -41,7 +42,9 @@ def get_tops_true(file: str, label_dict: Dict, keep_automatic_tags: Optional[boo
             'TOPS_TRUE',
             TOP_PATTERN,
             'TO',
-            label_dict
+            TOPONYM_LESS_LABEL_DICT,
+            True,
+            TOPONYM_CATEGORIES_REPLACEMENTS
     )
 
     return bio_tags
@@ -63,18 +66,27 @@ def main():
 
     infiles = [TRAINING_DATA_REPO + 'gold_standard_topo/' + file for file in files_txt if Path(
             TRAINING_DATA_REPO + 'gold_standard_topo/' + file).exists()]
+    
+    # with open(TRAINING_DATA_REPO + '5k_gold_standard.txt', 'r', encoding='utf-8') as fh:
+    #     files_txt = fh.read().splitlines()
 
-    label_dict = get_bio_dict('TO', TOPONYM_CATEGORIES)
+    # infiles = [TRAINING_DATA_REPO + '5k_gold_standard/' + file for file in files_txt if Path(
+    #         TRAINING_DATA_REPO + '5k_gold_standard/' + file
+    # ).exists()]
 
     res = []
     if debug:
         for file in infiles[40:60]:
             print(file)
-            res.append(get_tops_true(file, label_dict, keep))
+            res.append(get_tops_true(file, keep))
     else:
-        res += p_uimap(partial(get_tops_true, label_dict=label_dict, keep_automatic_tags=keep), infiles)
+        res += p_uimap(partial(get_tops_true, keep_automatic_tags=keep), infiles)
 
-    with open(TOPO_TRAINING_REPO + 'toponyms_category_training_data.json', 'w', encoding='utf-8') as fh:
+    with open(
+            TOPO_TRAINING_REPO + 'toponyms_category_training_data_' + date.today().isoformat() + '.json',
+            'w',
+            encoding='utf-8'
+    ) as fh:
         dump(res, fh, indent=4, ensure_ascii=False)
 
     print('Done')

@@ -102,3 +102,24 @@ AR_DATE_CATEGORIES = '|'.join([denormalize(key) for key in DATE_CATEGORIES_DICT.
 DATE_CATEGORY_PATTERN = compile(r'\s[وف]?(?P<date_category>' + AR_DATE_CATEGORIES + r')')
 
 DATE_CATEGORIES = list(set(DATE_CATEGORIES_DICT.values())) + ["X"]
+
+DATE_LABEL_DICT = {
+       'B-YYB': 0,
+       'I-YYB': 1,
+       'B-YYD': 2,
+       'I-YYD': 3,
+       'B-YYK': 4,
+       'I-YYK': 5,
+       'B-YYO': 6,
+       'I-YYO': 7,
+       'B-YYP': 8,
+       'I-YYP': 9,
+       'B-YYX': 10,
+       'I-YYX': 11,
+       'O': 12
+}
+
+DATE_CATEGORIES_REPLACEMENTS = {
+        'M': 'X',
+        'R': 'X'
+}

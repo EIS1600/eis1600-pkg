@@ -28,6 +28,7 @@ eis1600/helper/Singleton.py
 eis1600/helper/__init__.py
 eis1600/helper/ar_normalization.py
 eis1600/helper/eval_date_model.py
+eis1600/helper/eval_topo_cat_model.py
 eis1600/helper/fix_miu_annotation.py
 eis1600/helper/fix_ono_p_tags_order.py
 eis1600/helper/logging.py

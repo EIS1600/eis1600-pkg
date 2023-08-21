@@ -31,6 +31,10 @@ def toponym_category_annotate_miu(s_tokens: Series, s_tags: Series) -> Series:
         s_notna = s_tags.loc[s_tags.notna()].apply(lambda tag_list: ','.join(tag_list))
     else:
         s_notna = s_tags.loc[s_tags.notna()]
+
+    if s_notna.empty:
+        return s_tags
+
     toponym_idcs = s_notna.loc[s_notna.str.contains(r'T\d')].index
 
     for idx in toponym_idcs:

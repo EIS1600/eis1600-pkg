@@ -82,13 +82,13 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
        r'(?:\s(?:(?:من\s)?(?:شهر\s)?)?(?:ال)?(?P<month>' + AR_MONTHS + r')(?:\s(?:من|ف[يى])(?:\sشهور)?)?)?' + \
        r'(?P<year>' + \
               r'\s(?P<sana>' + AR_SANA + ')' + \
-              r'(?P<digits_str>\s(?P<digits>\d{1,4}|[٠١٢٣٤٥٦٧٨٩]{1,4})(?:\s(?:[هم]|الهجري[هة]))?)?' + \
+              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + \
               r'(?:\s(?P<ones>' + AR_ONES + r'))?' + \
               r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
               r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?' + \
               r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + \
        r')' + \
-       r'(?=(?:' + WORD + r'|[\s\.,]|$))'
+       r'(?=(?:' + WORD + r'|[\s.,]|$))'
 
 DATE_PATTERN = compile(DATE)
 MONTH_PATTERN = compile(AR_MONTHS)

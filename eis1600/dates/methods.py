@@ -1,3 +1,5 @@
+from numpy import nan
+
 from eis1600.miu.YAMLHandler import YAMLHandler
 from pandas import DataFrame, Series
 from typing import Match, Optional
@@ -96,8 +98,8 @@ def tag_dates_fulltext(text: str) -> str:
             # Length is one because sana is definitely recognized
             try:
                 year, length = parse_year(m)
-            except ValueError:
-                raise
+            except ValueError as e:
+                raise e
             else:
                 # Date classification
                 if DATE_CATEGORY_PATTERN.search(m.group('context')):
@@ -135,9 +137,6 @@ def tag_dates_fulltext(text: str) -> str:
 
                 # Recognize next date phrase
                 m = DATE_PATTERN.search(text_updated, m.end('sana') + len(date.get_tag()))
-            finally:
-                # Recognize next date phrase
-                m = DATE_PATTERN.search(text_updated, m.end('sana'))
         else:
             # Recognize next date phrase
             m = DATE_PATTERN.search(text_updated, m.end('sana'))
@@ -166,7 +165,9 @@ def date_annotate_miu_text(ner_df: DataFrame, file: str, yml: Optional[YAMLHandl
         print(e)
         print(f'Check {file}')
 
-    ar_tokens, tags = get_tokens_and_tags(tagged_text)
-    df.loc[df['TOKENS'].notna(), 'DATE_TAGS'] = tags
+        return Series([nan] * len(df))
+    else:
+        ar_tokens, tags = get_tokens_and_tags(tagged_text)
+        df.loc[df['TOKENS'].notna(), 'DATE_TAGS'] = tags
 
-    return df['DATE_TAGS']
+        return df['DATE_TAGS']

@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.0.4',
+      version='1.0.5',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -17,6 +17,8 @@ setup(name='eis1600',
       entry_points={
           'console_scripts': [
                   'annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
+                  'annotate_topd = eis1600.helper.annotate_topd:main',
+                  'btopd_to_bio = eis1600.helper.btopd_to_bio:main',
                   'convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main',
                   'count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main',
                   'disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main',

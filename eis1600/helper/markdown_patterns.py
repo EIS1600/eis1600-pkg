@@ -40,7 +40,7 @@ POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
 # changing them
 MIU_TAG_PATTERN = compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
-CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z]+[|])?')
+CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
 SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
 SECTION_PATTERN = compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
@@ -70,7 +70,7 @@ HEADING_OR_BIO_PATTERN = compile(r'# [|$]+')
 MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
 
 # Fix mARkdown files
-SPACES_CROWD_PATTERN = compile(r' +')
+SPACES_CROWD_PATTERN = compile(r'  +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
 NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')

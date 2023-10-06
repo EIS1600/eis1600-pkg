@@ -165,12 +165,12 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) > 1:
-                    paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + \
+                    paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n_ء_ ' + \
                                 '\n'.join(heading_and_text[1:])
                 text_updated.append(paragraph)
             # TODO elif paragraph.startswith('::')
             elif '%~%' in paragraph:
-                paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n' + paragraph
+                paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n_ء_ ' + paragraph
                 text_updated.append(paragraph)
             elif PAGE_TAG_PATTERN.fullmatch(paragraph):
                 page_tag = PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
@@ -189,7 +189,7 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 # text_updated.append(paragraph)
                 # pass
             else:
-                paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n' + paragraph
+                paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n_ء_ ' + paragraph
                 text_updated.append(paragraph)
 
         prev_p = paragraph

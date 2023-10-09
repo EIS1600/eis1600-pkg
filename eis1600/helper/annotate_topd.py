@@ -15,10 +15,10 @@ def ner_to_md(toponym_labels: List[str]) -> List[str]:
     md_tags = []
     prev = None
     for label in toponym_labels:
-        if label == 'B-TOPD':
-            md_tags.append('BTOPD')
+        if label == 'B-TOPD' or prev == 'O' and label == 'I-TOPD':
+            md_tags.append(['BTOPD'])
         elif prev == 'I-TOPD' and label == 'O':
-            md_tags.append('ETOPD')
+            md_tags.append(['ETOPD'])
         else:
             md_tags.append(None)
             
@@ -34,12 +34,15 @@ def annotate_miu(file: str) -> str:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
     toponym_labels = NERecognizer('EIS1600_Pretrained_Models/camelbert-ca-toponyms-description/').predict_sentence(df['TOKENS'].fillna('-').to_list())
-    df['TAGS_LISTS'] = ner_to_md(toponym_labels)
-    
-    updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]) 
-    
-    with open(outpath, 'w', encoding='utf-8') as ofh:
-        ofh.write(str(yml_handler) + updated_text)
+    if 'B-TOPD' in toponym_labels:
+        df['TAGS_LISTS'] = ner_to_md(toponym_labels)
+        print(list(zip(toponym_labels, df['TAGS_LISTS'])))
+        
+        yml_handler.unset_reviewed()
+        updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]) 
+        
+        with open(outpath, 'w', encoding='utf-8') as ofh:
+            ofh.write(str(yml_handler) + updated_text)
 
     return outpath
 

@@ -11,13 +11,16 @@ from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
 
 
-def ner_to_md(toponym_labels: List[str]) -> List[str]:
+def ner_to_md(toponym_labels: List[str]) -> List[List[str]]:
     md_tags = []
     prev = None
     for label in toponym_labels:
         if label == 'B-TOPD' or prev == 'O' and label == 'I-TOPD':
-            md_tags.append(['BTOPD'])
-        elif prev == 'I-TOPD' and label == 'O':
+            if prev == 'B-TOPD':
+                md_tags.append(['ETOPD BTOPD'])
+            else:
+                md_tags.append(['BTOPD'])
+        elif (prev == 'I-TOPD' or prev == 'B-TOPD') and label == 'O':
             md_tags.append(['ETOPD'])
         else:
             md_tags.append(None)

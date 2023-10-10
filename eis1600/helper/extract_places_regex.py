@@ -3,66 +3,59 @@ from sys import argv
 from glob import glob
 from re import compile
 
-from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
+from eis1600.onomastics.re_pattern import SPELLING
 from p_tqdm import p_uimap
 from openiti.helper.ara import denormalize
 
+from eis1600.gazetteers.Spellings import Spellings
+from eis1600.gazetteers.Toponyms import Toponyms
+from eis1600.helper.markdown_patterns import WORD
 from eis1600.helper.repo import TRAINING_DATA_REPO
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
+from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
 
 place_terms = ['كورة', 'كور', 'قرية', 'قرى', 'مدينة', 'مدن', 'ناحية', 'نواح', 'نواحي', 'محلة', 'محلات', 'بلد', 'بلاد', 'ربع', 'ارباع', 'رستاق', 'رساتيق', 'أعمال']
-plr_pt = ['كور', 'قرى', 'بلاد', 'أعمال']
+technical_terms = ['من', 'نسبة', 'يوم', 'مرحلة', 'مرحلتان', 'مراحل', 'فرسخ', 'فراسخ', 'ميل', 'أميال', 'يوما', 'بين']
 dn_pt = [denormalize(t) for t in place_terms]
-plr_dn_pt = [denormalize(t) for t in plr_pt]
+dn_tt = [denormalize(t) for t in technical_terms]
+dn_spelling = Spellings.instance().get_denormalized_list()
+dn_toponyms = [denormalize(t) for t in Toponyms.instance().settlements()]
 
-PLACES_REGEX_W_MIN = compile(r'من (?:' + '|'.join(plr_dn_pt) + r')')
-PLACES_REGEX = compile(r'\\b(?:' + '|'.join(dn_pt) + r')\\b')
+PLACES_REGEX = compile(r'(?:' + WORD + '،?){1,9} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '،?){1,9}')
+TT_REGEX = compile(r'|'.join(dn_pt + dn_tt + dn_spelling + dn_toponyms))
 
 
 def annotate_miu(file: str) -> str:
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
+    write_out = False
+
     text = ' '.join(df['TOKENS'].loc[df['TOKENS'].notna()].to_list())
     text_updated = text
 
     if PLACES_REGEX.search(text_updated):
-        outpath = file.replace('5k_gold_standard', 'topo_descriptions')
-
         m = PLACES_REGEX.search(text_updated)
         while m:
             start = m.start()
             end = m.end()
-            text_updated = text_updated[:start] + ' BTOPD ' + text_updated[start:end] + ' ETOPD ' + text_updated[end:]
-            m = PLACES_REGEX.search(text_updated, end + 14)
+            if len(TT_REGEX.findall(m.group(0))) >= 3:
+                write_out = True
+                text_updated = text_updated[:start] + ' BTOPD ' + text_updated[start:end] + ' ETOPD ' + text_updated[end:]
+                m = PLACES_REGEX.search(text_updated, end + 14)
+            else:
+                m = PLACES_REGEX.search(text_updated, end)
 
-        ar_tokens, tags = get_tokens_and_tags(text_updated)
-        df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = tags
+        if write_out:
+            ar_tokens, tags = get_tokens_and_tags(text_updated.replace('  ', ' '))
+            df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = [[t] if t else t for t in tags]
 
-        yml_handler.unset_reviewed()
-        updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
+            yml_handler.unset_reviewed()
+            updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
 
-        with open(outpath, 'w', encoding='utf-8') as ofh:
-            ofh.write(str(yml_handler) + updated_text)
-
-    if PLACES_REGEX_W_MIN.search(text_updated):
-        outpath = file.replace('5k_gold_standard', 'topo_descriptions_w_min')
-
-        m = PLACES_REGEX_W_MIN.search(text_updated)
-        while m:
-            start = m.start()
-            end = m.end()
-            text_updated = text_updated[:start] + ' BTOPD ' + text_updated[start:end] + ' ETOPD ' + text_updated[end:]
-            m = PLACES_REGEX_W_MIN.search(text_updated, end + 15)
-
-        ar_tokens, tags = get_tokens_and_tags(text_updated)
-        df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = tags
-
-        yml_handler.unset_reviewed()
-        updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
-
-        with open(outpath, 'w', encoding='utf-8') as ofh:
-            ofh.write(str(yml_handler) + updated_text)
+            outpath = file.replace('5k_gold_standard', 'topo_descriptions')
+            with open(outpath, 'w', encoding='utf-8') as ofh:
+                ofh.write(str(yml_handler) + updated_text)
 
     return file
 

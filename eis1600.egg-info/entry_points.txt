@@ -7,6 +7,7 @@ count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 eval_date_model = eis1600.helper.eval_date_model:main [eval]
 eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [eval]
+extract_places_regex = eis1600.helper.extract_places_regex:main [ner]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
 fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main
 insert_uids = eis1600.markdown.insert_uids:main

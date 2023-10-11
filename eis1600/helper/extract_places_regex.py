@@ -75,7 +75,7 @@ def main():
     args = arg_parser.parse_args()
     debug = args.debug
 
-    infiles = glob(MIU_REPO + 'data/**/*.EIS1600')
+    infiles = glob(MIU_REPO + 'data/*/*/MIUs/*.EIS1600')
 
     res = []
     if debug:

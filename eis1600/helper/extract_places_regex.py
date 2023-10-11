@@ -1,16 +1,16 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from pathlib import Path
 from sys import argv
 from glob import glob
 from re import compile
 
-from eis1600.onomastics.re_pattern import SPELLING
 from p_tqdm import p_uimap
 from openiti.helper.ara import denormalize
 
 from eis1600.gazetteers.Spellings import Spellings
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.markdown_patterns import WORD
-from eis1600.helper.repo import TRAINING_DATA_REPO
+from eis1600.helper.repo import MIU_REPO, TOPO_REPO
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
 
@@ -58,7 +58,7 @@ def annotate_miu(file: str) -> str:
             yml_handler.unset_reviewed()
             updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
 
-            outpath = file.replace('5k_gold_standard', 'topo_descriptions')
+            outpath = TOPO_REPO + 'data/' + Path(file).name
             with open(outpath, 'w', encoding='utf-8') as ofh:
                 ofh.write(str(yml_handler) + updated_text)
 
@@ -75,7 +75,7 @@ def main():
     args = arg_parser.parse_args()
     debug = args.debug
 
-    infiles = glob(TRAINING_DATA_REPO + '5k_gold_standard/*.EIS1600')
+    infiles = glob(MIU_REPO + 'data/**/*.EIS1600')
 
     res = []
     if debug:

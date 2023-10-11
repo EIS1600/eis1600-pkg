@@ -6,7 +6,7 @@ from pandas import isna, read_csv
 from eis1600.helper.Singleton import Singleton
 from eis1600.helper.ar_normalization import denormalize_list
 
-toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.csv')
+toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.tsv')
 
 
 @Singleton
@@ -27,24 +27,20 @@ class Toponyms:
     __rpl = None
 
     def __init__(self) -> None:
-        def split_toponyms(tops: str) -> List[str]:
-            return tops.split('، ')
-
-        df = read_csv(toponyms_path, usecols=['uri', 'place_label', 'toponyms', 'province_uri', 'type_label'],
-                      converters={'toponyms': split_toponyms})
+        df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'], sep='\t')
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 
-        def get_all_variations(tops: List[str]) -> List[str]:
-            variations = denormalize_list(tops)
-            prefixed_variations = [prefix + top for prefix in prefixes for top in variations]
+        def get_all_variations(top: str) -> List[str]:
+            variations = denormalize_list(top)
+            prefixed_variations = [prefix + t for prefix in prefixes for t in variations]
             return variations + prefixed_variations
 
-        df['toponyms'] = df['toponyms'].apply(get_all_variations)
+        df['TOPONYMS'] = df['TOPONYM'].apply(get_all_variations)
 
-        topos = df.explode('toponyms', ignore_index=True)
+        topos = df.explode('TOPONYMS', ignore_index=True)
 
-        Toponyms.__settlements = topos.loc[topos['type_label'] != 'province', 'toponyms'].to_list()
-        Toponyms.__provinces = topos.loc[topos['type_label'] == 'province', 'toponyms'].to_list()
+        Toponyms.__settlements = topos.loc[topos['TYPE'] != 'province', 'TOPONYMS'].to_list()
+        Toponyms.__provinces = topos.loc[topos['TYPE'] == 'province', 'TOPONYMS'].to_list()
         Toponyms.__df = topos
         Toponyms.__df.mask(isna(Toponyms.__df), '', inplace=True)
 
@@ -76,11 +72,12 @@ class Toponyms:
         list of settlement(s) coordinates, list of province(s) coordinates.
         """
         if entity in Toponyms.__total:
-            matches = Toponyms.__df.loc[Toponyms.__df['toponyms'].str.fullmatch(entity), ['uri', 'province_uri',
-                                                                                          'place_label']]
-            uris = matches['uri'].to_list()
-            provinces = [m for m in matches['province_uri'].to_list() if m != '']
-            place = matches['place_label'].unique()
+            matches = Toponyms.__df.loc[Toponyms.__df['TOPONYMS'].str.fullmatch(entity), ['URI_GRAVITON',
+                                                                                          'METAREGION',
+                                                                                          'LABEL']]
+            uris = matches['URI_GRAVITON'].to_list()
+            provinces = [m for m in matches['METAREGION'].to_list() if m != '']
+            place = matches['LABEL'].unique()
 
             return '::'.join(place), '@' + '@'.join(uris) + '@', uris, provinces
         else:

@@ -15,13 +15,18 @@ from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_mi
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
 
 place_terms = ['كورة', 'كور', 'قرية', 'قرى', 'مدينة', 'مدن', 'ناحية', 'نواح', 'نواحي', 'محلة', 'محلات', 'بلد', 'بلاد', 'ربع', 'ارباع', 'رستاق', 'رساتيق', 'أعمال']
-technical_terms = ['من', 'نسبة', 'يوم', 'مرحلة', 'مرحلتان', 'مراحل', 'فرسخ', 'فراسخ', 'ميل', 'أميال', 'يوما', 'بين']
+technical_terms = ['من', 'بين',
+                   'نسبة',
+                   'يوم', 'يوما',
+                   'مرحلة', 'مرحلتان', 'مرحلتين', 'مراحل',
+                   'فرسخ', 'فرسخا', 'فراسخ',
+                   'ميل', 'ميلا', 'أميال']
 dn_pt = [denormalize(t) for t in place_terms]
 dn_tt = [denormalize(t) for t in technical_terms]
 dn_spelling = Spellings.instance().get_denormalized_list()
-dn_toponyms = [denormalize(t) for t in Toponyms.instance().settlements()]
+dn_toponyms = Toponyms.instance().total()
 
-PLACES_REGEX = compile(r'(?:' + WORD + '،?){1,9} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '،?){1,9}')
+PLACES_REGEX = compile(r'(?:' + WORD + '(?: [،.():])?){1,7} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '،?){1,7}')
 TT_REGEX = compile(r'|'.join(dn_pt + dn_tt + dn_spelling + dn_toponyms))
 
 

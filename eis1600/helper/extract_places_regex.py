@@ -26,7 +26,7 @@ dn_tt = [denormalize(t) for t in technical_terms]
 dn_spelling = Spellings.instance().get_denormalized_list()
 dn_toponyms = Toponyms.instance().total()
 
-PLACES_REGEX = compile(r'(?:' + WORD + '(?: [،.():])?){1,7} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '،?){1,7}')
+PLACES_REGEX = compile(r'(?:' + WORD + '(?: [،.():])?){1,7} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '){1,7}')
 TT_REGEX = compile(r'|'.join(dn_pt + dn_tt + dn_spelling + dn_toponyms))
 
 
@@ -46,13 +46,13 @@ def annotate_miu(file: str) -> str:
             end = m.end()
             if len(TT_REGEX.findall(m.group(0))) >= 3:
                 write_out = True
-                text_updated = text_updated[:start] + ' BTOPD ' + text_updated[start:end] + ' ETOPD ' + text_updated[end:]
-                m = PLACES_REGEX.search(text_updated, end + 14)
+                text_updated = text_updated[:start] + ' BTOPD' + text_updated[start:end] + ' ETOPD' + text_updated[end:]
+                m = PLACES_REGEX.search(text_updated, end + 12)
             else:
                 m = PLACES_REGEX.search(text_updated, end)
 
         if write_out:
-            ar_tokens, tags = get_tokens_and_tags(text_updated.replace('  ', ' '))
+            ar_tokens, tags = get_tokens_and_tags(text_updated)
             df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = [[t] if t else t for t in tags]
 
             yml_handler.unset_reviewed()

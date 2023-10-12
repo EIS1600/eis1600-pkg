@@ -90,6 +90,9 @@ def main():
     else:
         res += p_uimap(annotate_miu, infiles)
 
+    tuples = []
+    [tuples.extend(r) for r in res if r]
+
     df = DataFrame(res, columns=['MIU', 'ORIGINAL', 'MODIFIABLE'])
     df.to_csv(TOPO_REPO + 'topod.csv', index=False)
     c = len(df) % 5000
@@ -98,6 +101,5 @@ def main():
         df.iloc[i*5000:i+5000].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
         i += 1
     df.iloc[i*5000:].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
-
 
     print('Done')

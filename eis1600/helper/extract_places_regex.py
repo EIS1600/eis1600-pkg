@@ -93,7 +93,7 @@ def main():
     tuples = []
     [tuples.extend(r) for r in res if r]
 
-    df = DataFrame(res, columns=['MIU', 'ORIGINAL', 'MODIFIABLE'])
+    df = DataFrame(tuples, columns=['MIU', 'ORIGINAL', 'MODIFIABLE'])
     df.to_csv(TOPO_REPO + 'topod.csv', index=False)
     c = len(df) % 5000
     i = 0

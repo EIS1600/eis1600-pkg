@@ -3,7 +3,9 @@ from pathlib import Path
 from sys import argv
 from glob import glob
 from re import compile
+from typing import List, Tuple
 
+from pandas import DataFrame
 from p_tqdm import p_uimap
 from openiti.helper.ara import denormalize
 
@@ -30,11 +32,13 @@ PLACES_REGEX = compile(r'(?:' + WORD + '(?: [،.():])?){1,7} (?:' + '|'.join(dn_
 TT_REGEX = compile(r'|'.join(dn_pt + dn_tt + dn_spelling + dn_toponyms))
 
 
-def annotate_miu(file: str) -> str:
+def annotate_miu(file: str) -> List[Tuple[str, str, str]]:
     with open(file, 'r', encoding='utf-8') as miu_file_object:
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
 
+    miu = Path(file).name.replace('.EIS1600', '')
     write_out = False
+    passages = []
 
     text = ' '.join(df['TOKENS'].loc[df['TOKENS'].notna()].to_list())
     text_updated = text
@@ -46,6 +50,7 @@ def annotate_miu(file: str) -> str:
             end = m.end()
             if len(TT_REGEX.findall(m.group(0))) >= 3:
                 write_out = True
+                passages.append((miu, m.group(0), m.group(0)))
                 text_updated = text_updated[:start] + ' BTOPD' + text_updated[start:end] + ' ETOPD' + text_updated[end:]
                 m = PLACES_REGEX.search(text_updated, end + 12)
             else:
@@ -58,11 +63,11 @@ def annotate_miu(file: str) -> str:
             yml_handler.unset_reviewed()
             updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
 
-            outpath = TOPO_REPO + 'data/' + Path(file).name
+            outpath = TOPO_REPO + 'data/' + miu + '.EIS1600'
             with open(outpath, 'w', encoding='utf-8') as ofh:
                 ofh.write(str(yml_handler) + updated_text)
 
-    return file
+    return passages
 
 
 def main():
@@ -84,5 +89,15 @@ def main():
             res.append(annotate_miu(file))
     else:
         res += p_uimap(annotate_miu, infiles)
+
+    df = DataFrame(res, columns=['MIU', 'ORIGINAL', 'MODIFIABLE'])
+    df.to_csv(TOPO_REPO + 'topod.csv', index=False)
+    c = len(df) % 5000
+    i = 0
+    while i < c:
+        df.iloc[i*5000:i+5000].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
+        i += 1
+    df.iloc[i*5000:].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
+
 
     print('Done')

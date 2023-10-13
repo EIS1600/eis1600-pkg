@@ -98,6 +98,9 @@ def main():
     c = len(df) % 5000
     i = 0
     while i < c:
+        idx = str(i+1)
+        while len(idx) < 4:
+            idx = str(0) + idx
         df.iloc[i*5000:(i+1)*5000].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
         i += 1
     df.iloc[i*5000:].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)

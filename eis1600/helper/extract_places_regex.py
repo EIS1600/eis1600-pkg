@@ -4,6 +4,7 @@ from sys import argv
 from glob import glob
 from re import compile
 from typing import List, Tuple
+from math import floor
 
 from pandas import DataFrame
 from p_tqdm import p_uimap
@@ -95,7 +96,7 @@ def main():
 
     df = DataFrame(tuples, columns=['MIU', 'ORIGINAL', 'MODIFIABLE'])
     df.to_csv(TOPO_REPO + 'topod.csv', index=False)
-    c = len(df) % 5000
+    c = floor(len(df)/5000)
     i = 0
     while i < c:
         idx = str(i+1)

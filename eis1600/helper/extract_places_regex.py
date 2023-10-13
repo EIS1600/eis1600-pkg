@@ -56,16 +56,16 @@ def annotate_miu(file: str) -> List[Tuple[str, str, str]]:
             else:
                 m = PLACES_REGEX.search(text_updated, end)
 
-        if write_out:
-            ar_tokens, tags = get_tokens_and_tags(text_updated)
-            df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = [[t] if t else t for t in tags]
+        # if write_out:
+        #     ar_tokens, tags = get_tokens_and_tags(text_updated)
+        #     df.loc[df['TOKENS'].notna(), 'TAGS_LISTS'] = [[t] if t else t for t in tags]
 
-            yml_handler.unset_reviewed()
-            updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
+        #     yml_handler.unset_reviewed()
+        #     updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
 
-            outpath = TOPO_REPO + 'data/' + miu + '.EIS1600'
-            with open(outpath, 'w', encoding='utf-8') as ofh:
-                ofh.write(str(yml_handler) + updated_text)
+        #     outpath = TOPO_REPO + 'data/' + miu + '.EIS1600'
+        #     with open(outpath, 'w', encoding='utf-8') as ofh:
+        #         ofh.write(str(yml_handler) + updated_text)
 
     return passages
 
@@ -98,7 +98,7 @@ def main():
     c = len(df) % 5000
     i = 0
     while i < c:
-        df.iloc[i*5000:i+5000].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
+        df.iloc[i*5000:(i+1)*5000].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
         i += 1
     df.iloc[i*5000:].to_csv(TOPO_REPO + 'topod_' + str(i+1) + '.csv', index=False)
 

@@ -91,8 +91,9 @@ def main():
         tmp = read_csv(sheet)
         sheets_df = concat([sheets_df, tmp])
 
-    sheets_df['STATUS'].loc[sheets_df['STATUS'].str.fullmatch('TOPOPONYM')] = 'TOPONYM'
-    entries = sheets_df.loc[sheets_df['STATUS'].str.fullmatch('TOPONYM|NISBA|CORRECT')]
+    sheets_no_na = sheets_df.dropna()
+    sheets_no_na['STATUS'].loc[sheets_no_na['STATUS'].str.fullmatch('TOPOPONYM')] = 'TOPONYM'
+    entries = sheets_no_na.loc[sheets_no_na['STATUS'].str.fullmatch('TOPONYM|NISBA|CORRECT')]
     df_by_files = DataFrame(entries.groupby('MIU')['MODIFIABLE'].apply(list)).reset_index()
     infiles = [get_infile_path(miu) for miu in df_by_files['MIU'].to_list()]
 

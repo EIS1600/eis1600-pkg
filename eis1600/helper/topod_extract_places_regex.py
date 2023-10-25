@@ -17,7 +17,8 @@ from eis1600.helper.repo import MIU_REPO, TOPO_REPO
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
 
-place_terms = ['كورة', 'كور', 'قرية', 'قرى', 'مدينة', 'مدن', 'ناحية', 'نواح', 'نواحي', 'محلة', 'محلات', 'بلد', 'بلاد', 'ربع', 'ارباع', 'رستاق', 'رساتيق', 'أعمال']
+place_terms = ['كورة', 'كور', 'قرية', 'قرى', 'مدينة', 'مدن', 'ناحية', 'نواح', 'نواحي', 'محلة', 'محال', 'محلات', 'بلد',
+              'بلاد', 'ارباع', 'رستاق', 'رساتيق', 'أعمال']      #  'ربع'
 technical_terms = ['من', 'بين',
                    'نسبة',
                    'يوم', 'يوما',

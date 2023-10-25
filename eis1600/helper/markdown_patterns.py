@@ -13,7 +13,8 @@ AR_LETTERS_CHARSET = frozenset(
 AR_CHR = r'[' + u''.join(AR_LETTERS_CHARSET) + ']'
 AR_STR = AR_CHR + '+'
 AR_STR_AND_TAGS = r'[' + u''.join(AR_LETTERS_CHARSET) + 'a-zA-ZÜ0-9]+'
-WORD = r'(?:\s' + AR_STR + ')'
+WORD = r'(?:(^|\s)' + AR_STR + ')'
+NOISE_ELEMENTS = r'(?: [0-9،.():~|-])*'
 
 # EIS1600 mARkdown
 UID = r'_ء_(#)?=(?P<UID>\d{12})= '

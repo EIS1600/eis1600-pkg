@@ -151,6 +151,10 @@ class YAMLHandler:
     def set_headings(self, headings: HeadingTracker) -> None:
         self.headings = headings
 
+    def set_reviewed(self, reviewer) -> None:
+        self.reviewed = 'REVIEWED'
+        self.reviewer = reviewer
+
     def unset_reviewed(self) -> None:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = None

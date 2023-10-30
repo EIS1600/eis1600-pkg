@@ -22,14 +22,15 @@ LOGGER_NASAB_KNOWN = setup_logger('nasab_known', __log_filename_nasab)
 LOGGER_TOPONYMS_UNKNOWN = setup_logger('toponyms_unknown', GAZETTEERS_REPO + 'logs/toponyms_unknown.log')
 
 
-def create_yml_header(category: str, headings: Optional[HeadingTracker] = None) -> str:
+def create_yml_header(uid: str, category: str, headings: Optional[HeadingTracker] = None) -> str:
     """Creates a YAML header for the current MIU file and returns it as yamlfied string.
 
+    :param str uid: MIU's uid.
     :param str category: Category of the entry.
     :param Type[HeadingsTracker] headings: HeadingTracker with the super elements of the current MIU, optional.
     :return str: YAML header for the current MIU.
     """
-    yml_header = YAMLHandler()
+    yml_header = YAMLHandler().from_uid(uid)
     yml_header.set_category(category)
     if headings:
         yml_header.set_headings(headings)

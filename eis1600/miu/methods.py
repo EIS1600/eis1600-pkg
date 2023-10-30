@@ -17,6 +17,28 @@ from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 
 
+def check_file_for_malformatting(infile: str, content: str) -> bool:
+    if PARAGRAPH_TAG_MISSING.search(content) \
+            or SIMPLE_MARKDOWN.search(content) \
+            or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+        # Poetry is still to messed up, do not bother with it for now
+        # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
+        error = ''
+        if PARAGRAPH_TAG_MISSING.search(content):
+            error += '\n * There are missing paragraph tags.'
+        if SIMPLE_MARKDOWN.search(content):
+            error += '\n * There is simple mARkdown left.'
+        if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+            error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
+        # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
+        #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
+
+        raise ValueError(
+            f'Correct the following errors and run `update_uids` on'
+            f' {infile} {error}'
+        )
+
+
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
     """Disassemble text into MIU files.
 
@@ -29,7 +51,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
-    author, work, text = uri.split('.')
+    author, work, edition = uri.split('.')
     path = out_path + '/'.join([author, '.'.join([author, work])]) + '/'
     ids_file = path + uri + '.IDs'
     yml_status = path + uri + '.STATUS.yml'
@@ -50,25 +72,12 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
     with open(infile, 'r', encoding='utf8') as text:
         header_text = text.read().split('#META#Header#End#')
 
-        if PARAGRAPH_TAG_MISSING.search(header_text[1]) \
-                or SIMPLE_MARKDOWN.search(header_text[1]) \
-                or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
-                # Poetry is still to messed up, do not bother with it for now
-                # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
-            error = ''
-            if PARAGRAPH_TAG_MISSING.search(header_text[1]):
-                error += '\n * There are missing paragraph tags.'
-            if SIMPLE_MARKDOWN.search(header_text[1]):
-                error += '\n * There is simple mARkdown left.'
-            if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(header_text[1]):
-                error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-            # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(header_text[1]):
-            #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
+        try:
+            check_file_for_malformatting(infile, header_text[1])
+        except ValueError:
+            raise
 
-            raise ValueError(
-                    f'Correct the following errors and run `update_uids` on'
-                    f' {infile} {error}'
-            )
+        text.seek(0)
 
         with open(ids_file, 'w', encoding='utf8') as ids_tree:
             with open(yml_data, 'w', encoding='utf-8') as yml_data_fh:
@@ -98,11 +107,13 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                             yml_data_fh.write('#' + uid + '\n---\n' + yml_header)
                         m = MIU_TAG_PATTERN.match(text_line)
                         uid = m.group('UID')
+                        category = ''
                         try:
                             category = CATEGORY_PATTERN.search(m.group('category')).group(0)
                         except AttributeError:
                             mal_formatted.append(m.group('category'))
-                        yml_header = create_yml_header(category, heading_tracker.get_curr_state())
+                        yml_header = create_yml_header('.'.join([author, work, edition, uid]), category,
+                                                       heading_tracker.get_curr_state())
                         miu_text = yml_header
                         miu_text += text_line
                     else:

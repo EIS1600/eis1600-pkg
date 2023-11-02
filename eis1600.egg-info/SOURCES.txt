@@ -31,7 +31,6 @@ eis1600/helper/ar_normalization.py
 eis1600/helper/btopd_to_bio.py
 eis1600/helper/eval_date_model.py
 eis1600/helper/eval_topo_cat_model.py
-eis1600/helper/extract_places_regex.py
 eis1600/helper/fix_miu_annotation.py
 eis1600/helper/fix_ono_p_tags_order.py
 eis1600/helper/logging.py
@@ -40,6 +39,10 @@ eis1600/helper/markdown_patterns.py
 eis1600/helper/miu_random_revisions.py
 eis1600/helper/repo.py
 eis1600/helper/topo_tags_to_bio.py
+eis1600/helper/topod_extract_incomplete.py
+eis1600/helper/topod_extract_places_regex.py
+eis1600/helper/topod_insert_into_miu.py
+eis1600/helper/topod_sheets_stats.py
 eis1600/helper/yml_methods.py
 eis1600/helper/yml_to_json.py
 eis1600/helper/data/__init__.py

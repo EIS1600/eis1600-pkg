@@ -1,4 +1,5 @@
 [console_scripts]
+analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [ner]
 annotate_mius = eis1600.nlp.ner_annotate_mius:main [ner]
 annotate_topd = eis1600.helper.annotate_topd:main [ner]
 btopd_to_bio = eis1600.helper.btopd_to_bio:main
@@ -7,7 +8,6 @@ count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
 eval_date_model = eis1600.helper.eval_date_model:main [eval]
 eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [eval]
-extract_places_regex = eis1600.helper.extract_places_regex:main [ner]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
 fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main
 insert_uids = eis1600.markdown.insert_uids:main
@@ -15,7 +15,11 @@ miu_random_revisions = eis1600.helper.miu_random_revisions:main
 miu_stats = eis1600.stats.miu_stats:main
 onomastic_annotation = eis1600.onomastics.annotation:main
 reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main
+sheets_topod_stats = eis1600.helper.sheets_topod_stats:main
 topo_tags_to_bio = eis1600.helper.topo_tags_to_bio:main
+topod_extract_incomplete = eis1600.helper.topod_extract_incomplete:main
+topod_extract_places_regex = eis1600.helper.topod_extract_places_regex:main
+topod_insert_into_miu = eis1600.helper.topod_insert_into_miu:main
 toponym_annotation = eis1600.toponyms.annotation:main
 update_uids = eis1600.markdown.update_uids:main
 xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main

@@ -93,7 +93,7 @@ def tokenize_miu_text(
 
 
 def get_yml_and_miu_df(
-        miu_file_object: TextIO,
+        miu_file_object: Union[TextIO, str],
         keep_automatic_tags: Optional[bool] = False
 ) -> Tuple[YAMLHandler, DataFrame]:
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
@@ -103,7 +103,11 @@ def get_yml_and_miu_df(
     :return Tuple[YAMLHandler, DataFrame]: YAMLHandler and DataFrame containing the columns 'SECTIONS', 'TOKENS',
     'TAGS_LISTS'.
     """
-    yml_str, text = extract_yml_header_and_text(miu_file_object, False)
+    if isinstance(miu_file_object, str):
+        miu_text_line_iter = iter(miu_file_object.splitlines(keepends=True))
+    else:
+        miu_text_line_iter = iter(miu_file_object)
+    yml_str, text = extract_yml_header_and_text(miu_text_line_iter, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
     zipped = tokenize_miu_text(text, keep_automatic_tags)
     df = DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])

@@ -11,7 +11,7 @@ from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTER
     MIU_UID_PATTERN, PAGE_TAG_PATTERN, PARAGRAPH_TAG_MISSING, POETRY_ATTACHED_AFTER_PAGE_TAG, SIMPLE_MARKDOWN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
-from eis1600.nlp.utils import annotate_miu_text, insert_nasab_tag, insert_onomastic_tags, aggregate_STFCON_classes, \
+from eis1600.nlp.utils import annotate_miu_text, insert_onom_tag, insert_onomastic_tags, aggregate_STFCON_classes, \
     merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
@@ -112,8 +112,7 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                             category = CATEGORY_PATTERN.search(m.group('category')).group(0)
                         except AttributeError:
                             mal_formatted.append(m.group('category'))
-                        yml_header = create_yml_header('.'.join([author, work, edition, uid]), category,
-                                                       heading_tracker.get_curr_state())
+                        yml_header = create_yml_header(category, heading_tracker.get_curr_state())
                         miu_text = yml_header
                         miu_text += text_line
                     else:
@@ -164,7 +163,8 @@ def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) 
             for i, miu_id in enumerate(ids):
                 miu_file_path = file_path + 'MIUs/' + uri + '.' + miu_id + '.EIS1600'
                 with open(miu_file_path, 'r', encoding='utf-8') as miu_file_object:
-                    yml_header, text = extract_yml_header_and_text(miu_file_object, i == 0)
+                    miu_text_line_iter = iter(miu_file_object)
+                    yml_header, text = extract_yml_header_and_text(miu_text_line_iter, i == 0)
                 text_file.write(text)
                 yml_data.write('#' + miu_id + '\n---\n' + yml_header + '\n\n')
 
@@ -220,7 +220,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], path, yml_handler)
 
         # 5. insert BONOM and EONOM tags with the pretrained transformer model
-        df['NASAB_TAGS'] = insert_nasab_tag(df)
+        df['NASAB_TAGS'] = insert_onom_tag(df)
 
         # 6. annotate onomastic information
         df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df)

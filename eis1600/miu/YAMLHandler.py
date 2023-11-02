@@ -139,19 +139,6 @@ class YAMLHandler:
         """Return instance with attr set from the yml_str."""
         return cls(YAMLHandler.__parse_yml(yml_str))
 
-    @classmethod
-    def from_uid(cls, uid: str):
-        yml = cls()
-        yml.set_uid_information(uid)
-        return yml
-
-    def set_uid_information(self, uid: str):
-        author, text, edition, miu_uid = uid.split('.')
-        self.author = author
-        self.text = text
-        self.edition = edition
-        self.miu_uid = miu_uid
-
     def set_category(self, category: str) -> None:
         self.category = category
 

@@ -11,6 +11,7 @@ from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
 def annotate_miu_text(df):
     lemmas, ner_tags, pos_tags, root_tags, st_tags, fco_tags, toponym_tags = ['_'], ['_'], ['_'], ['_'], ['_'], ['_'], ['_']
     section_id, temp_tokens = None, []
+    # TODO STOP processing per section - rather, use overlapping windows of tokens. Sections are not a reliable unit
     for entry in list(zip(df['SECTIONS'].to_list(), df['TOKENS'].fillna('-').to_list()))[1:]:
         _section, _token = entry[0], entry[1]
         if _section is not None:
@@ -100,7 +101,7 @@ def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[s
     return merged_labels
 
 
-def insert_nasab_tag(df) -> list:
+def insert_onom_tag(df) -> list:
     tokens = df['TOKENS'].fillna('-').to_list()
     nasab_tagger = CamelToolsModels.getNasabModel()
     shortend_list_of_tokens = tokens[1:]
@@ -141,7 +142,7 @@ def insert_onomastic_tags(df):
     start_nasab_id, end_nasab_id = -1, -1
 
     # Find BNASAB & ENASAB
-    for idx, tag in enumerate(df['NASAB_TAGS'].to_list()):
+    for idx, tag in enumerate(df['ONOM_TAGS'].to_list()):
         if "BONOM" == tag:
             start_nasab_id = idx
         elif "EONOM" == tag:
@@ -156,5 +157,4 @@ def insert_onomastic_tags(df):
         for i, tag in enumerate(ono_tags):
             onomastic_tags[start_nasab_id + i] = tag
 
-    df['ONONMASTIC_TAGS'] = onomastic_tags
-    return df['ONONMASTIC_TAGS']
+    return onomastic_tags

@@ -27,7 +27,9 @@ class Toponyms:
     __rpl = None
 
     def __init__(self) -> None:
+        print('init toponyms signleton')
         df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'])
+        print(df)
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 
         def get_all_variations(top: str) -> List[str]:

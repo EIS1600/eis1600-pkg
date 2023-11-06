@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 1.0.6
+Version: 1.0.7
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -57,6 +57,11 @@ Description: # EIS1600 Tools
         Check also their installation instructions because atm they require additional packages [https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation](https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation)
         ```shell
         $ pip install eis1600[NER]
+        ```
+        
+        If you want to run the annotation pipeline, you also need to download camel-tools data:
+        ```shell
+        $ camel_data -i all
         ```
         
         **Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
@@ -256,3 +261,4 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 Provides-Extra: NER
 Provides-Extra: EVAL
+Provides-Extra: EIS

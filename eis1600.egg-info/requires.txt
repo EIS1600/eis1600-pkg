@@ -6,6 +6,12 @@ p_tqdm
 importlib_resources
 jsonpickle
 
+[EIS]
+camel-tools
+torch
+torchvision
+torchaudio
+
 [EVAL]
 evaluate
 seqeval

@@ -74,7 +74,7 @@ Run without input arg to batch process all EIS1600 files in the EIS1600 director
             exit()
 
         if verbose:
-            for i, infile in tqdm(enumerate(infiles)):
+            for i, infile in tqdm(list(enumerate(infiles))):
                 try:
                     print(f'{i} {infile}')
                     update_uids(infile, verbose)

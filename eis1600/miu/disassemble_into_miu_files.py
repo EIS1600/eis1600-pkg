@@ -70,7 +70,7 @@ Run without input arg to batch process all double-checked EIS1600 files from the
 
         if debug:
             logger = setup_logger('disassemble', 'disassemble.log')
-            for i, infile in tqdm(enumerate(infiles)):
+            for i, infile in tqdm(list(enumerate(infiles))):
                 try:
                     print(f'{i} {infile}')
                     disassemble_text(infile, out_path, debug)

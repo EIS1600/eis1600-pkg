@@ -2,7 +2,7 @@ from itertools import combinations
 from operator import itemgetter
 from os import makedirs
 from os.path import dirname, split, splitext
-from typing import Dict, List, Optional, Set, TextIO, Tuple, Union, Iterator
+from typing import Dict, List, Optional, Set, Tuple, Union, Iterator
 
 from pandas import DataFrame, notna
 
@@ -142,6 +142,7 @@ def add_annotated_entities_to_yml(
             entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
         except TypeError:
             print(f'Something is at odd here: {row["full_tag"]}\nCheck: {file_path}')
+            yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
             return
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
 
@@ -151,6 +152,7 @@ def add_annotated_entities_to_yml(
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
                 print(f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}')
+                yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
                 return
         elif cat == 'TOPONYM':
             # Identify toponym

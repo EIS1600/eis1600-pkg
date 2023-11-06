@@ -3,6 +3,7 @@
 * [Workflow](#workflow)
 * [Process](#process)
 * [Installation](#installation)
+  * [Common Error Messages](#common-error-messages)
 * [Set Up](#set-up-virtual-environment-and-install-the-eis1600-pkg-there)
 * [Working Directory Structure](#structure-of-the-working-directory)
 * [Usage](#usage)
@@ -45,10 +46,10 @@ In case you have an older version installed, use:
 $ pip install --upgrade eis1600
 ```
 
-The package comes with different options, to install camel-tools use.
+The package comes with different options, to install camel-tools use the following command.
 Check also their installation instructions because atm they require additional packages [https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation](https://camel-tools.readthedocs.io/en/latest/getting_started.html#installation)
 ```shell
-$ pip install eis1600[NER]
+$ pip install 'eis1600[NER]'
 ```
 
 If you want to run the annotation pipeline, you also need to download camel-tools data:
@@ -56,7 +57,25 @@ If you want to run the annotation pipeline, you also need to download camel-tool
 $ camel_data -i all
 ```
 
+To run the annotation pipeline with GPU, use this command:
+
+```shell
+$ pip install 'eis1600[EIS]'
+```
+
 **Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
+
+### Common Error Messages
+
+You need to download all the models ONE BY ONE from Google Drive.
+Something breaks if you try to download the whole folder, and you get this error:
+```shell
+OSError: Error no file named pytorch_model.bin, tf_model.h5, model.ckpt.index or flax_model.msgpack found in directory EIS1600_Pretrained_Models/camelbert-ca-finetuned
+```
+Better to sync `EIS1600_Pretrained_Models` with our nextcloud.
+
+If you want to install `eis1600-pkg` from source you have to add the data modules for `gazetteers` and `helper` manually.
+You can find the modules in our nextcloud.
 
 ## Set Up Virtual Environment and Install the EIS1600 PKG there
 
@@ -108,7 +127,7 @@ The `EIS1600` directory has the following structure:
 |
 |---| eis_env
 |---| EIS1600_MIUs
-|---| EIS1600_Pretrained_Models (optional)
+|---| EIS1600_Pretrained_Models (for annotation, sync from Nextcloud)
 |---| gazetteers
 |---| Master_Chronicle
 |---| OpenITI_EIS1600_Texts
@@ -118,6 +137,14 @@ The `EIS1600` directory has the following structure:
 Path variables are in the module `eis1600/helper/repo`.
 
 ## Usage
+
+### Annotation Pipeline
+
+Use `-D` flag to run annotation of MIUs in sequence, otherwise the annotation will be run in parallel, and it will eat up all resources.
+```shell
+$ analyse_all_on_cluster
+```
+
 
 ### Convert mARkdown to EIS1600 files
 

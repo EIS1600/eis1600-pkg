@@ -159,6 +159,10 @@ class YAMLHandler:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = None
 
+    def set_error_while_collecting_annotated_entities(self, tag: str) -> None:
+        self.set_error_while_collecting_annotated_entities = True
+        self.erroneous_tag = tag
+
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'
         for key, val in vars(self).items():

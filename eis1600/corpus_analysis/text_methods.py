@@ -8,7 +8,7 @@ from eis1600.miu.methods import check_file_for_malformatting
 from eis1600.miu.yml_handling import create_yml_header
 
 
-def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str]]:
+def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)
@@ -41,7 +41,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str]]:
                     heading_tracker.track_headings(len(m.group('level')), heading_text)
                 if miu_text:
                     # Do not create a preface MIU file if there is no preface
-                    mius.append((uid, miu_text + '\n'))
+                    mius.append((uid, miu_text + '\n', analyse_flag))
                 m = MIU_TAG_PATTERN.match(text_line)
                 uid = uri + '.' + m.group('UID')
                 category = ''
@@ -50,6 +50,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str]]:
                 except AttributeError:
                     mal_formatted.append(m.group('category'))
                 yml_header = create_yml_header(category, heading_tracker.get_curr_state())
+                analyse_flag = category not in ['|PARATEXT|', '|EDITOR|']
                 miu_text = yml_header
                 miu_text += text_line
             else:
@@ -59,7 +60,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str]]:
                 heading_tracker.track_pages(PAGE_TAG_PATTERN.search(text_line).group(0))
 
         # last MIU needs to be written to file when the for-loop is finished
-        mius.append((uid, miu_text + '\n'))
+        mius.append((uid, miu_text + '\n', analyse_flag))
 
     if mal_formatted:
         print('Something seems to be mal-formatted, check:')

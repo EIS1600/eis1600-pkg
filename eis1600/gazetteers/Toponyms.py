@@ -6,7 +6,7 @@ from pandas import isna, read_csv
 from eis1600.helper.Singleton import Singleton
 from eis1600.helper.ar_normalization import denormalize_list
 
-toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.tsv')
+toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.csv')
 
 
 @Singleton
@@ -27,7 +27,7 @@ class Toponyms:
     __rpl = None
 
     def __init__(self) -> None:
-        df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'], sep='\t')
+        df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'])
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 
         def get_all_variations(top: str) -> List[str]:

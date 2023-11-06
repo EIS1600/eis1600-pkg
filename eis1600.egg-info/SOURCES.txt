@@ -25,6 +25,7 @@ eis1600/gazetteers/data/days_gazetteer.csv
 eis1600/gazetteers/data/months_gazetteer.csv
 eis1600/gazetteers/data/onomastic_gazetteer.csv
 eis1600/gazetteers/data/spelling_gazetteer.csv
+eis1600/gazetteers/data/toponyms_gazetteer.csv
 eis1600/gazetteers/data/years_gazetteer.csv
 eis1600/helper/EntityTags.py
 eis1600/helper/EvalResultsEncoder.py

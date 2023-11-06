@@ -19,7 +19,7 @@ def routine_per_text(infile: str, debug: Optional[bool] = False):
 
     res = []
     if debug:
-        for idx, tup in tqdm(enumerate(mius_list)):
+        for idx, tup in tqdm(list(enumerate(mius_list[:20]))):
             res.append(analyse_miu(tup))
     else:
         res += p_uimap(analyse_miu, mius_list[:20])
@@ -57,10 +57,12 @@ def main():
         exit()
 
     logger = setup_logger('disassemble', 'disassemble.log')
-    for i, infile in tqdm(enumerate(infiles[:5])):
+    for i, infile in tqdm(list(enumerate(infiles[:5]))):
         try:
             print(f'{i} {infile}')
             routine_per_text(infile, debug)
         except ValueError as e:
             errors = True
             logger.log(ERROR, f'{infile}\n{e}')
+
+    print('Done')

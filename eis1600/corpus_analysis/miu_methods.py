@@ -47,8 +47,12 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
                 df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
+        print('After analysis')
+
         add_annotated_entities_to_yml(df_subset, yml_handler, uid)
         # updated_text = reconstruct_miu_text_with_tags(df_subset)
+
+        print('Before json')
 
     # return as JSON Object
     author, text, edition, miu_uid = uid.split('.')

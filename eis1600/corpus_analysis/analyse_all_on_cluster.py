@@ -13,7 +13,6 @@ from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.logging import setup_logger
 from eis1600.helper.repo import JSON_REPO, TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport
 
-
 def routine_per_text(infile: str, debug: Optional[bool] = False):
     mius_list = get_text_as_list_of_mius(infile)
 

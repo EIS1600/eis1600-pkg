@@ -118,8 +118,11 @@ def add_annotated_entities_to_yml(
     :param str file_path: Filename of the current MIU (used in error msg).
     """
     # We do not need to differentiate between automated and manual tags
+    print('add annotated entities')
     tg = Toponyms.instance()
+    print('Toponym Singleton')
     entity_tags_df = EntityTags.instance().get_entity_tags_df()
+    print('Entities singleton')
     entities_dict = {}
     nas_dict = {}
     nas_counter = 0
@@ -130,6 +133,8 @@ def add_annotated_entities_to_yml(
     # Get all tags with their information extracted into individual elements
     s_notna = df['TAGS_LISTS'].loc[df['TAGS_LISTS'].notna()].apply(lambda tag_list: ','.join(tag_list))
     df_matches = s_notna.str.extractall(ENTITY_TAGS_PATTERN).dropna(how='all')
+
+    print(df_matches)
 
     # Interpret extracted information for each tag
     for index_tuple, row in df_matches.iterrows():

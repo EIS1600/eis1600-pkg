@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.0.6',
+      version='1.0.7',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -53,7 +53,11 @@ setup(name='eis1600',
               'importlib_resources',
               'jsonpickle'
       ],
-      extras_require={'NER': ['camel-tools'], 'EVAL': ['evaluate', 'seqeval', 'tensorflow']},
+      extras_require={
+              'NER': ['camel-tools'],
+              'EVAL': ['evaluate', 'seqeval', 'tensorflow'],
+              'EIS': ['camel-tools', 'torch', 'torchvision', 'torchaudio']
+      },
       classifiers=['Programming Language :: Python :: 3',
                    'License :: OSI Approved :: MIT License',
                    'Operating System :: OS Independent',

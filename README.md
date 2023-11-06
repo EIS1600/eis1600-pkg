@@ -51,6 +51,11 @@ Check also their installation instructions because atm they require additional p
 $ pip install eis1600[NER]
 ```
 
+If you want to run the annotation pipeline, you also need to download camel-tools data:
+```shell
+$ camel_data -i all
+```
+
 **Note**. You can use `pip freeze` to check the versions of all installed packages, including `eis1600`.
 
 ## Set Up Virtual Environment and Install the EIS1600 PKG there

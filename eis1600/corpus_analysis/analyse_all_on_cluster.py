@@ -45,6 +45,8 @@ def main():
     args = arg_parser.parse_args()
     debug = args.debug
 
+    # TODO torch.cuda.is_available()
+
     # Retrieve all double-checked texts
     input_dir = TEXT_REPO
     files_list = read_files_from_autoreport(input_dir)

@@ -3,15 +3,19 @@ from pathlib import Path
 from sys import argv, exit
 from typing import Optional
 from logging import ERROR
+from time import process_time, time
 
 import jsonpickle
 from tqdm import tqdm
 from p_tqdm import p_uimap
 
+from torch import cuda
+
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.logging import setup_logger
 from eis1600.helper.repo import JSON_REPO, TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport
+
 
 def routine_per_text(infile: str, debug: Optional[bool] = False):
     mius_list = get_text_as_list_of_mius(infile)
@@ -44,7 +48,10 @@ def main():
     args = arg_parser.parse_args()
     debug = args.debug
 
-    # TODO torch.cuda.is_available()
+    print(f'GPU available: {cuda.is_available()}')
+
+    st = time()
+    stp = process_time()
 
     # Retrieve all double-checked texts
     input_dir = TEXT_REPO
@@ -64,4 +71,9 @@ def main():
             errors = True
             logger.log(ERROR, f'{infile}\n{e}')
 
+    et = time()
+    etp = process_time()
+
     print('Done')
+    print(f'Processing time: {etp-stp} seconds')
+    print(f'Execution time: {et-st} seconds')

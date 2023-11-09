@@ -1,13 +1,13 @@
 [console_scripts]
-analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [ner]
-annotate_mius = eis1600.nlp.ner_annotate_mius:main [ner]
-annotate_topd = eis1600.helper.annotate_topd:main [ner]
+analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [EIS]
+annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]
+annotate_topd = eis1600.helper.annotate_topd:main [NER]
 btopd_to_bio = eis1600.helper.btopd_to_bio:main
 convert_mARkdown_to_EIS1600TMP = eis1600.markdown.convert_mARkdown_to_EIS1600TMP:main
 count_tokens_per_miu = eis1600.statistics.count_tokens_per_miu:main
 disassemble_into_miu_files = eis1600.miu.disassemble_into_miu_files:main
-eval_date_model = eis1600.helper.eval_date_model:main [eval]
-eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [eval]
+eval_date_model = eis1600.helper.eval_date_model:main [EVAL]
+eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [EVAL]
 fix_miu_annotation = eis1600.helper.fix_miu_annotation:main
 fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main
 insert_uids = eis1600.markdown.insert_uids:main
@@ -24,4 +24,3 @@ toponym_annotation = eis1600.toponyms.annotation:main
 update_uids = eis1600.markdown.update_uids:main
 xx_update_uids_old_process = eis1600.markdown.update_uids_old_process:main
 yml_to_json = eis1600.helper.yml_to_json:main
-

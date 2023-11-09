@@ -24,7 +24,6 @@ class Singleton:
         On all subsequent calls, the already created instance is returned.
 
         """
-        print(self._decorated)
         try:
             return self._instance
         except AttributeError:

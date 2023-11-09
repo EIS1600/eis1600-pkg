@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.0.9',
+      version='1.1.0',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -16,7 +16,7 @@ setup(name='eis1600',
       package_data={'eis1600.gazetteers.data': ['*.csv'], 'eis1600.helper.data': ['*.csv']},
       entry_points={
           'console_scripts': [
-                  'analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [NER]',
+                  'analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [EIS]',
                   'annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
                   'annotate_topd = eis1600.helper.annotate_topd:main [NER]',
                   'btopd_to_bio = eis1600.helper.btopd_to_bio:main',

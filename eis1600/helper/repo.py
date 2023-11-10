@@ -21,6 +21,7 @@ from eis1600.helper.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 MIU_REPO = 'EIS1600_MIUs/'
 TEXT_REPO = 'OpenITI_EIS1600_Texts/'
 JSON_REPO = 'EIS1600_JSONs/'
+PRETRAINED_MODELS_REPO = 'EIS1600_Pretrained_Models/'
 TOPO_REPO = 'Topo_Data/'
 TRAINING_DATA_REPO = 'Training_Data/'
 TRAINING_RESULTS_REPO = 'Training_Results/'

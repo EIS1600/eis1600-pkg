@@ -114,7 +114,7 @@ alias eis="source eis1600_env/bin/activate"
 Alias files:
 
 - on Linux:
-  - `~.bash_aliases`
+  - `.bash_aliases`
 - On Mac:
   - `.zshrc` if you use `zsh` (default in the latest versions Mac OS);
 

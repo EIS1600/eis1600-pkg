@@ -1,16 +1,16 @@
-openiti
-pandas
-numpy
-tqdm
-p_tqdm
 importlib_resources
 jsonpickle
+numpy
+openiti
+p_tqdm
+pandas
+tqdm
 
 [EIS]
 camel-tools
 torch
-torchvision
 torchaudio
+torchvision
 
 [EVAL]
 evaluate
@@ -19,3 +19,4 @@ tensorflow
 
 [NER]
 camel-tools
+torch

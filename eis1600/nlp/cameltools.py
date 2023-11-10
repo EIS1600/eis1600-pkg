@@ -1,9 +1,13 @@
+from os.path import isdir
+
 from camel_tools.ner import NERecognizer
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.disambig.mle import MLEDisambiguator
 from camel_tools.tagger.default import DefaultTagger
 from camel_tools.utils.dediac import dediac_ar
 from typing import Iterator, Tuple, Union
+
+from eis1600.helper.repo import PRETRAINED_MODELS_REPO
 
 
 class CamelToolsModels:
@@ -17,12 +21,12 @@ class CamelToolsModels:
     __fco_tagger = None
     __toponym_tagger = None
 
-    __NASAB_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_nasab/"
-    __NER_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_ner/"
-    __ONOMASTIC_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_onomastic/"
-    __STN_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_person_classification_STN/"
-    __FCON_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_person_classification_FCN/"
-    __TOPO_MODEL_PATH = "EIS1600_Pretrained_Models/camelbert-ca-finetuned_toponyms/"
+    __NASAB_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_nasab/"
+    __NER_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_ner/"
+    __ONOMASTIC_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_onomastic/"
+    __STN_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_person_classification_STN/"
+    __FCON_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_person_classification_FCN/"
+    __TOPO_MODEL_PATH = PRETRAINED_MODELS_REPO + "camelbert-ca-finetuned_toponyms/"
 
     @staticmethod
     def getInstance():
@@ -49,6 +53,9 @@ class CamelToolsModels:
 
     def __init__(self):
         """ Virtually private constructor. """
+        if not isdir(PRETRAINED_MODELS_REPO):
+            raise Exception(f'We miss our custom ML models in {PRETRAINED_MODELS_REPO}')
+
         if CamelToolsModels.__ner_tagger is not None:
             raise Exception("This class is a singleton!")
         else:

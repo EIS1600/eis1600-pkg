@@ -40,7 +40,7 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
         # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)
 
         # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
-        columns_of_automated_tags = ['DATE_TAGS', 'NASAB_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
+        columns_of_automated_tags = ['DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:
                 df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)

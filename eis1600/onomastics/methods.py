@@ -243,13 +243,13 @@ def nasab_annotation(file: str, test: Optional[bool] = False):
     if test:
         # Only used if run on training_data batch because this information is missing there
         if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_handler.is_reviewed():
-            df['NASAB_TAGS'] = Series([nan] * len(df))
+            df['ONOM_TAGS'] = Series([nan] * len(df))
         else:
             yml_handler.set_category('$')
-            df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
+            df['ONOM_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
     else:
         # Run on new data batch
-        df['NASAB_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
+        df['ONOM_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
     yml_handler.unset_reviewed()
 
     if test:
@@ -259,5 +259,5 @@ def nasab_annotation(file: str, test: Optional[bool] = False):
 
     with open(output_path, 'w', encoding='utf-8') as out_file_object:
         write_updated_miu_to_file(
-                out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'NASAB_TAGS']]
+                out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'ONOM_TAGS']]
         )

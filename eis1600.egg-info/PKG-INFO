@@ -1,11 +1,12 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 1.1.0
+Version: 1.1.1
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
 Author-email: mischer.lisa@gmail.com
 License: MIT License
+Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -13,25 +14,10 @@ Classifier: Development Status :: 1 - Planning
 Classifier: Intended Audience :: Science/Research
 Requires-Python: >=3.7
 Description-Content-Type: text/markdown
+Provides-Extra: EIS
+Provides-Extra: EVAL
+Provides-Extra: NER
 License-File: LICENSE
-Requires-Dist: openiti
-Requires-Dist: pandas
-Requires-Dist: numpy
-Requires-Dist: tqdm
-Requires-Dist: p_tqdm
-Requires-Dist: importlib_resources
-Requires-Dist: jsonpickle
-Provides-Extra: ner
-Requires-Dist: camel-tools; extra == "ner"
-Provides-Extra: eval
-Requires-Dist: evaluate; extra == "eval"
-Requires-Dist: seqeval; extra == "eval"
-Requires-Dist: tensorflow; extra == "eval"
-Provides-Extra: eis
-Requires-Dist: camel-tools; extra == "eis"
-Requires-Dist: torch; extra == "eis"
-Requires-Dist: torchvision; extra == "eis"
-Requires-Dist: torchaudio; extra == "eis"
 
 # EIS1600 Tools
 
@@ -149,7 +135,7 @@ alias eis="source eis1600_env/bin/activate"
 Alias files:
 
 - on Linux:
-  - `~.bash_aliases`
+  - `.bash_aliases`
 - On Mac:
   - `.zshrc` if you use `zsh` (default in the latest versions Mac OS);
 
@@ -304,3 +290,5 @@ Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`:
 ```shell
 $ yml_to_json
 ```
+
+

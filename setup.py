@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.1.0',
+      version='1.1.1',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -17,6 +17,7 @@ setup(name='eis1600',
       entry_points={
           'console_scripts': [
                   'analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [EIS]',
+                  'annotate_goldstandard = eis1600.nlp.annotate_goldstandard:main [NER]',
                   'annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
                   'annotate_topd = eis1600.helper.annotate_topd:main [NER]',
                   'btopd_to_bio = eis1600.helper.btopd_to_bio:main',
@@ -54,7 +55,7 @@ setup(name='eis1600',
               'jsonpickle'
       ],
       extras_require={
-              'NER': ['camel-tools'],
+              'NER': ['camel-tools', 'torch'],
               'EVAL': ['evaluate', 'seqeval', 'tensorflow'],
               'EIS': ['camel-tools', 'torch', 'torchvision', 'torchaudio']
       },

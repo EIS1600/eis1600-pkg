@@ -220,7 +220,7 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], path, yml_handler)
 
         # 5. insert BONOM and EONOM tags with the pretrained transformer model
-        df['NASAB_TAGS'] = insert_onom_tag(df)
+        df['ONOM_TAGS'] = insert_onom_tag(df)
 
         # 6. annotate onomastic information
         df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df)
@@ -234,12 +234,12 @@ def annotate_miu_file(path: str, tsv_path=None, output_path=None, force_annotati
         # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
         if output_path == path:
             write_updated_miu_to_file(
-                miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'NASAB_TAGS',
+                miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'ONOM_TAGS',
                                                   'ONOMASTIC_TAGS', 'NER_TAGS']]
                 )
         else:
             with open(output_path, 'w', encoding='utf-8') as out_file_object:
                 write_updated_miu_to_file(
-                        out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'NASAB_TAGS',
+                        out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'DATE_TAGS', 'ONOM_TAGS',
                                                           'ONOMASTIC_TAGS', 'NER_TAGS']]
                 )

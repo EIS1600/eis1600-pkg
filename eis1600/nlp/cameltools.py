@@ -26,6 +26,7 @@ class CamelToolsModels:
 
     @staticmethod
     def getInstance():
+        print('get_models')
         """ Static access method. """
         if CamelToolsModels.__ner_tagger is None or CamelToolsModels.__lemmatizer is None:
             CamelToolsModels()
@@ -52,6 +53,7 @@ class CamelToolsModels:
         if CamelToolsModels.__ner_tagger is not None:
             raise Exception("This class is a singleton!")
         else:
+            print('init models')
             CamelToolsModels.__mled_disambiguator = MLEDisambiguator.pretrained()
             CamelToolsModels.__lemmatizer = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'lex')
             CamelToolsModels.__pos_tagger = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'pos')
@@ -59,6 +61,7 @@ class CamelToolsModels:
             CamelToolsModels.__st_tagger = NERecognizer(CamelToolsModels.__STN_MODEL_PATH)
             CamelToolsModels.__fco_tagger = NERecognizer(CamelToolsModels.__FCON_MODEL_PATH)
             CamelToolsModels.__toponym_tagger = NERecognizer(CamelToolsModels.__TOPO_MODEL_PATH)
+            print('init models done')
 
 
 def lemmatize_and_tag_ner(tokens: Union[str, list]) -> Iterator[Tuple[str, ...]]:
@@ -80,5 +83,7 @@ def lemmatize_and_tag_ner(tokens: Union[str, list]) -> Iterator[Tuple[str, ...]]
     pos_tags = pos_tagger.tag(tokens)
     root_tags = [d.analyses[0].analysis['root'] for d in mled_disambiguator.disambiguate(tokens)]
     dediac_lemmas = [dediac_ar(lemma) for lemma in lemmas]
+
+    print('lemmatize done')
 
     return zip(tokens, ner_labels, lemmas, dediac_lemmas, pos_tags, root_tags, st_labels, fco_labels, toponym_labels)

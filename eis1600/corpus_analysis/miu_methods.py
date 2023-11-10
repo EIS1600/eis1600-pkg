@@ -22,12 +22,16 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
         df['TOPONYM_LABELS'] = annotate_miu_text(df)
 
+        print('Done NER, POS, Lemmas, Roots')
+
         # 3. convert cameltools labels format to markdown format
         aggregated_stfco_labels = aggregate_STFCON_classes(ST_labels, FCO_labels)
         ner_tags = bio_to_md(df['NER_LABELS'].to_list())  # camel2md_as_list(df['NER_LABELS'].tolist())
         ner_tags_with_person_classes = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
         toponym_labels_md = bio_to_md(df['TOPONYM_LABELS'].to_list(), sub_class=True)
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
+
+        print('Aggregate super- and sub-classes')
 
         print('ML models annotation intermediate')
 

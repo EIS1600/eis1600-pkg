@@ -55,12 +55,19 @@ class CamelToolsModels:
         else:
             print('init models')
             CamelToolsModels.__mled_disambiguator = MLEDisambiguator.pretrained()
+            print('mled done')
             CamelToolsModels.__lemmatizer = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'lex')
+            print('lemmatizer done')
             CamelToolsModels.__pos_tagger = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'pos')
+            print('pos done')
             CamelToolsModels.__ner_tagger = NERecognizer(CamelToolsModels.__NER_MODEL_PATH)  # .pretrained
+            print('ner done')
             CamelToolsModels.__st_tagger = NERecognizer(CamelToolsModels.__STN_MODEL_PATH)
+            print('st_person done')
             CamelToolsModels.__fco_tagger = NERecognizer(CamelToolsModels.__FCON_MODEL_PATH)
+            print('fco_person done')
             CamelToolsModels.__toponym_tagger = NERecognizer(CamelToolsModels.__TOPO_MODEL_PATH)
+            print('toponym done')
             print('init models done')
 
 

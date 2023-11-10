@@ -1,3 +1,5 @@
+from os.path import isdir
+
 from camel_tools.ner import NERecognizer
 from camel_tools.tokenizers.word import simple_word_tokenize
 from camel_tools.disambig.mle import MLEDisambiguator
@@ -60,6 +62,8 @@ class CamelToolsModels:
             print('lemmatizer done')
             CamelToolsModels.__pos_tagger = DefaultTagger(CamelToolsModels.__mled_disambiguator, 'pos')
             print('pos done')
+            print(f'{CamelToolsModels.__NER_MODEL_PATH}')
+            print(f'isdir: {isdir(CamelToolsModels.__NER_MODEL_PATH)}')
             CamelToolsModels.__ner_tagger = NERecognizer(CamelToolsModels.__NER_MODEL_PATH)  # .pretrained
             print('ner done')
             CamelToolsModels.__st_tagger = NERecognizer(CamelToolsModels.__STN_MODEL_PATH)

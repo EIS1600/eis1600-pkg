@@ -15,6 +15,8 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
     # 1. open miu file and disassemble the file to its parts
     yml_handler, df = get_yml_and_miu_df(miu_as_text)
 
+    print(f'Analyse flag: {analyse_flag}')
+
     if analyse_flag:
         # 2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
@@ -26,6 +28,8 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
         ner_tags_with_person_classes = merge_ner_with_person_classes(ner_tags, aggregated_stfco_labels)
         toponym_labels_md = bio_to_md(df['TOPONYM_LABELS'].to_list(), sub_class=True)
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
+
+        print('ML models annotation intermediate')
 
         # 4. annotate dates
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], uid, yml_handler)
@@ -52,7 +56,7 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> object:
         # updated_text = reconstruct_miu_text_with_tags(df_subset)
 
         print('After add_annotated_entities')
-        
+
     # return as JSON Object
     author, text, edition, miu_uid = uid.split('.')
     yml_init = {'author': author, 'text': text, 'edition': edition, 'UID': miu_uid}

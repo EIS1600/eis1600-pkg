@@ -83,7 +83,7 @@ def get_temp_class_es(_label: Union[str, None], sub_class: bool) -> Tuple[str, U
     if _label[2:] == 'LOC':
         _label = _label.replace('LOC', 'TOX')
         temp_class = _label[2]
-    elif _label[2:] in EntityTags.instance().get_onom_tags():
+    elif _label[2:] in EntityTags().get_onom_tags():
         temp_class = _label[2:]
     else:
         temp_class = _label[2]

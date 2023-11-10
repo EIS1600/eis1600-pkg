@@ -2,12 +2,12 @@ from importlib_resources import files
 from typing import List
 from pandas import read_csv, DataFrame
 
-from eis1600.helper.Singleton import Singleton
+from eis1600.helper.Singleton import singleton
 
 entities_path = files('eis1600.helper.data').joinpath('entity_tags.csv')
 
 
-@Singleton
+@singleton
 class EntityTags:
     __entity_tags_df = None
     __tag_list = None

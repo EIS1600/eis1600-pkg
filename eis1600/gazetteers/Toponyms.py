@@ -1,15 +1,16 @@
 from __future__ import annotations
+
+from eis1600.helper.Singleton import singleton
 from importlib_resources import files
 from typing import List, Tuple
 from pandas import isna, read_csv
 
-from eis1600.helper.Singleton import Singleton
 from eis1600.helper.ar_normalization import denormalize_list
 
 toponyms_path = files('eis1600.gazetteers.data').joinpath('toponyms_gazetteer.csv')
 
 
-@Singleton
+@singleton
 class Toponyms:
     """
     Gazetteer

@@ -4,12 +4,12 @@ from eis1600.helper.ar_normalization import denormalize_list
 from importlib_resources import files
 from pandas import read_csv
 
-from eis1600.helper.Singleton import Singleton
+from eis1600.helper.Singleton import singleton
 
 path = files('eis1600.gazetteers.data').joinpath('spelling_gazetteer.csv')
 
 
-@Singleton
+@singleton
 class Spellings:
     __tot = None
     __denormalized = None

@@ -118,8 +118,7 @@ def add_annotated_entities_to_yml(
     :param str file_path: Filename of the current MIU (used in error msg).
     """
     # We do not need to differentiate between automated and manual tags
-    tg = Toponyms.instance()
-    entity_tags_df = EntityTags.instance().get_entity_tags_df()
+    entity_tags_df = EntityTags().get_entity_tags_df()
     entities_dict = {}
     nas_dict = {}
     nas_counter = 0
@@ -156,7 +155,7 @@ def add_annotated_entities_to_yml(
                 return
         elif cat == 'TOPONYM':
             # Identify toponym
-            place, uris_tag, list_of_uris, list_of_provinces = tg.look_up_entity(entity)
+            place, uris_tag, list_of_uris, list_of_provinces = Toponyms().look_up_entity(entity)
             if notna(sub_cat):
                 add_to_entities_dict(entities_dict, cat, {'entity': place, 'URI': uris_tag, 'cat': sub_cat})
             else:

@@ -3,13 +3,13 @@ from importlib_resources import files
 from re import compile
 from pandas import concat, read_csv
 
-from eis1600.helper.Singleton import Singleton
+from eis1600.helper.Singleton import singleton
 from openiti.helper.ara import denormalize
 
 path = files('eis1600.gazetteers.data').joinpath('onomastic_gazetteer.csv')
 
 
-@Singleton
+@singleton
 class Onomastics:
     """
     Gazetteer

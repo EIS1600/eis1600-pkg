@@ -27,17 +27,15 @@ def get_nas(text: str) -> str:
     :param str text: nasab str.
     :return str: nasab str with tagged and manipulated nas elements.
     """
-    og = Onomastics.instance()
-
     text_mnpld = ABU.sub(' ابو_', text)
     text_mnpld = UMM.sub(' ام_', text_mnpld)
     text_mnpld = ABI.sub(' ابي_', text_mnpld)
     text_mnpld = IBN_IBNA.sub(r' \g<1>', text_mnpld)
 
-    m = og.get_ngrams_regex().search(text_mnpld)
+    m = Onomastics().get_ngrams_regex().search(text_mnpld)
     while m:
         text_mnpld = text_mnpld[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + text_mnpld[m.end():]
-        m = og.get_ngrams_regex().search(text_mnpld, m.end())
+        m = Onomastics().get_ngrams_regex().search(text_mnpld, m.end())
 
     m_bn = list(BN_BNT.finditer(text_mnpld))
     if m_bn:
@@ -84,15 +82,13 @@ def tag_nasab(text: str) -> str:
     :return str: the nasab part pf the MIU which contains also the tags in front of the recognized elements,
     '_' are removed.
     """
-    og = Onomastics.instance()
-    tg = Toponyms.instance()
     text_mnpld = text.replace(' بن ', ' بن_')
     # for m in BANU_BANI.finditer(text_mnpld):
     #     print(f'{m.group(0)} last: {text_mnpld[m.end()]}')
     text_mnpld = text_mnpld.replace('من ولد ', 'من_ولد_')
-    m = og.get_ngrams_regex().search(text_mnpld)
+    m = Onomastics().get_ngrams_regex().search(text_mnpld)
     while m:
-        tag = og.get_ngram_tag(m.group(2))
+        tag = Onomastics().get_ngram_tag(m.group(2))
         pos = m.start()
         end = m.end()
         if m.group(1) == ' ':
@@ -120,23 +116,23 @@ def tag_nasab(text: str) -> str:
 
         end += len(tag)
 
-        m = og.get_ngrams_regex().search(text_mnpld, end)
+        m = Onomastics().get_ngrams_regex().search(text_mnpld, end)
 
     # Log unidentified tokens as uni- and bi-grams
     filtered = text_mnpld
-    m = og.get_ngrams_regex().search(filtered)
+    m = Onomastics().get_ngrams_regex().search(filtered)
     while m:
         filtered = filtered[:m.start()] + m.group(1) + m.group(2).replace(' ', '_') + filtered[m.end():]
-        m = og.get_ngrams_regex().search(filtered, m.end())
+        m = Onomastics().get_ngrams_regex().search(filtered, m.end())
     tokens = [token for token in filtered.split() if not token.startswith('Ü')]
-    unknown_uni = [t for t in tokens if not ('_' in t or t in og.total() + tg.total())]
+    unknown_uni = [t for t in tokens if not ('_' in t or t in Onomastics().total() + Toponyms().total())]
     prev = None
     unknown_bi = []
     for t in tokens:
-        if not prev and not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+        if not prev and not ('_' in t or t in Onomastics().total() + Toponyms().total() + ['بن', 'بنت']):
             prev = t
         else:
-            if not ('_' in t or t in og.total() + tg.total() + ['بن', 'بنت']):
+            if not ('_' in t or t in Onomastics().total() + Toponyms().total() + ['بن', 'بنت']):
                 unknown_bi.append(prev + ' ' + t)
                 prev = t
             else:

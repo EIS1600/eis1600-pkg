@@ -27,8 +27,8 @@ technical_terms = ['من', 'بين',
                    'ميل', 'ميلا', 'أميال']
 dn_pt = [denormalize(t) for t in place_terms]
 dn_tt = [denormalize(t) for t in technical_terms]
-dn_spelling = Spellings.instance().get_denormalized_list()
-dn_toponyms = Toponyms.instance().total()
+dn_spelling = Spellings().get_denormalized_list()
+dn_toponyms = Toponyms().total()
 
 PLACES_REGEX = compile(r'(?:' + WORD + '(?: [،.():])?){1,7} (?:' + '|'.join(dn_pt) + r')(?:' + WORD + '){1,7}')
 TT_REGEX = compile(r'|'.join(dn_pt + dn_tt + dn_spelling + dn_toponyms))

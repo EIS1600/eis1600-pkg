@@ -6,7 +6,7 @@ from time import process_time, time
 
 from p_tqdm import p_uimap
 
-from eis1600.miu.methods import annotate_miu_file
+from eis1600.nlp.methods import annotate_miu_file
 from torch import cuda
 from tqdm import tqdm
 

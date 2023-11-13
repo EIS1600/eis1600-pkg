@@ -161,7 +161,10 @@ class YAMLHandler:
 
     def set_error_while_collecting_annotated_entities(self, tag: str) -> None:
         self.error_while_collecting_annotated_entities = True
-        self.erroneous_tag = tag
+        if hasattr(self, 'erroneous_tags'):
+            self.erroneous_tags.append(tag)
+        else:
+            self.erroneous_tags = [tag]
 
     def get_yamlfied(self) -> str:
         yaml_str = MIU_HEADER + 'Begin#\n\n'

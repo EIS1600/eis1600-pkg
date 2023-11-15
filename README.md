@@ -54,7 +54,7 @@ $ pip install 'eis1600[NER]'
 
 If you want to run the annotation pipeline, you also need to download camel-tools data:
 ```shell
-$ camel_data -i all
+$ camel_data -i disambig-mle-calima-msa-r13
 ```
 
 To run the annotation pipeline with GPU, use this command:

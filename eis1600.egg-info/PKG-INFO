@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 1.1.1
+Version: 1.1.2
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -75,7 +75,7 @@ $ pip install 'eis1600[NER]'
 
 If you want to run the annotation pipeline, you also need to download camel-tools data:
 ```shell
-$ camel_data -i all
+$ camel_data -i disambig-mle-calima-msa-r13
 ```
 
 To run the annotation pipeline with GPU, use this command:

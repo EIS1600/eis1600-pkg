@@ -24,12 +24,12 @@ JSON_REPO = 'EIS1600_JSONs/'
 PRETRAINED_MODELS_REPO = 'EIS1600_Pretrained_Models/'
 TOPO_REPO = 'Topo_Data/'
 TRAINING_DATA_REPO = 'Training_Data/'
+RESEARCH_DATA_REPO = 'Research_Data/'
 TRAINING_RESULTS_REPO = 'Training_Results/'
 GAZETTEERS_REPO = 'gazetteers/'
 MC_REPO = 'MasterChronicle/'
 BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
-STATISTICS_REPO = 'research_data/'
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:

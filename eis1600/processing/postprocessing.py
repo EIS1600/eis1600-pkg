@@ -52,12 +52,14 @@ def reconstruct_miu_text_with_tags(
         text_and_tags_iter = text_and_tags.__iter__()
     heading, _, _ = next(text_and_tags_iter)
     reconstructed_text = heading
-    # TODO NASAB tag after token
     for section, token, tags in text_and_tags_iter:
         if notna(section):
             reconstructed_text += '\n\n' + section + '\n_ء_'
         if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
+        elif tags is not None:
+            print("df['TAGS_LISTS'] must be list")
+            raise TypeError
         if notna(token):
             reconstructed_text += ' ' + token
 

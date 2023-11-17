@@ -7,7 +7,7 @@ from numpy import number
 from p_tqdm import p_uimap
 from pandas import DataFrame
 
-from eis1600.helper.repo import STATISTICS_REPO, get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
+from eis1600.helper.repo import RESEARCH_DATA_REPO, get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.miu.methods import get_mius
 from eis1600.statistics.methods import count_tokens
 
@@ -68,9 +68,9 @@ all files in the MIU directory are batch processed.
                   '`EIS1600_MIUs/`.')
             exit()
 
-        data_path = STATISTICS_REPO + 'token_count/data/'
+        data_path = RESEARCH_DATA_REPO + 'token_count/data/'
         Path(data_path).mkdir(parents=True, exist_ok=True)
-        stats_path = STATISTICS_REPO + 'token_count/stats/'
+        stats_path = RESEARCH_DATA_REPO + 'token_count/stats/'
         Path(stats_path).mkdir(parents=True, exist_ok=True)
 
 

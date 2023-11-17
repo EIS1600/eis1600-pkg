@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.1.2',
+      version='1.1.3',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -32,6 +32,7 @@ setup(name='eis1600',
                   'miu_random_revisions = eis1600.helper.miu_random_revisions:main',
                   'miu_stats = eis1600.stats.miu_stats:main',
                   'onomastic_annotation = eis1600.onomastics.annotation:main',
+                  'q_tags_to_bio = eis1600.helper.q_tags_to_bio:main',
                   'reassemble_from_miu_files = eis1600.miu.reassemble_from_miu_files:main',
                   'sheets_topod_stats = eis1600.helper.sheets_topod_stats:main',
                   'topo_tags_to_bio = eis1600.helper.topo_tags_to_bio:main',

@@ -49,7 +49,7 @@ def md_to_bio(
         df_matches = s_notna.str.extract(pattern).dropna(how='all')
 
         if df_matches.empty:
-            df["BIO"] = "O"
+            df['BIO'] = 'O'
         else:
             for index, row in df_matches.iterrows():
                 processed_tokens = 0
@@ -65,16 +65,17 @@ def md_to_bio(
 
                     processed_tokens += 1
 
-            df["BIO"].loc[df["BIO"].isna()] = "O"
+            df['BIO'].loc[df['BIO'] == 'nan'] = 'O'
     else:
-        df["BIO"] = "O"
-    df["BIO_IDS"] = df["BIO"].apply(lambda bio_tag: bio_dict[bio_tag])
-    idcs = df["TOKENS"].loc[df["TOKENS"].notna()].index
+        df['BIO'] = 'O'
+
+    df['BIO_IDS'] = df['BIO'].apply(lambda bio_tag: bio_dict[bio_tag])
+    idcs = df['TOKENS'].loc[df['TOKENS'].notna()].index
 
     return {
-            "tokens": df["TOKENS"].loc[idcs].to_list(),
-            "ner_tags": df["BIO_IDS"].loc[idcs].to_list(),
-            "ner_classes": df["BIO"].loc[idcs].to_list()
+            'tokens': df['TOKENS'].loc[idcs].to_list(),
+            'ner_tags': df['BIO_IDS'].loc[idcs].to_list(),
+            'ner_classes': df['BIO'].loc[idcs].to_list()
     }
 
 
@@ -85,6 +86,8 @@ def get_temp_class_es(_label: Union[str, None], sub_class: bool) -> Tuple[str, U
         temp_class = _label[2]
     elif _label[2:] in EntityTags().get_onom_tags():
         temp_class = _label[2:]
+    elif _label[2:] == 'TOPD':
+        temp_class = 'Q'
     else:
         temp_class = _label[2]
     if sub_class:
@@ -93,19 +96,22 @@ def get_temp_class_es(_label: Union[str, None], sub_class: bool) -> Tuple[str, U
     return temp_class, temp_sub_class
 
 
-def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[str]:
+def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False, umlaut_prefix: Optional[bool] = True) -> List[
+    str]:
     """Converts BIO labels to EIS1600 tags.
 
     Converter method for BIO labels to EIS100 tags. BI labels must follow this pattern: [BI]-[AMPTY].* with
     * [A]ge
     * [M]ISC
     * [P]erson
+    * [Q]
     * [T]oponym
     * [Y]ear
     Usually, EIS1600 BIO labels have a three letter code: [YY][BDKP] with YY for year and [BDKP] for the sub-class.
     :param List[str] bio_labels: List containing the BIO label for each token.
-    :param bool sub_class: if set to true, last char of BIO label indicates sub-class, e.g. YYB for date with
-    sub-class date of birth, defaults to false.
+    :param bool sub_class: if set to True, last char of BIO label indicates sub-class, e.g. YYB for date with
+    sub-class date of birth, defaults to False.
+    :param bool umlaut_prefix: if set to False, the md-tags will not be prefixed with 'Ü', defaults to True.
     :return List[str]: List containing the respective EIS1600 tags
     """
     converted_tokens, temp_tokens, temp_class, temp_sub_class = [], [], None, None
@@ -120,9 +126,15 @@ def bio_to_md(bio_labels: List[str], sub_class: Optional[bool] = False) -> List[
                 if len(temp_tokens):
                     # Generate EIS1600 tag for entity
                     if sub_class:
-                        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
+                        if umlaut_prefix:
+                            converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
+                        else:
+                            converted_tokens.append(f"{temp_class}{len(temp_tokens)}{temp_sub_class}")  # e.g. ÜP3X
                     else:
-                        converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
+                        if umlaut_prefix:
+                            converted_tokens.append(f"Ü{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
+                        else:
+                            converted_tokens.append(f"{temp_class}{len(temp_tokens)}")  # e.g. ÜP3
                     # Mask I-tags with nan
                     converted_tokens.extend([nan] * (len(temp_tokens) - 1))
                     temp_tokens = []

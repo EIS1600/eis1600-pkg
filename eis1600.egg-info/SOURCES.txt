@@ -42,6 +42,7 @@ eis1600/helper/logging.py
 eis1600/helper/markdown_methods.py
 eis1600/helper/markdown_patterns.py
 eis1600/helper/miu_random_revisions.py
+eis1600/helper/q_tags_to_bio.py
 eis1600/helper/repo.py
 eis1600/helper/topo_tags_to_bio.py
 eis1600/helper/topod_extract_incomplete.py
@@ -67,6 +68,9 @@ eis1600/miu/disassemble_into_miu_files.py
 eis1600/miu/methods.py
 eis1600/miu/reassemble_from_miu_files.py
 eis1600/miu/yml_handling.py
+eis1600/models/Model.py
+eis1600/models/ToponymDescriptionModel.py
+eis1600/models/__init__.py
 eis1600/nlp/__init__.py
 eis1600/nlp/annotate_goldstandard.py
 eis1600/nlp/cameltools.py

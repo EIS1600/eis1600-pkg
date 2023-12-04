@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Pattern, Tuple, Union
 
 from eis1600.helper.EntityTags import EntityTags
 from numpy import nan
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 
 def get_bio_dict(bio_main_class: str, categories: List[str]) -> Dict:
@@ -51,6 +51,9 @@ def md_to_bio(
         if df_matches.empty:
             df['BIO'] = 'O'
         else:
+            # This line is needed due to this new bug in pandas where nan is cast to str in str columns, therefore set
+            # column explicitly to dtype object so we can call isna() (otherwise == 'nan', which does not make sense)
+            df['BIO'] = Series(index=df.index, dtype=object)
             for index, row in df_matches.iterrows():
                 processed_tokens = 0
                 num_tokens = int(row['num_tokens'])
@@ -65,7 +68,7 @@ def md_to_bio(
 
                     processed_tokens += 1
 
-            df['BIO'].loc[df['BIO'] == 'nan'] = 'O'
+            df['BIO'].loc[df['BIO'].isna()] = 'O'
     else:
         df['BIO'] = 'O'
 

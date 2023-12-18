@@ -9,6 +9,12 @@ from eis1600.miu.yml_handling import create_yml_header
 
 
 def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
+    """Disassemble text into list of MIUs.
+
+    Splits the texts into individual MIUs and returns a list of all contained MIUs.
+    :param str infile: File which will be disassembled.
+    :return List[Tuple[str, str, bool]]: returns the individual MIUs as tuples of (uid, miu_text, analysis_flag).
+    """
     heading_tracker = HeadingTracker()
     path, uri = split(infile)
     uri, ext = splitext(uri)

@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Tuple
 
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.markdown.md_to_bio import bio_to_md
@@ -9,7 +9,15 @@ from eis1600.processing.postprocessing import merge_tagslists, reconstruct_miu_t
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 
 
-def analyse_miu(tup: Tuple[str, str, bool]) -> object:
+def analyse_miu(tup: Tuple[str, str, bool]) -> Dict:
+    """Analysis the miu with our models.
+
+    This methods applies our models to the text of the MIU and thereby runs different analysis (NER, POS, LEMMAS,
+    ROOTS, TOPONYMS, PERSONS, ONOMASTICS, DATES). Results are added to the df representation of the MIU. Returns a
+    JSON object which contains yml information, as well as the df with all analysis results.
+    :param Tuple tup: Params are given as a Tuple: (uid: str, miu_as_text: str, analyse_flag: bool).
+    :return Dict: JSON representation of the miu, including yml header and analysis results.
+    """
     uid, miu_as_text, analyse_flag = tup
 
     # 1. open miu file and disassemble the file to its parts

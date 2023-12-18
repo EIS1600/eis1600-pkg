@@ -18,6 +18,13 @@ from eis1600.helper.repo import JSON_REPO, TEXT_REPO, get_files_from_eis1600_dir
 
 
 def routine_per_text(infile: str, debug: Optional[bool] = False):
+    """Entry into analysis routine per text.
+
+    Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
+    the list of MIUs with their analysis results.
+    :param ste infile: EIS1600 text which is analysed.
+    :param bool debug: Debug flag for serial processing, otherwise parallel processing.
+    """
     mius_list = get_text_as_list_of_mius(infile)
 
     res = []

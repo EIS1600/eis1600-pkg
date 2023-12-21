@@ -4,6 +4,7 @@ numpy
 openiti
 p_tqdm
 pandas
+requests
 tqdm
 
 [EIS]

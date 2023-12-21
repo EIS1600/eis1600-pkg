@@ -1,9 +1,9 @@
 from logging import FileHandler, Formatter, getLogger, INFO, Logger
 
-formatter = Formatter('%(message)s')
+FORMATTER = Formatter('%(message)s')
 
 
-def setup_logger(name: str, log_file: str, level=INFO) -> Logger:
+def setup_logger(name: str, log_file: str, level=INFO, formatter=FORMATTER) -> Logger:
 
     handler = FileHandler(log_file, 'w', encoding='utf-8')
     handler.setFormatter(formatter)

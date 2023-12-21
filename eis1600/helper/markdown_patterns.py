@@ -34,8 +34,10 @@ ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
+TEXT_STARTS_WITH_PARAGRAPH = compile(r'_ء_=')
 PARAGRAPH_TAG_MISSING = compile('(\n\n[^_])|(\n\n' + MIU_UID + '[^\n]+\n(?:_ء_ )?)' + AR_CHR)
 SIMPLE_MARKDOWN = compile('\n#')
+SPAN_ELEMENTS = compile('<\\*span>')
 POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
@@ -69,11 +71,13 @@ ONOM_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + onom_tags + r')(?P<length>\d{1,2
 # EIS1600 light mARkdown
 HEADING_OR_BIO_PATTERN = compile(r'# [|$]+')
 MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
+PAGE_TAG_ON_NEWLINE_TMP_PATTERN = compile(r'(?<!\n)\n' + PAGE_TAG + r'(?=\n)')
 
 # Fix mARkdown files
 SPACES_CROWD_PATTERN = compile(r'  +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
 NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
+MISSING_DIRECTION_TAG_PATTERN = compile(r'(\n+)(' + AR_CHR + ')')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +
@@ -81,7 +85,7 @@ POETRY_PATTERN = compile(
         r')*) ?'
 )
 BELONGS_TO_PREV_PARAGRAPH_PATTERN = compile(r'\n(.{1,10})\n')
-PAGE_TAG_ON_NEWLINE_PATTERN = compile(r'\n' + PAGE_TAG)
+PAGE_TAG_ON_NEWLINE_MARKDOWN_PATTERN = compile(r'\n' + PAGE_TAG)
 PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = compile(
         '(' + AR_STR + ' ?)' + r'\n\n' + PAGE_TAG + r'\n\n' + '(' + AR_STR +
         ')'
@@ -91,3 +95,5 @@ BIO_CHR_TO_NEWLINE_PATTERN = compile(TAG_AND_TEXT_SAME_LINE)
 
 # Fixed poetry old file path pattern
 FIXED_POETRY_OLD_PATH_PATTERN = compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')
+
+print()

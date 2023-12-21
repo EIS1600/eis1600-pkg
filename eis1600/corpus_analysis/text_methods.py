@@ -4,7 +4,7 @@ from typing import List, Tuple
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
     MIU_UID_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
-from eis1600.miu.methods import check_file_for_malformatting
+from eis1600.miu.methods import check_file_for_mal_formatting
 from eis1600.miu.yml_handling import create_yml_header
 
 
@@ -25,7 +25,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
         header_text = text.read().split('#META#Header#End#')
 
         try:
-            check_file_for_malformatting(infile, header_text[1])
+            check_file_for_mal_formatting(infile, header_text[1])
         except ValueError:
             raise
 

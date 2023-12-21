@@ -38,6 +38,7 @@ eis1600/helper/eval_date_model.py
 eis1600/helper/eval_topo_cat_model.py
 eis1600/helper/fix_miu_annotation.py
 eis1600/helper/fix_ono_p_tags_order.py
+eis1600/helper/generate_autoreport.py
 eis1600/helper/logging.py
 eis1600/helper/markdown_methods.py
 eis1600/helper/markdown_patterns.py

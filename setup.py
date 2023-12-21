@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.1.4',
+      version='1.1.5',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -28,6 +28,7 @@ setup(name='eis1600',
                   'eval_topo_cat_model = eis1600.helper.eval_topo_cat_model:main [EVAL]',
                   'fix_ono_p_tags_order = eis1600.helper.fix_ono_p_tags_order:main',
                   'fix_miu_annotation = eis1600.helper.fix_miu_annotation:main',
+                  'generate_autoreport = eis1600.helper.generate_autoreport:main',
                   'insert_uids = eis1600.markdown.insert_uids:main',
                   'miu_random_revisions = eis1600.helper.miu_random_revisions:main',
                   'miu_stats = eis1600.stats.miu_stats:main',
@@ -53,7 +54,8 @@ setup(name='eis1600',
               'tqdm',
               'p_tqdm',
               'importlib_resources',
-              'jsonpickle'
+              'jsonpickle',
+              'requests'
       ],
       extras_require={
               'NER': ['camel-tools', 'torch'],

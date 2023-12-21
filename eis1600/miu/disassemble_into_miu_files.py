@@ -86,9 +86,6 @@ Run without input arg to batch process all double-checked EIS1600 files from the
                 print('There is the option to run disassembling with `-D` flag which will collect all files with '
                       'mARkdown errors and their error message into a log file.')
 
-        path = out_path.split('data')[0]
-        write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
-
     if errors:
         print('Some files had errors and could not be processed, check `disassemble.log`')
     else:

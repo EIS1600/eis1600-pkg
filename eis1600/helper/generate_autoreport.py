@@ -9,7 +9,7 @@ from eis1600.miu.methods import disassemble_text
 from eis1600.markdown.methods import insert_uids
 from p_tqdm import p_uimap
 
-from pandas import DataFrame, Series, read_csv
+from pandas import Series, read_csv
 
 from eis1600.helper.repo import MIU_REPO, TEXT_REPO
 

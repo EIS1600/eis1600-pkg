@@ -49,7 +49,7 @@ def check_file_for_mal_formatting(infile: str, content: str):
 
 
 def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:
-    """Disassemble text into MIU files.
+    """Disassemble text into MIU files (only used to check formatting)
 
     Retrieve MIU files by disassembling the text based on the EIS1600 mARkdown.
     :param str infile: Path to the file which is to be disassembled.
@@ -141,9 +141,6 @@ def disassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None)
                     for elem in mal_formatted:
                         error += f'\n * {elem}'
                     raise ValueError(error)
-
-    with open(yml_status, 'w', encoding='utf8') as status_file:
-        status_file.write('STATUS   : DISASSEMBLED')
 
 
 def reassemble_text(infile: str, out_path: str, verbose: Optional[bool] = None) -> None:

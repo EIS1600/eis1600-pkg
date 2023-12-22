@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sys import exit
 from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
@@ -199,6 +200,28 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                 # Remove PageV00P000 at the beginning in an individual paragraph
                 # text_updated.append(paragraph)
                 # pass
+            elif paragraph.startswith('::'):
+                p_pieces = paragraph.splitlines()
+                section_header = p_pieces[0]
+
+                if '%' in paragraph:
+                    paragraph = '\n_ء_ '.join(p_pieces[1:])
+                elif len(p_pieces) > 2:
+                    raise ValueError(
+                            infile + '\n'
+                            f'There is a single new line in this paragraph:\n{paragraph}'
+                    )
+                elif len(p_pieces) == 2:
+                    paragraph = p_pieces[1]
+                else:
+                    print(
+                        'There is an empty paragraph, check with\n'
+                        '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
+                        )
+                    exit()
+
+                paragraph = f'_ء_={uids.get_uid()}= {section_header} ~\n_ء_ ' + paragraph
+                text_updated.append(paragraph)
             else:
                 paragraph = f'_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n_ء_ ' + paragraph
                 text_updated.append(paragraph)
@@ -292,10 +315,9 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                             f'There is a single new line in this paragraph:\n{paragraph}'
                     )
             elif not UID_PATTERN.match(paragraph):
-                cat = 'POETRY' if '%' in paragraph else 'UNDEFINED'
                 if paragraph.startswith('::'):
                     p_pieces = paragraph.splitlines()
-                    section_header = p_pieces[0]
+                    section_header = p_pieces[0] + ' ~'
                     if '%' in paragraph:
                         paragraph = '\n_ء_ '.join(p_pieces[1:])
                     elif len(p_pieces) > 2:
@@ -303,12 +325,18 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                                 infile + '\n'
                                 f'There is a single new line in this paragraph:\n{paragraph}'
                         )
-                    else:
+                    elif len(p_pieces) == 2:
                         paragraph = p_pieces[1]
+                    else:
+                        print('There is an empty paragraph, check with\n'
+                              '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
+                              )
+                        exit()
 
                     if paragraph[0] != '_':
                         paragraph = '_ء_ ' + paragraph
                 else:
+                    cat = 'POETRY' if '%' in paragraph else 'UNDEFINED'
                     if paragraph[0] != '_':
                         paragraph = '_ء_ ' + paragraph
                     section_header = f'::{cat}:: ~'

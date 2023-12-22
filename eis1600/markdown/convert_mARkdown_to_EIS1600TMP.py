@@ -9,7 +9,7 @@ from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, write_to_readme, \
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, \
     update_texts_fixed_poetry_readme
 from eis1600.markdown.methods import convert_to_EIS1600TMP
 
@@ -68,7 +68,6 @@ Run without input arg to batch process all mARkdown files in the EIS1600 directo
         print(f'Convert mARkdown file {infile} to EIS1600TMP file')
         convert_to_EIS1600TMP(infile, None, verbose)
         infiles = [infile.split('/')[-1]]
-        write_to_readme(path, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
 
     elif args.output:
         input_dir = args.input
@@ -125,7 +124,5 @@ Run without input arg to batch process all mARkdown files in the EIS1600 directo
         else:
             res = []
             res += p_uimap(convert_to_EIS1600TMP, infiles)
-
-        write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600TMP`\n', '.EIS1600TMP')
 
     print('Done')

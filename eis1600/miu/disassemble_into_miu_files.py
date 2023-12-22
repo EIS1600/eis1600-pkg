@@ -10,8 +10,7 @@ from p_tqdm import p_uimap
 from tqdm import tqdm
 
 from eis1600.helper.repo import MIU_REPO, get_path_to_other_repo, read_files_from_autoreport, \
-    get_files_from_eis1600_dir, \
-    write_to_readme, TEXT_REPO
+    get_files_from_eis1600_dir, TEXT_REPO
 from eis1600.miu.methods import disassemble_text
 
 
@@ -55,7 +54,6 @@ Run without input arg to batch process all double-checked EIS1600 files from the
         disassemble_text(infile, out_path, debug)
         infiles = [infile.split('/')[-1]]
         path = out_path.split('data')[0]
-        write_to_readme(path, infiles, '# Texts disassembled into MIU files\n')
     else:
         input_dir = TEXT_REPO
         out_path = MIU_REPO + 'data/'

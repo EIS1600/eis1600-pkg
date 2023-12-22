@@ -4,7 +4,7 @@ from os.path import isfile, split, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
 from eis1600.helper.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, HEADING_OR_BIO_PATTERN, \
     MIU_LIGHT_OR_EIS1600_PATTERN, NEWLINES_CROWD_PATTERN, UID_PATTERN
 from eis1600.markdown.UIDs import UIDs
@@ -138,7 +138,6 @@ Use -e <EIS1600_repo> to batch process all EIS1600 files in the EIS1600 director
         with Pool() as p:
             p.starmap_async(xx_update_uids, params).get()
 
-        write_to_readme(input_dir, infiles, '# Texts updated with missing UIDs\n')
     else:
         print(
                 'Pass in a <uri.EIS1600> file to process a single file or use the -e option for batch processing'

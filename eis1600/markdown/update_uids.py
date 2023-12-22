@@ -5,8 +5,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport, write_to_readme, \
-    read_files_from_readme
+from eis1600.helper.repo import TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport
 from eis1600.markdown.methods import update_uids
 
 
@@ -57,7 +56,6 @@ Run without input arg to batch process all EIS1600 files in the EIS1600 director
         print(f'Update UIDs in {infile}')
         update_uids(infile, verbose)
         infiles = [infile.split('/')[-1]]
-        write_to_readme(path, infiles, '# Texts updated with missing UIDs\n')
     else:
         input_dir = TEXT_REPO
 
@@ -83,7 +81,5 @@ Run without input arg to batch process all EIS1600 files in the EIS1600 director
         else:
             res = []
             res += p_uimap(update_uids, infiles)
-
-        write_to_readme(input_dir, infiles, '# Texts updated with missing UIDs\n')
 
     print('Done')

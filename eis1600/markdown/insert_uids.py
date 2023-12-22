@@ -8,7 +8,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from glob import glob
 from multiprocessing import Pool
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, write_to_readme, read_files_from_readme
+from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
 from eis1600.markdown.methods import insert_uids
 
 
@@ -67,7 +67,6 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
         print(f'Insert UIDs into {infile}')
         insert_uids(infile, None, verbose)
         infiles = [infile.split('/')[-1]]
-        write_to_readme(path, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)
 
     # If this script is run with input and output directory (old, not used any more)
     elif args.output:
@@ -116,8 +115,5 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
         else:
             res = []
             res += p_uimap(insert_uids, infiles)
-
-        # Write list of processed files to the README
-        write_to_readme(input_dir, infiles, '# Texts converted into `.EIS1600`\n', '.EIS1600', True)
 
     print('Done')

@@ -46,7 +46,7 @@ def get_entry(file_name: str, checked_entry: bool) -> str:
 
 
 def write_to_readme(path: str, files: List[str], which: str, ext: Optional[str] = None, checked: bool = False) -> None:
-    """Write list of successfully processed files to the README.
+    """NOT USED ANY LONGER Write list of successfully processed files to the README.
 
     Write processed files to the respective section in the README, sorted into existing lists.
 
@@ -209,7 +209,6 @@ def update_texts_fixed_poetry_readme(path: str, which: str) -> None:
         files_text = readme_h.read()
     files_text = FIXED_POETRY_OLD_PATH_PATTERN.sub('', files_text)
     file_list = files_text.split('\n')
-    write_to_readme(path, file_list, which)
 
 
 def get_files_from_eis1600_dir(

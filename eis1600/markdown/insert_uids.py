@@ -97,6 +97,7 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
         # Get EIS1600TMP files which are marked as ready to process in the README and have not yet been converted to
         # EIS1600
         print(f'Insert UIDs into files from the EIS1600 repo (only if there is not an EIS1600 file yet)')
+        # TODO there is no longer a readme file
         files_list = read_files_from_readme(input_dir, '# Texts converted into `.EIS1600TMP`\n')
         infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600TMP', 'EIS1600')
         if not infiles:

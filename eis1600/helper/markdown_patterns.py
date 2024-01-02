@@ -35,9 +35,9 @@ PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
 )
 TEXT_STARTS_WITH_PARAGRAPH = compile(r'_ء_=')
-PARAGRAPH_TAG_MISSING = compile('(\n\n[^_])|(\n\n' + MIU_UID + '[^\n]+\n(?:_ء_ )?)' + AR_CHR)
-SIMPLE_MARKDOWN = compile('\n#')
-SPAN_ELEMENTS = compile('<\\*span>')
+PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
+SIMPLE_MARKDOWN = compile(r'\n#')
+SPAN_ELEMENTS = compile(r'</?span/?>')
 POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
@@ -95,5 +95,3 @@ BIO_CHR_TO_NEWLINE_PATTERN = compile(TAG_AND_TEXT_SAME_LINE)
 
 # Fixed poetry old file path pattern
 FIXED_POETRY_OLD_PATH_PATTERN = compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')
-
-print()

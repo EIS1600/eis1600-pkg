@@ -14,7 +14,7 @@ from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPT
     NEWLINES_CROWD_PATTERN, \
     POETRY_PATTERN, SPACES_AFTER_NEWLINES_PATTERN, PAGE_TAG_ON_NEWLINE_MARKDOWN_PATTERN, \
     PAGE_TAG_ON_NEWLINE_TMP_PATTERN, \
-    UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
+    MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
     HEADING_OR_BIO_PATTERN, \
     BIO_CHR_TO_NEWLINE_PATTERN
@@ -180,7 +180,6 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                             f'There is a single new line in this paragraph:\n{paragraph}'
                     )
                 text_updated.append(paragraph)
-            # TODO elif paragraph.startswith('::')
             elif '%~%' in paragraph:
                 paragraph = f'_ء_={uids.get_uid()}= ::POETRY:: ~\n_ء_ ' + '\n_ء_ '.join(paragraph.splitlines())
                 text_updated.append(paragraph)
@@ -341,8 +340,8 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                         paragraph = '_ء_ ' + paragraph
                     section_header = f'::{cat}:: ~'
                 paragraph = f'_ء_={uids.get_uid()}= {section_header}\n' + paragraph
-            elif UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
-                paragraph = UID_TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\2\n\3', paragraph)
+            elif MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
+                paragraph = MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.sub(r'\1\2\n\3', paragraph)
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 if '%' in '\n'.join(heading_and_text[1:]):

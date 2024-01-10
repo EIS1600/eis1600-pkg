@@ -8,8 +8,10 @@ from eis1600.markdown.md_to_bio import bio_to_md
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, \
     NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_PATTERN, \
-    MIU_UID_PATTERN, PAGE_TAG_PATTERN, PARAGRAPH_TAG_MISSING, POETRY_ATTACHED_AFTER_PAGE_TAG, SIMPLE_MARKDOWN, \
-    MISSING_DIRECTION_TAG_PATTERN, SPAN_ELEMENTS, TEXT_STARTS_WITH_PARAGRAPH
+    MIU_UID_PATTERN, NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PAGE_TAG_PATTERN, \
+    PARAGRAPH_TAG_MISSING, EMPTY_PARAGRAPH_CHECK_PATTERN, \
+    POETRY_ATTACHED_AFTER_PAGE_TAG, SIMPLE_MARKDOWN, \
+    MISSING_DIRECTION_TAG_PATTERN, SPAN_ELEMENTS, TEXT_STARTS_WITH_PARAGRAPH, TILDA_HICKUPS_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.nlp.utils import annotate_miu_text, insert_onom_tag, insert_onomastic_tags, aggregate_STFCON_classes, \
@@ -19,9 +21,15 @@ from eis1600.processing.preprocessing import get_yml_and_miu_df
 
 
 def check_file_for_mal_formatting(infile: str, content: str):
-    if PARAGRAPH_TAG_MISSING.search(content) \
+    if TEXT_STARTS_WITH_PARAGRAPH.match(content) \
+            or PARAGRAPH_TAG_MISSING.search(content) \
             or SIMPLE_MARKDOWN.search(content) \
-            or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+            or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content) \
+            or TILDA_HICKUPS_PATTERN.search(content) \
+            or NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content) \
+            or EMPTY_PARAGRAPH_CHECK_PATTERN.search(content) \
+            or SPAN_ELEMENTS.search(content) \
+            or MISSING_DIRECTION_TAG_PATTERN.search(content):
         # Poetry is still to messed up, do not bother with it for now
         # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         error = ''
@@ -33,17 +41,25 @@ def check_file_for_mal_formatting(infile: str, content: str):
             error += '\n * There is simple mARkdown left.'
         if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
             error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
+        if TILDA_HICKUPS_PATTERN.search(content):
+            error += '\n * There is this pattern with tildes: `~\\n~`.'
+        if NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
+            error += '\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing).'
+        if EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
+            error += '\n * There are empty paragraphs in the text.'
+        if SPAN_ELEMENTS.search(content):
+            error += '\n * There are span elements in the text.'
         if MISSING_DIRECTION_TAG_PATTERN.search(content):
             error += '\n * There are missing direction tags at the beginning of paragraphs, fix it by running ' \
                      f'`update_uids` on {infile}'
-        if SPAN_ELEMENTS.search(content):
-            error += '\n * There are span elements in the text.'
         # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
         raise ValueError(
                 f'Correct the following errors and run\n'
                 f'update_uids {infile}\n'
+                f'open -a kate {infile}\n'
+                f'kate {infile}\n'
                 f'{error}'
         )
 

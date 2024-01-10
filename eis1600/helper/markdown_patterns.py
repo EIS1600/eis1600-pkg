@@ -17,7 +17,7 @@ WORD = r'(?:(^|\s)' + AR_STR + ')'
 NOISE_ELEMENTS = r'(?: [\[\]0-9،.():~|-])*'
 
 # EIS1600 mARkdown
-UID = r'_ء_(#)?=(?P<UID>\d{12})= '
+UID = r'_ء_(#)?=(?P<UID>\d{12}(?:-\d{4})?)= '
 UID_PATTERN = compile(UID)
 MIU_UID = r'_ء_#=(?P<UID>\d{12})= '
 MIU_UID_PATTERN = compile(MIU_UID)
@@ -32,7 +32,7 @@ PAGE_TAG_PATTERN = compile(PAGE_TAG)
 ONLY_PAGE_TAG = UID + r'::[A-Z]+:: ~\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
-        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}= ::[A-Z]+:: ~\n' + AR_STR
+        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}-\d{4}= ::[A-Z]+:: ~\n' + AR_STR
 )
 TEXT_STARTS_WITH_PARAGRAPH = compile(r'_ء_=')
 PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
@@ -44,13 +44,13 @@ POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 # changing them
 MIU_TAG_PATTERN = compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
 CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
-SECTION_TAG = r'_ء_=\d{12}= ::[A-Z]+:: ~'
+SECTION_TAG = r'_ء_=\d{12}-\d{4}= ::[A-Z]+:: ~'
 SECTION_PATTERN = compile(SECTION_TAG)
 SECTION_SPLITTER_PATTERN = compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
 TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
-UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(
+MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(
         r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
 
 # Catches MIU tags for BIO, CHR and PARATEXT, EDITOR, etc. (everything in between pipes).
@@ -77,7 +77,10 @@ PAGE_TAG_ON_NEWLINE_TMP_PATTERN = compile(r'(?<!\n)\n' + PAGE_TAG + r'(?=\n)')
 SPACES_CROWD_PATTERN = compile(r'  +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
 NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
+NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN = compile(r'(?<=\n)[^\n%~]+\n[^\n%]+\n')
+TILDA_HICKUPS_PATTERN = compile(r'~\n~')
 MISSING_DIRECTION_TAG_PATTERN = compile(r'(\n+)(' + AR_CHR + ')')
+EMPTY_PARAGRAPH_CHECK_PATTERN = compile(r'::( ~)?\n[^' + u''.join(AR_LETTERS_CHARSET) + '_()". ]{3,}')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +

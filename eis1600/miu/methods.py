@@ -56,11 +56,14 @@ def check_file_for_mal_formatting(infile: str, content: str):
         #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
         raise ValueError(
-                f'Correct the following errors and run\n'
-                f'update_uids {infile}\n'
+                f'Correct the following errors\n'
                 f'open -a kate {infile}\n'
                 f'kate {infile}\n'
-                f'{error}'
+                f'{error}\n\n'
+                f'And now run\n'
+                f'update_uids {infile}\n'
+                f'Check if everything is working with\n'
+                f'disassemble_into_miu_files {infile}\n'
         )
 
 

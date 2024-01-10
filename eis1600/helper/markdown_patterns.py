@@ -80,7 +80,7 @@ NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID +
 NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN = compile(r'(?<=\n)[^\n%~]+\n[^\n%]+\n')
 TILDA_HICKUPS_PATTERN = compile(r'~\n~')
 MISSING_DIRECTION_TAG_PATTERN = compile(r'(\n+)(' + AR_CHR + ')')
-EMPTY_PARAGRAPH_CHECK_PATTERN = compile(r'::( ~)?\n[^' + u''.join(AR_LETTERS_CHARSET) + '_()". ]{3,}')
+EMPTY_PARAGRAPH_CHECK_PATTERN = compile(r'::( ~)?\n[^' + u''.join(AR_LETTERS_CHARSET) + '_()".%{} ]')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(
         r'# (' + AR_STR_AND_TAGS + '(?: ' + AR_STR_AND_TAGS + ')* %~% ' + AR_STR_AND_TAGS + '(?: ' +

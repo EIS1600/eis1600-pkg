@@ -16,6 +16,7 @@ AR_STR_AND_TAGS = r'[' + u''.join(AR_LETTERS_CHARSET) + 'a-zA-ZÜ0-9]+'
 WORD = r'(?:(^|\s)' + AR_STR + ')'
 NOISE_ELEMENTS = r'(?: [\[\]0-9،.():~|-])*'
 AR_CHR_AND_NOISE = r'[' + u''.join(AR_LETTERS_CHARSET) + r'0-9({\[]'
+print(AR_CHR_AND_NOISE)
 
 # EIS1600 mARkdown
 UID = r'_ء_(#)?=(?P<UID>\d{12}(?:-\d{4})?)= '
@@ -80,7 +81,7 @@ NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
 NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
 NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN = compile(r'(?<=\n)[^\n%~]+\n[^\n%]+\n')
 TILDA_HICKUPS_PATTERN = compile(r'~\n~')
-MISSING_DIRECTIONALITY_TAG_PATTERN = compile(r'(\n+)([' + AR_CHR_AND_NOISE + ']|(?:%~%)|(?:Page|ms))')
+MISSING_DIRECTIONALITY_TAG_PATTERN = compile(r'(\n+)(' + AR_CHR_AND_NOISE + '|%~%|Page|ms)')
 EMPTY_PARAGRAPH_CHECK_PATTERN = compile(r'::( ~)?\n[^' + u''.join(AR_LETTERS_CHARSET) + '_()".%{} ]')
 SPACES_AFTER_NEWLINES_PATTERN = compile(r'\n +')
 POETRY_PATTERN = compile(

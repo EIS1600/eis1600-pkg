@@ -5,7 +5,7 @@ from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
 from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme
-from eis1600.helper.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, HEADING_OR_BIO_PATTERN, \
+from eis1600.helper.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, HEADER_END_PATTERN, SIMPLE_HEADING_OR_BIO_PATTERN, \
     MIU_LIGHT_OR_EIS1600_PATTERN, NEWLINES_CROWD_PATTERN, UID_PATTERN
 from eis1600.markdown.UIDs import UIDs
 
@@ -63,7 +63,7 @@ def xx_update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
         if paragraph:
             # Only do this is paragraph is not empty
-            if HEADING_OR_BIO_PATTERN.match(paragraph):
+            if SIMPLE_HEADING_OR_BIO_PATTERN.match(paragraph):
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
                 if next_p and not MIU_LIGHT_OR_EIS1600_PATTERN.match(next_p):
                     heading_and_text = paragraph.split('\n', 1)

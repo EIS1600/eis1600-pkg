@@ -1,23 +1,32 @@
-from functools import partial
-from logging import ERROR, Formatter
+from logging import Formatter, INFO
 from glob import glob
+from urllib import request
+
+from pandas import read_csv
 
 from eis1600.helper.logging import setup_logger
-
-from eis1600.miu.methods import disassemble_text
-
-from eis1600.markdown.methods import insert_uids
-from p_tqdm import p_uimap
-
-from pandas import Series, read_csv
-
 from eis1600.helper.repo import MIU_REPO, TEXT_REPO
+from eis1600.markdown.methods import insert_uids
+from eis1600.miu.methods import disassemble_text
 
 
 def main():
-    filepath = TEXT_REPO + '_EIS1600 - Text Selection - Serial Source Test - EIS1600_AutomaticSelectionForReview.csv'
+    print(
+        'Download latest version of "_EIS1600 - Text Selection - Serial Source Test - '
+        'EIS1600_AutomaticSelectionForReview" from Google Spreadsheets'
+        )
+    latest_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR60MrlXJjtrd3bid1CR3xK5Pv" \
+                 "-aUz1qWEfHfowU1DPsh6RZBvbtW2mA-83drzboIS1fxZdsDO-ny0r/pub?gid=2075964223&single=true&output=csv"
+    response = request.urlopen(latest_csv)
+    lines = [line.decode('utf-8') for line in response.readlines()]
+    csv_path = TEXT_REPO + '_EIS1600 - Text Selection - Serial Source Test - ' \
+                           'EIS1600_AutomaticSelectionForReview.csv'
+    with open(csv_path, 'w', encoding='utf-8') as csv_fh:
+        csv_fh.writelines(lines)
 
-    df = read_csv(filepath, usecols=['Book Title', 'PREPARED']).dropna()
+    print('Saved as csv in ' + TEXT_REPO)
+
+    df = read_csv(csv_path, usecols=['Book Title', 'PREPARED']).dropna()
     df_ready = df.loc[df['PREPARED'].str.fullmatch('ready')]
     df_double_checked = df.loc[df['PREPARED'].str.fullmatch('double-checked')]
 
@@ -54,44 +63,40 @@ def main():
         else:
             print(f'{uri} (missing)')
 
+    formatter = Formatter('%(message)s\n\n\n')
+    logger = setup_logger('mal_formatted_texts', TEXT_REPO + 'mal_formatted_texts.log', INFO, formatter)
+
+    logger.info('insert_uids')
     print('Insert_UIDs into ready texts')
 
     x = 0
     for i, file in enumerate(ready_files[x:]):
         print(i + x, file)
-        insert_uids(file)
+        try:
+            insert_uids(file)
+        except ValueError as e:
+            logger.error(f'{file}\n{e}')
 
-    # res = []
-    # res += p_uimap(insert_uids, ready_files)
-
+    logger.info('\n\n\ndisassemble_text')
     print('Disassemble double-checked and ready texts')
 
     texts = double_checked_files + [r.replace('TMP', '') for r in ready_files]
     out_path = MIU_REPO + 'data/'
 
-    x = 0
-    # 110 is not cleaned yet
-
-    formatter = Formatter('%(message)s\n\n\n')
-    logger = setup_logger('mal_formatted_texts', TEXT_REPO + 'mal_formatted_texts.log', ERROR, formatter)
     count = 0
-    csv = []
+    x = 0
     for i, text in enumerate(texts[x:]):
         print(i + x, text)
         try:
             disassemble_text(text, out_path)
         except ValueError as e:
-            csv.append(text)
             count += 1
             logger.error(e)
+        except FileNotFoundError:
+            print(f'Missing: {text}')
 
-    series = Series(csv, name='mal-formatted text')
-    series.to_csv(TEXT_REPO + 'mal-formatted-texts.csv', index=False)
 
-    print(f'{count} texts need fixing')
-
-    # res = []
-    # res += p_uimap(partial(disassemble_text, out_path=out_path), texts)
+    print(f'{count}/{len(texts)} texts need fixing')
 
     print('Done')
 

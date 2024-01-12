@@ -5,7 +5,7 @@ from os.path import split, splitext
 
 from eis1600.markdown.UIDs import UIDs
 from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
-    HEADER_END_PATTERN, \
+    EMPTY_PARAGRAPH, HEADER_END_PATTERN, \
     MISSING_DIRECTIONALITY_TAG_PATTERN, NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_AND_TEXT_PATTERN, \
     NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
     PAGE_TAG_IN_BETWEEN_PATTERN, \
@@ -16,7 +16,7 @@ from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPT
     PAGE_TAG_ON_NEWLINE_TMP_PATTERN, \
     MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     UID_PATTERN, \
-    HEADING_OR_BIO_PATTERN, \
+    SIMPLE_HEADING_OR_BIO_PATTERN, \
     BIO_CHR_TO_NEWLINE_PATTERN
 
 
@@ -176,8 +176,8 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                                 heading_and_text[1]
                 elif len(heading_and_text) > 2:
                     raise ValueError(
-                            infile + '\n'
-                            f'There is a single new line in this paragraph:\n{paragraph}'
+                            f'There is a single new line in this paragraph (there might be more in the text):'
+                            f'\n{paragraph}'
                     )
                 text_updated.append(paragraph)
             elif '%~%' in paragraph:
@@ -207,17 +207,15 @@ def insert_uids(infile: str, output_dir: Optional[str] = None, verbose: Optional
                     paragraph = '\n_ء_ '.join(p_pieces[1:])
                 elif len(p_pieces) > 2:
                     raise ValueError(
-                            infile + '\n'
-                            f'There is a single new line in this paragraph:\n{paragraph}'
+                            f'There is a single new line in this paragraph (there might be more in the text):'
+                            f'\n{paragraph}'
                     )
                 elif len(p_pieces) == 2:
                     paragraph = p_pieces[1]
                 else:
-                    print(
-                        'There is an empty paragraph, check with\n'
-                        '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
-                        )
-                    exit()
+                    raise ValueError(
+                            f'There is an empty paragraph, check with\n{EMPTY_PARAGRAPH}'
+                    )
 
                 paragraph = f'_ء_={uids.get_uid()}= {section_header} ~\n_ء_ ' + paragraph
                 text_updated.append(paragraph)
@@ -299,7 +297,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
 
         if paragraph:
             # Only do this if paragraph is not empty
-            if HEADING_OR_BIO_PATTERN.match(paragraph):
+            if SIMPLE_HEADING_OR_BIO_PATTERN.match(paragraph):
                 # Move content to an individual line
                 paragraph = BIO_CHR_TO_NEWLINE_PATTERN.sub(r'\1\n\2', paragraph)
                 paragraph = paragraph.replace('#', f'_ء_#={uids.get_uid()}=')
@@ -311,7 +309,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 elif len(heading_and_text) > 2:
                     raise ValueError(
                             infile + '\n'
-                            f'There is a single new line in this paragraph:\n{paragraph}'
+                                     f'There is a single new line in this paragraph:\n{paragraph}'
                     )
             elif not UID_PATTERN.match(paragraph):
                 if paragraph.startswith('::'):
@@ -322,14 +320,15 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                     elif len(p_pieces) > 2:
                         raise ValueError(
                                 infile + '\n'
-                                f'There is a single new line in this paragraph:\n{paragraph}'
+                                         f'There is a single new line in this paragraph:\n{paragraph}'
                         )
                     elif len(p_pieces) == 2:
                         paragraph = p_pieces[1]
                     else:
-                        print('There is an empty paragraph, check with\n'
-                              '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
-                              )
+                        print(
+                                'There is an empty paragraph, check with\n'
+                                '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
+                        )
                         exit()
 
                     if paragraph[0] != '_':
@@ -351,7 +350,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 elif len(heading_and_text) > 2:
                     raise ValueError(
                             infile + '\n'
-                            f'There is a single new line in this paragraph:\n{paragraph}'
+                                     f'There is a single new line in this paragraph:\n{paragraph}'
                     )
                 else:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n_ء_ ' + \
@@ -371,6 +370,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
                 else:
                     paragraph = heading_and_text[0] + f'\n\n_ء_={uids.get_uid()}= ::UNDEFINED:: ~\n_ء_ ' + \
                                 heading_and_text[1]
+
             if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
                 # Add page tags to previous paragraph if there is no other information contained in the current
                 # paragraph

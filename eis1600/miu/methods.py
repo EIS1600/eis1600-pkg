@@ -11,7 +11,7 @@ from eis1600.helper.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTER
     MIU_UID_PATTERN, NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PAGE_TAG_PATTERN, \
     PARAGRAPH_TAG_MISSING, EMPTY_PARAGRAPH_CHECK_PATTERN, \
     POETRY_ATTACHED_AFTER_PAGE_TAG, SIMPLE_MARKDOWN, \
-    MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, TEXT_STARTS_WITH_PARAGRAPH, TILDA_HICKUPS_PATTERN
+    MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, TEXT_START_PATTERN, TILDA_HICKUPS_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.miu.yml_handling import create_yml_header, extract_yml_header_and_text
 from eis1600.nlp.utils import annotate_miu_text, insert_onom_tag, insert_onomastic_tags, aggregate_STFCON_classes, \
@@ -21,7 +21,7 @@ from eis1600.processing.preprocessing import get_yml_and_miu_df
 
 
 def check_file_for_mal_formatting(infile: str, content: str):
-    if TEXT_STARTS_WITH_PARAGRAPH.match(content) \
+    if not TEXT_START_PATTERN.match(content) \
             or PARAGRAPH_TAG_MISSING.search(content) \
             or SIMPLE_MARKDOWN.search(content) \
             or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content) \
@@ -33,7 +33,7 @@ def check_file_for_mal_formatting(infile: str, content: str):
         # Poetry is still to messed up, do not bother with it for now
         # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         error = ''
-        if TEXT_STARTS_WITH_PARAGRAPH.match(content):
+        if not TEXT_START_PATTERN.match(content):
             error += '\n * Text does not start with a MIU tag, check if the preface is tagged as PARATEXT.'
         if PARAGRAPH_TAG_MISSING.search(content):
             error += '\n * There are missing paragraph tags.'

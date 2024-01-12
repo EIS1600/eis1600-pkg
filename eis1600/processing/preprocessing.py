@@ -1,12 +1,11 @@
-from eis1600.miu.YAMLHandler import YAMLHandler
-
-from eis1600.miu.yml_handling import extract_yml_header_and_text
 from typing import Iterator, List, Optional, TextIO, Tuple, Union
 
 from pandas import DataFrame, options
-
 from camel_tools.tokenizers.word import simple_word_tokenize
-from eis1600.helper.markdown_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
+
+from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
+from eis1600.yml.YAMLHandler import YAMLHandler
+from eis1600.yml.yml_handling import extract_yml_header_and_text
 
 
 options.mode.chained_assignment = None

@@ -1,5 +1,5 @@
 import re
-from eis1600.helper.markdown_patterns import AR_STR, AR_STR_AND_TAGS, PAGE_TAG
+from eis1600.markdown.markdown_patterns import AR_STR, AR_STR_AND_TAGS, PAGE_TAG
 
 UID_PATTERN = re.compile(r'###\$\d{12,13}\$')
 ORPHANED_PAGE_TAG_PATTERN = re.compile(r'\n ?(' + PAGE_TAG + r') ?\n(?!\n)')

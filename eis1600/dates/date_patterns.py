@@ -3,7 +3,7 @@ from re import compile
 from openiti.helper.ara import denormalize
 
 from eis1600.helper.ar_normalization import normalize_dict
-from eis1600.helper.markdown_patterns import WORD
+from eis1600.markdown.markdown_patterns import WORD
 
 ONES = {
         'واحد': 1, 'احدى': 1, 'احد': 1, 'اثنين': 2, 'اثنتين': 2, 'اثنتي': 2, 'ثلاث': 3, 'ثلث': 3, 'اربع': 4, 'خمس': 5,

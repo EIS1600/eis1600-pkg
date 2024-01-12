@@ -9,11 +9,11 @@ from pandas import DataFrame, notna
 from eis1600.gazetteers.Onomastics import Onomastics
 from eis1600.gazetteers.Toponyms import Toponyms
 from eis1600.helper.logging import setup_logger
-from eis1600.helper.repo import GAZETTEERS_REPO
-from eis1600.miu.YAMLHandler import YAMLHandler
 from eis1600.onomastics.re_pattern import ABI, ABU, BN_BNT, CRF_PATTERN, IBN_IBNA, SHR_PATTERN, SPELLING, UMM
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
+from eis1600.repositories.repo import GAZETTEERS_REPO
+from eis1600.yml.YAMLHandler import YAMLHandler
 
 __log_filename = GAZETTEERS_REPO + 'logs/nasab_unknown.log'
 makedirs(dirname(__log_filename), exist_ok=True)

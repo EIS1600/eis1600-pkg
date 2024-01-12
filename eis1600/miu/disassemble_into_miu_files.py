@@ -9,9 +9,9 @@ from eis1600.helper.logging import setup_logger
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import MIU_REPO, get_path_to_other_repo, read_files_from_autoreport, \
-    get_files_from_eis1600_dir, TEXT_REPO
 from eis1600.miu.methods import disassemble_text
+from eis1600.repositories.repo import MIU_REPO, get_path_to_other_repo, read_files_from_autoreport, \
+    get_files_from_eis1600_dir, TEXT_REPO
 
 
 class CheckFileEndingAction(Action):

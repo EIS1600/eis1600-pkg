@@ -1,10 +1,10 @@
 from typing import List
 import string
 
-from eis1600.markdown.md_to_bio import bio_to_md
 from numpy import nan
 from pandas import notna
 
+from eis1600.bio.md_to_bio import bio_to_md
 from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
 
 

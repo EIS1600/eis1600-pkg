@@ -3,8 +3,8 @@ from os.path import isfile, splitext
 from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
 from multiprocessing import Pool
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, get_path_to_other_repo, read_files_from_readme
 from eis1600.miu.methods import reassemble_text
+from eis1600.repositories.repo import get_files_from_eis1600_dir, get_path_to_other_repo, read_files_from_readme
 
 
 class CheckFileEndingAction(Action):

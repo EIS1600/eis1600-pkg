@@ -3,9 +3,9 @@ from typing import Iterator, List, TextIO, Tuple, Union
 from os import path
 from pandas import DataFrame, notna
 
-from eis1600.helper.markdown_patterns import ENTITY_TAGS_PATTERN
-from eis1600.miu.YAMLHandler import YAMLHandler
-from eis1600.miu.yml_handling import add_annotated_entities_to_yml
+from eis1600.markdown.markdown_patterns import ENTITY_TAGS_PATTERN
+from eis1600.yml.YAMLHandler import YAMLHandler
+from eis1600.yml.yml_handling import add_annotated_entities_to_yml
 
 
 def get_text_with_annotation_only(

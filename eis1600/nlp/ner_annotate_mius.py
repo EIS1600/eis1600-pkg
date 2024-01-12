@@ -7,8 +7,8 @@ from pathlib import Path
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.helper.repo import get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.miu.methods import annotate_miu_file, get_mius
+from eis1600.repositories.repo import get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 
 
 class CheckFileEndingAction(Action):

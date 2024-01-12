@@ -1,6 +1,5 @@
 from numpy import nan
 
-from eis1600.miu.YAMLHandler import YAMLHandler
 from pandas import DataFrame, Series
 from typing import Match, Optional
 
@@ -8,10 +7,9 @@ from openiti.helper.ara import normalize_ara_heavy
 
 from eis1600.dates.Date import Date
 from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
-    DAY_ONES_NOR, \
-    DAY_TEN_NOR, MONTHS_NOR, \
-    WEEKDAYS_NOR, ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR, ONES_HINDI
+    ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR, ONES_HINDI
 from eis1600.processing.preprocessing import get_tokens_and_tags
+from eis1600.yml.YAMLHandler import YAMLHandler
 
 
 def parse_year(m: Match[str]) -> (int, int):

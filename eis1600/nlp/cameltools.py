@@ -7,7 +7,7 @@ from camel_tools.tagger.default import DefaultTagger
 from camel_tools.utils.dediac import dediac_ar
 from typing import Iterator, Tuple, Union
 
-from eis1600.helper.repo import PRETRAINED_MODELS_REPO
+from eis1600.repositories.repo import PRETRAINED_MODELS_REPO
 
 
 class CamelToolsModels:

@@ -1,6 +1,6 @@
 import re
 
-from eis1600.helper.markdown_patterns import AR_CHR, AR_STR
+from eis1600.markdown.markdown_patterns import AR_CHR, AR_STR
 
 ABU = re.compile(r' [اأ]بو ')
 ABI = re.compile(r' [اأ]ب[يى] ')

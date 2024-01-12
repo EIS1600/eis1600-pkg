@@ -1,14 +1,13 @@
-from glob import glob
-from pathlib import Path
-
 from sys import argv
-from os.path import isfile, splitext
 from argparse import Action, ArgumentParser, RawDescriptionHelpFormatter
+from os.path import isfile, splitext
+from pathlib import Path
+from glob import glob
 from functools import partial
 
 from p_tqdm import p_uimap
 
-from eis1600.helper.repo import TRAINING_DATA_REPO
+from eis1600.repositories.repo import TRAINING_DATA_REPO
 from eis1600.toponyms.methods import toponym_category_annotation
 
 

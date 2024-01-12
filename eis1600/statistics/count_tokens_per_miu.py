@@ -7,8 +7,8 @@ from numpy import number
 from p_tqdm import p_uimap
 from pandas import DataFrame
 
-from eis1600.helper.repo import RESEARCH_DATA_REPO, get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.miu.methods import get_mius
+from eis1600.repositories.repo import RESEARCH_DATA_REPO, get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.statistics.methods import count_tokens
 
 

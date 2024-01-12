@@ -20,6 +20,15 @@
 
 ## Workflow
 
+### UPDATED
+
+1. Run `incorporate_newly_prepared_files_in_corpus`. This script downloads the Google Sheet and processes all ready and double-checked files:
+   1. Ready files are converted from EIS1600TMP to EIS1600 by running `insert_uids` routine on them
+   2. Formatting of ready files (now EIS1600 files) and double-checked files is checked by running `check_formatting` routine on them.
+
+Files are now finalized and ready to be processed by the processing pipeline.
+
+### OUTDATED
 (*so that we do not forget again...*)
 
 1. Double-check text in the Google Spreadsheet; “tag” is as “double-checked” (Column **PREPARED**);

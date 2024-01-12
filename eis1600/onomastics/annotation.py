@@ -7,8 +7,8 @@ from functools import partial
 
 from p_tqdm import p_uimap
 
-from eis1600.helper.repo import TRAINING_DATA_REPO
 from eis1600.onomastics.methods import nasab_annotation
+from eis1600.repositories.repo import TRAINING_DATA_REPO
 
 
 def main():

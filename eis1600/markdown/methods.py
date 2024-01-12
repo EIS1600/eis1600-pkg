@@ -6,7 +6,7 @@ from os.path import split, splitext
 from eis1600.markdown.UIDs import UIDs
 from eis1600.helper.markdown_patterns import EMPTY_FIRST_PARAGRAPH_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
     HEADER_END_PATTERN, \
-    MISSING_DIRECTION_TAG_PATTERN, NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_AND_TEXT_PATTERN, \
+    MISSING_DIRECTIONALITY_TAG_PATTERN, NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, MIU_TAG_AND_TEXT_PATTERN, \
     NORMALIZE_BIO_CHR_MD_PATTERN, ONLY_PAGE_TAG_PATTERN, \
     PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_PATTERN, \
@@ -262,7 +262,7 @@ def update_uids(infile: str, verbose: Optional[bool] = False) -> None:
     text = header_and_text[2].lstrip('\n')  # Ignore new lines after #META#Header#End#
     text = NEWLINES_CROWD_PATTERN.sub('\n\n', text)
     text = NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.sub('\n\n', text)
-    text = MISSING_DIRECTION_TAG_PATTERN.sub('\g<1>_ء_ \g<2>', text)
+    text = MISSING_DIRECTIONALITY_TAG_PATTERN.sub('\g<1>_ء_ \g<2>', text)
     text = text.split('\n\n')
     text_updated = []
 

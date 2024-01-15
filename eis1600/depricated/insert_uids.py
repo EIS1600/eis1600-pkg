@@ -9,7 +9,7 @@ from tqdm import tqdm
 from p_tqdm import p_uimap
 
 from eis1600.repositories.repo import get_files_from_eis1600_dir, read_files_from_readme
-from eis1600.texts_to_mius.methods import insert_uids
+from depricated.methods import insert_uids
 
 
 class CheckFileEndingAction(Action):
@@ -92,7 +92,7 @@ Run without input arg to batch process all EIS1600TMP files in the EIS1600 direc
 
     # If this script is run with -e option on the EIS1600 text repo
     else:
-        input_dir = './'
+        input_dir = '../texts_to_mius/'
 
         # Get EIS1600TMP files which are marked as ready to process in the README and have not yet been converted to
         # EIS1600

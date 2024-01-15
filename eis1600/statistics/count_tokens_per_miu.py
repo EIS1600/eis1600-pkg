@@ -1,27 +1,16 @@
 from sys import argv, exit
-from os.path import isfile, split, splitext
-from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
+from os.path import split, splitext
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 
 from numpy import number
 from p_tqdm import p_uimap
 from pandas import DataFrame
 
-from eis1600.miu.methods import get_mius
+from eis1600.depricated.disassemble_reassemble_methods import get_mius
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrIDsAction
 from eis1600.repositories.repo import RESEARCH_DATA_REPO, get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
 from eis1600.statistics.methods import count_tokens
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and isfile(input_arg):
-            filepath, fileext = splitext(input_arg)
-            if fileext != '.IDs' and fileext != '.EIS1600':
-                parser.error('You need to input an IDs file or a single MIU file')
-            else:
-                setattr(namespace, self.dest, input_arg)
-        else:
-            setattr(namespace, self.dest, None)
 
 
 def main():
@@ -38,7 +27,7 @@ all files in the MIU directory are batch processed.
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='IDs or MIU file to process',
-            action=CheckFileEndingAction
+            action=CheckFileEndingEIS1600OrIDsAction
     )
     args = arg_parser.parse_args()
 
@@ -72,7 +61,6 @@ all files in the MIU directory are batch processed.
         Path(data_path).mkdir(parents=True, exist_ok=True)
         stats_path = RESEARCH_DATA_REPO + 'token_count/stats/'
         Path(stats_path).mkdir(parents=True, exist_ok=True)
-
 
         print(f'Count tokens per MIU')
         files_list = read_files_from_readme(input_dir, '# Texts disassembled into MIU files\n')

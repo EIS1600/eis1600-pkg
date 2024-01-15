@@ -1,10 +1,9 @@
 from datetime import date
 from functools import partial
-from os.path import isdir
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union
 from sys import argv
-from argparse import Action, ArgumentParser, FileType, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from re import compile
 from json import dump
 
@@ -13,24 +12,15 @@ from pandas import Series
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.repositories.repo import RESEARCH_DATA_REPO
+from eis1600.helper.CheckFileEndingActions import CheckIsDirAction
 from eis1600.bio.md_to_bio import md_to_bio
 from eis1600.processing.preprocessing import get_yml_and_miu_df
+from eis1600.repositories.repo import RESEARCH_DATA_REPO
 
 LABEL_DICT = {'B-TOPD': 0, 'I-TOPD': 1, 'O': 2}
 CATS = ['N', 'T']
 Q_PATTERN = compile(r'Q(?P<num_tokens>\d+)(?P<cat>[' + ''.join(CATS) + ']*)')
 stat = {'NOT REVIEWED': 0, 'REVIEWED': 0, 'REVIEWED2': 0, 'EXCLUDED': 0}
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        input_arg = input_arg[0]
-        if input_arg and isdir(input_arg):
-            setattr(namespace, self.dest, input_arg)
-        else:
-            print('You need to specify a valid path to the directory holding the files which have been annotated')
-            raise IOError
 
 
 def reconstruct_automated_tag(row) -> str:
@@ -83,7 +73,7 @@ def main():
     arg_parser.add_argument(
             'input', type=Path, nargs=1,
             help='Directory which holds the files to process or individual file to annotate',
-            action=CheckFileEndingAction
+            action=CheckIsDirAction
     )
     arg_parser.add_argument(
             'out_file', type=FileType('w'), nargs=1,

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: eis1600
-Version: 1.2.7
+Version: 1.2.8
 Summary: EIS1600 project tools and utilities
 Home-page: https://github.com/EIS1600/eis1600-pkg
 Author: Lisa Mischer
@@ -21,40 +21,45 @@ License-File: LICENSE
 
 # EIS1600 Tools
 
-* [Workflow](#workflow)
-* [Process](#process)
+* [File Preparation](#file-preparation)
+* [Processing Workflow](#processing-workflow)
 * [Installation](#installation)
   * [Common Error Messages](#common-error-messages)
 * [Set Up](#set-up-virtual-environment-and-install-the-eis1600-pkg-there)
 * [Working Directory Structure](#structure-of-the-working-directory)
 * [Usage](#usage)
   * [convert_mARkdown_to_EIS1600TMP](#convert-markdown-to-eis1600-files)
-  * [insert_uids](#convert-markdown-to-eis1600-files)
-  * [update_uids](#convert-markdown-to-eis1600-files)
-  * [disassemble_into_miu_files](#disassembling)
-  * [reassble-from-miu_files](#reassembling)
+  * [ids_insert_or_update](#eis1600TMP-to-eis1600)
   * [annotate_mius](#annotation)
   * [onomastic_annotation](#only-onomastic-annotation)
-  * [miu_random_revision](#miu-revision)
-  * [yml_to_json](#collect-yamlheaders-into-json)
   * [q_tags_to_bio](#get-training-data-from-q-annotations)
+  * [miu_random_revision](#miu-revision)
 
-## Workflow
-
-(*so that we do not forget again...*)
-
-1. Double-check text in the Google Spreadsheet; “tag” is as “double-checked” (Column **PREPARED**);
-  - These double-checked files have been converted to `*.EIS1600` format
-2. The names of these files are then collected into `AUTOREPORT.md` under **DOUBLE-CHECKED Files (XX) - ready for MIU**.
-3. Running `disassemble_into_mius` takes the list from `AUTOREPORT.md` and disassembles these files into MIUs and stores them in the MIU repo.
-
-## Process
+## File Preparation
 
 1. Convert from mARkdown to EIS1600TMP with `convert_mARkdown_to_EIS1600`
-2. Check the `.EIS1600TMP`
-3. Run `insert_uids` on the checked `.EIS1600TMP`
-4. Check again. If anything was changed in the EIS1600 file, run `update_uids`
-5. After double-check, the file can be disassembled by `disassemble_into_miu_files <uri_of_that_file>.EIS1600`
+2. Check the `.EIS1600TMP` and correct tagged structure
+3. Mark file as ready in the Google Spreadsheet (this includes the file into our processing pipeline)
+4. Optional: Run `ids_insert_or_update` on the checked `.EIS1600TMP` (or run `incorporate_newly_prepared_files_in_corpus` which will add IDs for all files listed as ready or double-checked).
+
+If you need to change the tagged structure in an `.EIS1600` file, you do those changes with _Simple Markdown_.
+Run `ids_insert_or_update` to convert the changes in _Simple Markdown_ to _EIS1600 mARkdown_.
+
+## Processing Workflow
+
+1. Run `incorporate_newly_prepared_files_in_corpus`. This script downloads the Google Sheet and processes all ready and double-checked files:
+   1. Ready files are converted from EIS1600TMP to EIS1600 and IDs are added;
+   2. Formatting of ready files (now EIS1600 files) and double-checked files is checked;
+   3. IDs are updated if necessary.
+
+Files are now finalized and ready to be processed by the pipeline.
+
+2. Run `analyse_all_on_cluster`. This script analysis all files prepared by the previous step:
+   1. Each file is disassembled into MIUs;
+   2. Analysis routine is run for each MIU;
+   3. Results are returned as a JSON for each file that contains the annotated text, the populated yml and the analysis results (as df).
+
+The JSON files are ready to be imported into our database.
 
 ## Installation
 
@@ -184,7 +189,7 @@ The `EIS1600` directory has the following structure:
 ```
 |
 |---| eis_env
-|---| EIS1600_MIUs
+|---| EIS1600_JSONs
 |---| EIS1600_Pretrained_Models (for annotation, sync from Nextcloud)
 |---| gazetteers
 |---| Master_Chronicle
@@ -196,68 +201,54 @@ Path variables are in the module `eis1600/helper/repo`.
 
 ## Usage
 
+__All commands must be run from the [parent directory](#structure-of-the-working-directory) `EIS1600`!__
+See also [Processing Workflow](#processing-workflow).
+
 ### Annotation Pipeline
 
-Use `-D` flag to run annotation of MIUs in sequence, otherwise the annotation will be run in parallel, and it will eat up all resources.
+Use `-D` flag to run annotation of MIUs in sequence, otherwise the annotation will be run in parallel, and it will eat up __ALL__ resources.
 ```shell
 $ analyse_all_on_cluster
 ```
 
-
 ### Convert mARkdown to EIS1600 files
 
 Converts mARkdown file to EIS1600TMP (without inserting UIDs).
-The .EIS1600TMP file will be created next to the .mARkdown file (you can insert .inProcess or .completed files as well).
+The .EIS1600TMP file will be created next to the .mARkdown file (you can input .inProcess or .completed files as well).
 This command can be run from anywhere within the text repo - use auto complete (`tab`) to get the correct path to the file.
 Alternative: open command line from the folder which contains the file which shall be converted.
 ```shell
 $ convert_mARkdown_to_EIS1600TMP <uri>.mARkdown
 ```
 
-EIS1600TMP files do not contain UIDs yet, to insert UIDs run insert_uids on the .EIS1600TMP file.
-This command can be run from anywhere within the text repo - use auto complete (`tab`) to get the correct path to the file.
-```shell
-$ insert_uids <uri>.EIS1600TMP
-```
-
 #### Batch processing of mARkdown files
 
-Use the `-e` option to process all files from the EIS1600 repo.
+Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`.
+Use the `-e` option to convert all files from the EIS1600 repo.
 ```shell
 $ convert_mARkdown_to_EIS1600 -e <EIS1600_repo>
-$ insert_uids -e <EIS1600_repo>
 ```
 
-To process all mARkdown files in a directory, give an input AND an output directory.
-Resulting .EIS1600TMP files are stored in the output directory.
+### EIS1600TMP to EIS1600
+
+EIS1600TMP files do not contain IDs yet, to insert IDs run `ids_insert_or_update` on the `.EIS1600TMP` file.
+Use auto complete (`tab`) to get the correct path to the file.
 ```shell
-$ convert_mARkdown_to_EIS1600 <input_dir> <output_dir>
-$ insert_uids <input_dir> <output_dir>
+$ ids_insert_or_update <OpenITI_EIS1600_Text/data/spath/to/file>.EIS1600TMP
 ```
 
-### Disassembling
-
-Disassemble files into individual MIU files.
-Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`, this will disassemble all files from the `AUTOREPORT`.
+Additionally, this routine updates IDs if you run it on a `.EIS1600` file.
+Update IDs means inserting missing UIDs and updating SubIDs.
 ```shell
-$ disassemble_into_miu_files
-```
-Can also be run from anywhere within the `EIS1600_MIUs/` directory with a single files as input.
-E.G.:
-```shell
-$ disassemble_into_miu_files <uri_of_the_text>.EIS1600
+$ ids_insert_or_update <OpenITI_EIS1600_Text/data/spath/to/file>.EIS1600
 ```
 
-### Reassembling
+#### Batch processing
 
-Run inside MIU repo. Reassemble files into the TEXT repo, therefore, TEXT repo has to be next to MIU repo.
+See also [Processing Workflow](#processing-workflow).
+Use `incorporate_newly_prepared_files_in_corpus` to add IDs to all ready files from the Google Sheet.
 ```shell
-$ reassemble_from_miu_files <uri>.IDs
-```
-
-Use the `-e` option to process all files from the MIU repo. Must be run from the root of MIU repo.
-```shell
-$ reassemble_from_miu_files -e <MIU_repo>
+$ incorporate_newly_prepared_files_in_corpus
 ```
 
 ### Annotation
@@ -291,13 +282,6 @@ Can be run with `-T` to use gold-standard data as input.
 Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`.
 ```shell
 $ onomastic_annotation
-```
-
-### Collect YAMLHeaders into JSON
-
-Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`:
-```shell
-$ yml_to_json
 ```
 
 ### Get training data from Q annotations

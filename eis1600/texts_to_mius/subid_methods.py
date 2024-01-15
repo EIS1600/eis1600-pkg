@@ -1,6 +1,8 @@
 from os.path import splitext
 from typing import Optional
 
+from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_formatting
+
 from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
     HEADER_END_PATTERN, \
     MIU_SPLITTER_PATTERN, MIU_UID_PATTERN, SIMPLE_HEADING_OR_BIO_PATTERN, MISSING_DIRECTIONALITY_TAG_PATTERN, \
@@ -10,7 +12,6 @@ from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, EMPTY
     PAGE_TAG_ON_NEWLINE_TMP_PATTERN, PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, UID_PATTERN, MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
     PARAGRAPH_UID_PATTERN
-from eis1600.miu.methods import check_file_for_mal_formatting
 from eis1600.texts_to_mius.SubIDs import SubIDs
 from eis1600.texts_to_mius.UIDs import UIDs
 

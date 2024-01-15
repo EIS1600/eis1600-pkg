@@ -206,6 +206,9 @@ class YAMLHandler:
         else:
             self.dates_headings = [date]
 
+    def add_number_of_tokens(self, number_of_tokens: int) -> None:
+        self.number_of_tokens = number_of_tokens
+
     def add_tagged_entities(self, entities_dict: dict) -> None:
         for key in YAMLHandler.__attr_from_annotation:
             # Clear old entities

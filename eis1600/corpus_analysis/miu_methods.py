@@ -2,7 +2,7 @@ from typing import Dict, Tuple
 
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.bio.md_to_bio import bio_to_md
-from eis1600.yml.yml_handling import add_annotated_entities_to_yml
+from eis1600.yml.yml_handling import add_annotated_entities_to_yml, add_statistics_to_yml
 from eis1600.nlp.utils import aggregate_STFCON_classes, annotate_miu_text, insert_onom_tag, \
     insert_onomastic_tags, merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import merge_tagslists
@@ -55,6 +55,7 @@ def analyse_miu(tup: Tuple[str, str, bool]) -> Dict:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
         add_annotated_entities_to_yml(df_subset, yml_handler, uid)
+        add_statistics_to_yml(df_subset, yml_handler)
         # updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     # return as JSON Object

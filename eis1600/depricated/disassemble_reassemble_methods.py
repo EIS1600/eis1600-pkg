@@ -12,7 +12,7 @@ from eis1600.nlp.utils import annotate_miu_text, insert_onom_tag, insert_onomast
     merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
-from eis1600.texts_to_mius.check_formatting import check_file_for_mal_formatting
+from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_formatting
 from eis1600.yml.yml_handling import create_yml_header, extract_yml_header_and_text
 
 

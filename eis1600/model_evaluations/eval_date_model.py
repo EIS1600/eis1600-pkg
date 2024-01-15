@@ -18,7 +18,7 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES_REPLACEMENTS, DATE_LABEL
 from eis1600.dates.methods import date_annotate_miu_text
 from eis1600.markdown.markdown_patterns import YEAR_PATTERN
 from eis1600.model_evaluations.EvalResultsEncoder import EvalResultsEncoder
-from eis1600.miu.methods import get_yml_and_miu_df
+from eis1600.depricated.disassemble_reassemble_methods import get_yml_and_miu_df
 from eis1600.repositories.repo import TRAINING_DATA_REPO, TRAINING_RESULTS_REPO
 
 

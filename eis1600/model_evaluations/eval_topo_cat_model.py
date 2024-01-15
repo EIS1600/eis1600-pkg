@@ -14,7 +14,7 @@ from eis1600.bio.md_to_bio import md_to_bio
 from eis1600.markdown.markdown_patterns import TOPONYM_PATTERN
 from eis1600.model_evaluations.EvalResultsEncoder import EvalResultsEncoder
 from eis1600.model_evaluations.eval_date_model import eval_dates_entity_recognition_and_classification
-from eis1600.miu.methods import get_yml_and_miu_df
+from eis1600.depricated.disassemble_reassemble_methods import get_yml_and_miu_df
 from eis1600.repositories.repo import TRAINING_DATA_REPO, TRAINING_RESULTS_REPO
 from eis1600.toponyms.methods import toponym_category_annotate_miu
 from eis1600.toponyms.toponym_categories import TOPONYM_CATEGORIES_REPLACEMENTS, TOPONYM_LABEL_DICT

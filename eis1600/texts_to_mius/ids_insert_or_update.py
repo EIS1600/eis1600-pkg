@@ -1,10 +1,11 @@
 from glob import glob
 from logging import ERROR, Formatter
 from sys import argv, exit
-from os.path import isfile, splitext
-from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from urllib import request
+
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrEIS1600TMPAction
 from p_tqdm import p_uimap
 from pandas import read_csv
 from tqdm import tqdm
@@ -12,18 +13,6 @@ from tqdm import tqdm
 from eis1600.helper.logging import setup_logger
 from eis1600.repositories.repo import TEXT_REPO
 from eis1600.texts_to_mius.subid_methods import add_ids
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and isfile(input_arg):
-            filepath, fileext = splitext(input_arg)
-            if not fileext.startswith('.EIS1600'):
-                parser.error('You need to input an EIS1600 or EIS1600TMP file')
-            else:
-                setattr(namespace, self.dest, input_arg)
-        else:
-            setattr(namespace, self.dest, None)
 
 
 def main():
@@ -41,7 +30,7 @@ Run without input arg to batch process all double-checked and ready files from t
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600 or EIS1600TMP file to process',
-            action=CheckFileEndingAction
+            action=CheckFileEndingEIS1600OrEIS1600TMPAction
             )
     args = arg_parser.parse_args()
 

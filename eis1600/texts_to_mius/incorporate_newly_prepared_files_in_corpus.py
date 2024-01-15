@@ -1,11 +1,10 @@
 from logging import Formatter, INFO
 from glob import glob
 
-from eis1600.texts_to_mius.check_formatting import check_formatting
-
 from eis1600.helper.logging import setup_logger
 from eis1600.repositories.repo import TEXT_REPO, get_ready_and_double_checked_texts
-from eis1600.texts_to_mius.methods import insert_uids
+from eis1600.texts_to_mius.check_formatting_methods import check_formatting
+from eis1600.texts_to_mius.subid_methods import add_ids
 
 
 def main():
@@ -64,7 +63,7 @@ def main():
     for i, file in enumerate(ready_files[x:]):
         print(i + x, file)
         try:
-            insert_uids(file)
+            add_ids(file)
         except ValueError as e:
             logger.error(f'{file}\n{e}')
 

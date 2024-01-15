@@ -4,11 +4,11 @@ from os.path import isdir, isfile
 from sys import argv
 from time import process_time, time
 
-from p_tqdm import p_uimap
-
-from eis1600.miu.methods import annotate_miu_file
 from torch import cuda
 from tqdm import tqdm
+from p_tqdm import p_uimap
+
+from eis1600.depricated.disassemble_reassemble_methods import annotate_miu_file
 
 
 class CheckFileEndingAction(Action):

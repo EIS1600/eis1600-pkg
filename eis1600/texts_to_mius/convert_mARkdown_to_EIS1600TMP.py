@@ -1,28 +1,16 @@
 from sys import argv, exit
-from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
-from os.path import isfile, splitext
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 from glob import glob
 from functools import partial
 
+from eis1600.texts_to_mius.convert_mARkdown_methods import convert_to_EIS1600TMP
 from tqdm import tqdm
 from p_tqdm import p_uimap
 
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingMARKdownAction
 from eis1600.repositories.repo import get_files_from_eis1600_dir, read_files_from_readme, \
     update_texts_fixed_poetry_readme
-from eis1600.texts_to_mius.methods import convert_to_EIS1600TMP
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and isfile(input_arg):
-            filepath, fileext = splitext(input_arg)
-            if fileext not in ['.mARkdown', '.inProgess', '.completed']:
-                parser.error('You need to input a mARkdown file')
-            else:
-                setattr(namespace, self.dest, input_arg)
-        else:
-            setattr(namespace, self.dest, None)
 
 
 def main():
@@ -42,7 +30,7 @@ Run without input arg to batch process all mARkdown files in the EIS1600 directo
             'input', type=str, nargs='?',
             help='MARkdown file to process or input directory with mARkdown files to process if an output directory is '
                  'also given',
-            action=CheckFileEndingAction
+            action=CheckFileEndingMARKdownAction
     )
     arg_parser.add_argument(
             'output', type=str, nargs='?',

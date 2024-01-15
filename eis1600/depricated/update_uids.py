@@ -6,7 +6,7 @@ from p_tqdm import p_uimap
 from tqdm import tqdm
 
 from eis1600.repositories.repo import TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport
-from eis1600.texts_to_mius.methods import update_uids
+from depricated.methods import update_uids
 
 
 class CheckFileEndingAction(Action):

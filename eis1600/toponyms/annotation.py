@@ -1,26 +1,14 @@
 from sys import argv
-from argparse import Action, ArgumentParser, RawDescriptionHelpFormatter
-from os.path import isfile, splitext
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 from glob import glob
 from functools import partial
 
 from p_tqdm import p_uimap
 
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600MIUAction
 from eis1600.repositories.repo import TRAINING_DATA_REPO
 from eis1600.toponyms.methods import toponym_category_annotation
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and isfile(input_arg):
-            filepath, fileext = splitext(input_arg)
-            if fileext != '.EIS1600':
-                parser.error('Input must be a single MIU file')
-            else:
-                setattr(namespace, self.dest, input_arg)
-        else:
-            setattr(namespace, self.dest, None)
 
 
 def main():
@@ -34,7 +22,7 @@ def main():
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='IDs or MIU file to process',
-            action=CheckFileEndingAction
+            action=CheckFileEndingEIS1600MIUAction
     )
 
     args = arg_parser.parse_args()

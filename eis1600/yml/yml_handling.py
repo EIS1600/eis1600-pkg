@@ -108,7 +108,7 @@ def add_to_entities_dict(
 def add_annotated_entities_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
-        file_path: str,
+        file_path: str
 ) -> None:
     """Populates YAMLHeader with annotated entities.
 
@@ -248,3 +248,10 @@ def add_annotated_entities_to_yml(
     yml_handler.add_tagged_entities(entities_dict)
     if ambiguous_toponyms:
         yml_handler.set_ambiguous_toponyms()
+
+
+def add_statistics_to_yml(
+        df: DataFrame,
+        yml_handler: YAMLHandler,
+) -> None:
+    yml_handler.add_number_of_tokens(len(df['TOKENS'].notna()))

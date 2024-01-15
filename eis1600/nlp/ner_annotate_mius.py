@@ -1,26 +1,15 @@
 from sys import argv, exit
-from os.path import isfile, splitext
-from argparse import ArgumentParser, Action, RawDescriptionHelpFormatter
+from os.path import splitext
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
 
 from p_tqdm import p_uimap
 from tqdm import tqdm
 
-from eis1600.miu.methods import annotate_miu_file, get_mius
+from eis1600.depricated.disassemble_reassemble_methods import annotate_miu_file, get_mius
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrIDsAction
 from eis1600.repositories.repo import get_files_from_eis1600_dir, read_files_from_readme, MIU_REPO
-
-
-class CheckFileEndingAction(Action):
-    def __call__(self, parser, namespace, input_arg, option_string=None):
-        if input_arg and isfile(input_arg):
-            filepath, fileext = splitext(input_arg)
-            if fileext != '.IDs' and fileext != '.EIS1600':
-                parser.error('You need to input an IDs file or a single MIU file')
-            else:
-                setattr(namespace, self.dest, input_arg)
-        else:
-            setattr(namespace, self.dest, None)
 
 
 def main():
@@ -40,7 +29,7 @@ all files in the MIU directory are batch processed.
     arg_parser.add_argument(
         'input', type=str, nargs='?',
         help='IDs or MIU file to process',
-        action=CheckFileEndingAction
+        action=CheckFileEndingEIS1600OrIDsAction
         )
     args = arg_parser.parse_args()
 

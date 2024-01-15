@@ -16,9 +16,7 @@ def check_file_for_mal_formatting(infile: str, content: str):
         # Poetry is still to messed up, do not bother with it for now
         # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         error = ''
-        print(content.splitlines()[0])
         if not TEXT_START_PATTERN.match(content):
-            print(TEXT_START_PATTERN.match(content))
             error += '\n * Text does not start with a MIU tag, check if the preface is tagged as PARATEXT.'
         if PARAGRAPH_TAG_MISSING.search(content):
             error += '\n * There are missing paragraph tags.'

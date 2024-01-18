@@ -56,7 +56,7 @@ def remove_original_paragraphs(old_paragraphs: List[Tuple[str, str]]) -> List[Tu
 
 
 def split_by_model(unsplitted: str) -> List[Tuple[str, str]]:
-    # tokenized = simple_word_tokenize(unsplitted)
+    tokenized = simple_word_tokenize(unsplitted)
     # model = Model()
     # punctuation_predictions = model.predict_sentence_with_windowing(tokenized)
     # TODO Translate predictions into punctuation, and add double newline and then split according into paragraphs

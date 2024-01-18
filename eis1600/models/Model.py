@@ -24,6 +24,9 @@ class Model:
         window_size = 50
 
         i = 0
+        # TODO give more overlap to last window because left-over string could be only 3 tokens long -> cannot be
+        #  analysed
+        last_window_overlap = 0
         while len(tokens) > i * batch_length:
             start = i * batch_length
             if i > 0:

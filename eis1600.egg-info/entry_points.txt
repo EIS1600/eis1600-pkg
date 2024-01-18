@@ -2,6 +2,7 @@
 analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [eis]
 annotate_goldstandard = eis1600.nlp.annotate_goldstandard:main [ner]
 annotate_mius = eis1600.nlp.ner_annotate_mius:main [ner]
+annotate_onomastics = eis1600.nlp.annotate_onomastics:main
 annotate_topd = eis1600.toponym_descriptions.annotate_topd:main [ner]
 btopd_to_bio = eis1600.toponym_descriptions.btopd_to_bio:main
 check_formatting = eis1600.texts_to_mius.check_formatting:main

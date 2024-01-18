@@ -54,6 +54,7 @@ eis1600/models/ToponymDescriptionModel.py
 eis1600/models/__init__.py
 eis1600/nlp/__init__.py
 eis1600/nlp/annotate_goldstandard.py
+eis1600/nlp/annotate_onomastics.py
 eis1600/nlp/cameltools.py
 eis1600/nlp/ner_annotate_mius.py
 eis1600/nlp/utils.py

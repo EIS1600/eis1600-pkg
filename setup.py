@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.2.8',
+      version='1.2.9',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -34,6 +34,7 @@ setup(name='eis1600',
                   'onomastic_annotation = eis1600.onomastics.annotation:main',
                   'q_tags_to_bio = eis1600.bio.q_tags_to_bio:main',
                   'sheets_topod_stats = eis1600.toponym_descriptions.topod_sheets_stats:main',
+                  'split_mius_into_paragraphs = eis1600.paragraphs.split_mius_into_paragraphs:main',
                   'topo_tags_to_bio = eis1600.bio.topo_tags_to_bio:main',
                   'topod_extract_incomplete = eis1600.toponym_descriptions.topod_extract_incomplete:main',
                   'topod_extract_places_regex = eis1600.toponym_descriptions.topod_extract_places_regex:main',

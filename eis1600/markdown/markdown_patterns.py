@@ -15,7 +15,7 @@ AR_STR = AR_CHR + '+'
 AR_STR_AND_TAGS = r'[' + u''.join(AR_LETTERS_CHARSET) + 'a-zA-ZÜ0-9]+'
 WORD = r'(?:(^|\s)' + AR_STR + ')'
 NOISE_ELEMENTS = r'(?: [\[\]0-9،.():~|-])*'
-AR_CHR_AND_NOISE = r'[' + u''.join(AR_LETTERS_CHARSET) + r'0-9"({\[]'
+AR_CHR_AND_NOISE = r'[' + u''.join(AR_LETTERS_CHARSET) + r'0-9"({\[«-]'
 
 # EIS1600 mARkdown
 UID = r'_ء_(#)?=(?P<UID>\d{12}(?:-\d{4})?)= '
@@ -23,19 +23,23 @@ UID_PATTERN = compile(UID)
 MIU_UID = r'_ء_#=(?P<UID>\d{12})= '
 MIU_UID_PATTERN = compile(MIU_UID)
 MIU_SPLITTER_PATTERN = compile(r'(?:^|\n\n)(?=' + MIU_UID + ')')
-PARAGRAPH_UID_PATTERN = compile(r'_ء_=\d{12}(?:-\d{4})?= (::[A-Z_]+::) ~')
+PARAGRAPH_CAT = '::(?P<cat>[A-Z_]+)::'
+PARAGRAPH_CAT_PATTERN = compile(PARAGRAPH_CAT)
+PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS = '::[A-Z_]+::'
+PARAGRAPH_SIMPLE_SPLITTER_PATTERN = compile('\n\n(' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ')\n')
+PARAGRAPH_UID = r'_ء_=\d{12}(?:-\d{4})?= ' + PARAGRAPH_CAT + ' ~'
+PARAGRAPH_UID_WITHOUT_CAPTURING_GROUPS = r'_ء_=\d{12}(?:-\d{4})?= ' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ' ~'
+PARAGRAPH_UID_PATTERN = compile(PARAGRAPH_UID)
 HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = compile(MIU_HEADER)
 HEADING_PATTERN = compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
-EMPTY_PARAGRAPH_PATTERN = compile(UID + r'::[A-Z]+:: ~')
-EMPTY_FIRST_PARAGRAPH_PATTERN = compile(r'_ء_#=\d{12}=')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = compile(PAGE_TAG)
-ONLY_PAGE_TAG = UID + r'::[A-Z]+:: ~\n' + PAGE_TAG
+ONLY_PAGE_TAG = PARAGRAPH_UID + r'\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
-        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}-\d{4}= ::[A-Z]+:: ~\n' + AR_STR
+        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}-\d{4}= ' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ' ~\n' + AR_STR
 )
 TEXT_START_PATTERN = compile(r'_ء_#=\d{12}= [|]')
 PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
@@ -47,9 +51,7 @@ POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 # changing them
 MIU_TAG_PATTERN = compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
 CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
-SECTION_TAG = r'_ء_=\d{12}-\d{4}= ::[A-Z]+:: ~'
-SECTION_PATTERN = compile(SECTION_TAG)
-SECTION_SPLITTER_PATTERN = compile(r'\n\n(' + SECTION_TAG + ')\n(?:_ء_)?')
+PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
 TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
@@ -74,7 +76,7 @@ ONOM_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + onom_tags + r')(?P<length>\d{1,2
 SIMPLE_HEADING_OR_BIO_PATTERN = compile(r'# [|$]+')
 MIU_LIGHT_OR_EIS1600_PATTERN = compile(r'#|_ء_#')
 PAGE_TAG_ON_NEWLINE_TMP_PATTERN = compile(r'(?<!\n)\n' + PAGE_TAG + r'(?=\n)')
-SIMPLE_PARAGRAPH_PATTERN = compile(r'\n::[A-Z_]+::')
+SIMPLE_PARAGRAPH_PATTERN = compile(r'\n' + PARAGRAPH_CAT)
 
 # Fix mARkdown files
 SPACES_CROWD_PATTERN = compile(r'  +')

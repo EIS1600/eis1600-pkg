@@ -3,10 +3,10 @@ from typing import Iterator, List, Optional, TextIO, Tuple, Union
 from pandas import DataFrame, options
 from camel_tools.tokenizers.word import simple_word_tokenize
 
-from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, SECTION_PATTERN, SECTION_SPLITTER_PATTERN, TAG_PATTERN
+from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_SIMPLE_SPLITTER_PATTERN, \
+    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_PATTERN, PARAGRAPH_SPLITTER_PATTERN, TAG_PATTERN
 from eis1600.yml.YAMLHandler import YAMLHandler
 from eis1600.yml.yml_handling import extract_yml_header_and_text
-
 
 options.mode.chained_assignment = None
 
@@ -33,6 +33,7 @@ def get_tokens_and_tags(tagged_text: str) -> Tuple[List[Union[str, None]], List[
 
 def tokenize_miu_text(
         text: str,
+        simple_mARkdown: Optional[bool] = False,
         keep_automatic_tags: Optional[bool] = False
 ) -> Iterator[Tuple[Union[str, None], Union[str, None], List[Union[str, None]]]]:
     """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
@@ -47,7 +48,11 @@ def tokenize_miu_text(
     text_and_heading = MIU_TAG_PATTERN.split(text)
     # The indices are connected to the number of capturing group in MIU_TAG_PATTERN
     heading = text_and_heading[1]
-    text_iter = SECTION_SPLITTER_PATTERN.split(text_and_heading[4][:-2]).__iter__()
+
+    if simple_mARkdown:
+        text_iter = PARAGRAPH_SIMPLE_SPLITTER_PATTERN.split(text_and_heading[4][:-2]).__iter__()
+    else:
+        text_iter = PARAGRAPH_SPLITTER_PATTERN.split(text_and_heading[4][:-2]).__iter__()
     paragraph = next(text_iter)
 
     sections, ar_tokens, tags = [heading], [None], [None]
@@ -55,7 +60,9 @@ def tokenize_miu_text(
 
     # First item in text_iter is an empty string if there are multiple paragraphs therefore test for None
     while paragraph is not None:
-        if SECTION_PATTERN.fullmatch(paragraph):
+        if PARAGRAPH_UID_PATTERN.fullmatch(paragraph):
+            section = paragraph
+        elif simple_mARkdown and PARAGRAPH_CAT_PATTERN.fullmatch(paragraph):
             section = paragraph
         else:
             # Encode \n with NEWLINE as they will be removed by the simple_word_tokenize method
@@ -108,7 +115,7 @@ def get_yml_and_miu_df(
         miu_text_line_iter = iter(miu_file_object)
     yml_str, text = extract_yml_header_and_text(miu_text_line_iter, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
-    zipped = tokenize_miu_text(text, keep_automatic_tags)
+    zipped = tokenize_miu_text(text, simple_mARkdown=False, keep_automatic_tags=keep_automatic_tags)
     df = DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
     df.mask(df == '', inplace=True)

@@ -3,7 +3,7 @@ from typing import Optional
 
 from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_formatting
 
-from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, EMPTY_PARAGRAPH_PATTERN, \
+from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, \
     HEADER_END_PATTERN, \
     MIU_SPLITTER_PATTERN, MIU_UID_PATTERN, SIMPLE_HEADING_OR_BIO_PATTERN, MISSING_DIRECTIONALITY_TAG_PATTERN, \
     MIU_TAG_AND_TEXT_PATTERN, \
@@ -236,7 +236,7 @@ def update_ids(text: str) -> str:
                 # Remove PageV00P000 at the beginning in an individual paragraph
                 # text_updated.append(paragraph)
                 # pass
-            elif not EMPTY_PARAGRAPH_PATTERN.fullmatch(paragraph):
+            elif not PARAGRAPH_UID_PATTERN.fullmatch(paragraph):
                 # Do not add empty paragraphs to the updated text
                 text_updated.append(paragraph)
 
@@ -252,7 +252,7 @@ def update_ids(text: str) -> str:
     text_updated = []
 
     for uid, miu in zip(uids, mius):
-        miu = PARAGRAPH_UID_PATTERN.sub(r'\g<1>', miu)
+        miu = PARAGRAPH_UID_PATTERN.sub(r'::\g<cat>::', miu)
         sub_ids = SubIDs(uid)
         paragraphs = miu.split('\n\n')
 

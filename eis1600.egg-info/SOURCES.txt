@@ -61,6 +61,9 @@ eis1600/onomastics/__init__.py
 eis1600/onomastics/annotation.py
 eis1600/onomastics/methods.py
 eis1600/onomastics/re_pattern.py
+eis1600/paragraphs/__init__.py
+eis1600/paragraphs/paragraph_methods.py
+eis1600/paragraphs/split_mius_into_paragraphs.py
 eis1600/processing/__init__.py
 eis1600/processing/postprocessing.py
 eis1600/processing/preprocessing.py

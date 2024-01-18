@@ -16,6 +16,7 @@ mius_count_categories = eis1600.statistics.count_categories:main
 onomastic_annotation = eis1600.onomastics.annotation:main
 q_tags_to_bio = eis1600.bio.q_tags_to_bio:main
 sheets_topod_stats = eis1600.toponym_descriptions.topod_sheets_stats:main
+split_mius_into_paragraphs = eis1600.paragraphs.split_mius_into_paragraphs:main
 topo_tags_to_bio = eis1600.bio.topo_tags_to_bio:main
 topod_extract_incomplete = eis1600.toponym_descriptions.topod_extract_incomplete:main
 topod_extract_places_regex = eis1600.toponym_descriptions.topod_extract_places_regex:main

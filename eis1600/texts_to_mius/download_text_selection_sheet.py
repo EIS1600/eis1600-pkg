@@ -13,6 +13,7 @@ def download_text_selection(text_repo: str) -> str:
     )
     latest_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR60MrlXJjtrd3bid1CR3xK5Pv" \
                  "-aUz1qWEfHfowU1DPsh6RZBvbtW2mA-83drzboIS1fxZdsDO-ny0r/pub?gid=2075964223&single=true&output=csv"
+    request.urlcleanup()
     response = request.urlopen(latest_csv)
     lines = [line.decode('utf-8') for line in response.readlines()]
     csv_path = text_repo + '_EIS1600 - Text Selection - Serial Source Test - ' \

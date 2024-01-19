@@ -37,7 +37,7 @@ BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
 
 
-def get_ready_and_double_checked_texts() -> Tuple[DataFrame, DataFrame]:
+def get_ready_and_double_checked_files() -> Tuple[List[str], List[str]]:
     """Get prepared texts prepared for the processing pipeline.
 
     :return Tuple[DataFrame, DataFrame]: returns two DataFrames, one for ready texts and the other for double-checked files.
@@ -47,10 +47,55 @@ def get_ready_and_double_checked_texts() -> Tuple[DataFrame, DataFrame]:
     df_ready = df.loc[df['PREPARED'].str.fullmatch('ready')]
     df_double_checked = df.loc[df['PREPARED'].str.fullmatch('double-checked')]
 
-    print(f'Files ready: {len(df_ready)}')
-    print(f'Files double-checked: {len(df_double_checked)}\n')
+    print(f'Files marked as "ready": {len(df_ready)}')
+    print(f'Files marked ad "double-checked": {len(df_double_checked)}\n')
 
-    return df_ready, df_double_checked
+    double_checked_files = []
+    ready_files = []
+
+    # Check if any EIS1600TMP files are missing
+    missing_texts = []
+    for uri in df_ready['Book Title']:
+        author, text = uri.split('.')
+        text_path = TEXT_REPO + 'data/' + author + '/' + uri + '/'
+        tmp_files = glob(text_path + '*.EIS1600TMP')
+        eis_files = glob(text_path + '*.EIS1600')
+        if tmp_files and not eis_files:
+            ready_files.append(tmp_files[0])
+        elif tmp_files and eis_files:
+            double_checked_files.append(eis_files[0])
+            # print(f'{uri} (both TMP and EIS1600)')
+        elif eis_files and not tmp_files:
+            double_checked_files.append(eis_files[0])
+            missing_texts.append(f'{uri} (no TMP but EIS1600)')
+        else:
+            missing_texts.append(f'{uri} (missing)')
+
+    if missing_texts:
+        print('URIs for ready files for whom no .EIS1600TMP file was found')
+        for uri in missing_texts:
+            print(uri)
+        print('\n')
+
+    # Check if any EIS1600 files are missing
+    missing_texts = []
+    for uri in df_double_checked['Book Title']:
+        author, text = uri.split('.')
+        text_path = TEXT_REPO + 'data/' + author + '/' + uri + '/'
+        eis_files = glob(text_path + '*.EIS1600')
+        if eis_files:
+            double_checked_files.append(eis_files[0])
+        else:
+            missing_texts.append(uri)
+
+    if missing_texts:
+        print('URIs for double-checked files for whom no .EIS1600 file was found (check if URI in the Google Sheet '
+              'matches with the OpenITI_EIS1600_Text repo')
+        for uri in missing_texts:
+            print(uri)
+        print('\n')
+
+    return ready_files, double_checked_files
 
 
 def get_entry(file_name: str, checked_entry: bool) -> str:

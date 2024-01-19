@@ -1,17 +1,13 @@
-from glob import glob
 from logging import ERROR, Formatter
 from sys import argv, exit
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from urllib import request
-
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrEIS1600TMPAction
 from p_tqdm import p_uimap
-from pandas import read_csv
 from tqdm import tqdm
 
 from eis1600.helper.logging import setup_logger
-from eis1600.repositories.repo import TEXT_REPO
+from eis1600.repositories.repo import TEXT_REPO, get_ready_and_double_checked_files
 from eis1600.texts_to_mius.subid_methods import add_ids
 
 
@@ -40,35 +36,10 @@ Run without input arg to batch process all double-checked and ready files from t
     if infile:
         add_ids(infile, ids_update=True)
     else:
-        print('Download latest version of "_EIS1600 - Text Selection - Serial Source Test - '
-              'EIS1600_AutomaticSelectionForReview" from Google Spreadsheets')
-        latest_csv = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR60MrlXJjtrd3bid1CR3xK5Pv" \
-                    "-aUz1qWEfHfowU1DPsh6RZBvbtW2mA-83drzboIS1fxZdsDO-ny0r/pub?gid=2075964223&single=true&output=csv"
-        response = request.urlopen(latest_csv)
-        lines = [line.decode('utf-8') for line in response.readlines()]
-        csv_path = TEXT_REPO + '_EIS1600 - Text Selection - Serial Source Test - ' \
-                               'EIS1600_AutomaticSelectionForReview.csv'
-        with open(csv_path, 'w', encoding='utf-8') as csv_fh:
-            csv_fh.writelines(lines)
+        files_ready, files_double_checked = get_ready_and_double_checked_files()
+        files = files_ready + files_double_checked
 
-        print('Saved as csv in ' + TEXT_REPO)
-
-        df = read_csv(csv_path, usecols=['Book Title', 'PREPARED']).dropna()
-        df_processable_files = df.loc[df['PREPARED'].str.fullmatch('double-checked|ready')]
-
-        infiles = []
-
-        print('URIs of files for whom no .EIS1600 file was found')
-        for uri in df_processable_files['Book Title']:
-            author, text = uri.split('.')
-            text_path = TEXT_REPO + 'data/' + author + '/' + uri + '/'
-            text_file = glob(text_path + '*.EIS1600')
-            if text_file:
-                infiles.append(text_file[0])
-            else:
-                print(uri)
-
-        if not infiles:
+        if not files:
             print(
                     'There are no more EIS1600 files to process'
             )
@@ -81,7 +52,7 @@ Run without input arg to batch process all double-checked and ready files from t
         count = 0
         if debug:
             x = 1
-            for i, infile in tqdm(list(enumerate(infiles[x:]))):
+            for i, infile in tqdm(list(enumerate(files[x:]))):
                 print(i + x, infile)
                 try:
                     add_ids(infile)
@@ -89,9 +60,9 @@ Run without input arg to batch process all double-checked and ready files from t
                     logger.error(f'{infile}\n{e}\n\n')
                     count += 1
 
-            print(f'{len(infiles)-count}/{len(infiles)} processed')
+            print(f'{len(files)-count}/{len(files)} processed')
         else:
-            res += p_uimap(add_ids, infiles)
+            res += p_uimap(add_ids, files)
 
     print('Done')
 

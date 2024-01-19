@@ -9,6 +9,7 @@
 * [Usage](#usage)
   * [convert_mARkdown_to_EIS1600TMP](#convert-markdown-to-eis1600-files)
   * [ids_insert_or_update](#eis1600TMP-to-eis1600)
+  * [check_formatting](#check-eis1600-formatting)
   * [annotate_mius](#annotation)
   * [onomastic_annotation](#only-onomastic-annotation)
   * [q_tags_to_bio](#get-training-data-from-q-annotations)
@@ -23,6 +24,7 @@
 
 If you need to change the tagged structure in an `.EIS1600` file, you do those changes with _Simple Markdown_.
 Run `ids_insert_or_update` to convert the changes in _Simple Markdown_ to _EIS1600 mARkdown_.
+Check the format of the EIS1600 file with `check_formatting <path/to/file>`.
 
 ## Processing Workflow
 
@@ -213,13 +215,13 @@ $ convert_mARkdown_to_EIS1600 -e <EIS1600_repo>
 EIS1600TMP files do not contain IDs yet, to insert IDs run `ids_insert_or_update` on the `.EIS1600TMP` file.
 Use auto complete (`tab`) to get the correct path to the file.
 ```shell
-$ ids_insert_or_update <OpenITI_EIS1600_Text/data/spath/to/file>.EIS1600TMP
+$ ids_insert_or_update <OpenITI_EIS1600_Text/data/path/to/file>.EIS1600TMP
 ```
 
 Additionally, this routine updates IDs if you run it on a `.EIS1600` file.
 Update IDs means inserting missing UIDs and updating SubIDs.
 ```shell
-$ ids_insert_or_update <OpenITI_EIS1600_Text/data/spath/to/file>.EIS1600
+$ ids_insert_or_update <OpenITI_EIS1600_Text/data/path/to/file>.EIS1600
 ```
 
 #### Batch processing
@@ -229,6 +231,25 @@ Use `incorporate_newly_prepared_files_in_corpus` to add IDs to all ready files f
 ```shell
 $ incorporate_newly_prepared_files_in_corpus
 ```
+
+### Check EIS1600 Formatting
+
+Check if the formatting is correct (structural tagging)
+```shell
+$ check-formatting <OpenITI_EIS1600_Text/data/path/to/file>.EIS1600
+```
+
+#### Batch processing
+
+Check the formatting of all `.EIS1600` files:
+```shell
+$ check-formatting
+```
+This will create a log-file with all issues found. The log file is here: `OpenITI_EIS1600_Texts/mal_formatted_texts.log`.
+It will print a list of files marked as 'ready' for which no `.EIS1600TMP` file was found.
+It will also print a list of files marked as 'double-cheked' for which no `.EIS1600` file was found.
+Check if the author or book URI are still matching the folders and the file in the `OpenITI_EIS1600_Texts` directory.
+
 
 ### Annotation
 

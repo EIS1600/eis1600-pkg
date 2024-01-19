@@ -34,7 +34,7 @@ def check_file_for_mal_formatting(infile: str, content: str):
             error += '\n * There are span elements in the text.'
         if MISSING_DIRECTIONALITY_TAG_PATTERN.search(content):
             error += '\n * There are missing direction tags at the beginning of paragraphs, fix it by running ' \
-                     f'`update_uids` on {infile}'
+                     f'`ids_insert_or_update` on {infile}'
         # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
@@ -44,9 +44,9 @@ def check_file_for_mal_formatting(infile: str, content: str):
                 f'kate {infile}\n'
                 f'{error}\n\n'
                 f'And now run\n'
-                f'update_uids {infile}\n'
+                f'ids_insert_or_update {infile}\n'
                 f'Check if everything is working with\n'
-                f'disassemble_into_miu_files {infile}\n'
+                f'check_formatting {infile}\n'
         )
 
 

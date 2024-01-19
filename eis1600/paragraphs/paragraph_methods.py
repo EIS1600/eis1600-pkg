@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pandas import isna, DataFrame
 from camel_tools.tokenizers.word import simple_word_tokenize
 
-from eis1600.markdown.markdown_patterns import PARAGRAPH_UID_PATTERN
+from eis1600.markdown.markdown_patterns import PARAGRAPH_UID_TAG_PATTERN
 from eis1600.models.Model import Model
 from eis1600.processing.preprocessing import get_yml_and_miu_df, tokenize_miu_text
 from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
@@ -28,9 +28,9 @@ def get_old_paragraphs(df: DataFrame) -> List[Tuple[str, str]]:
                     if 'HEMISTICH' in tags:
                         tokens.append('%~%')
                 tokens.append(token)
-        elif PARAGRAPH_UID_PATTERN.match(section):
+        elif PARAGRAPH_UID_TAG_PATTERN.match(section):
             paragraphs.append((curr_section_type, ' '.join(tokens)))
-            curr_section_type = PARAGRAPH_UID_PATTERN.match(section).group('cat')
+            curr_section_type = PARAGRAPH_UID_TAG_PATTERN.match(section).group('cat')
             tokens = [token]
 
     paragraphs.append((curr_section_type, ' '.join(tokens)))

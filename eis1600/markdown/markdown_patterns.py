@@ -18,48 +18,51 @@ NOISE_ELEMENTS = r'(?: [\[\]0-9،.():~|-])*'
 AR_CHR_AND_NOISE = r'[' + u''.join(AR_LETTERS_CHARSET) + r'0-9"({\[«-]'
 
 # EIS1600 mARkdown
-UID = r'_ء_(#)?=(?P<UID>\d{12}(?:-\d{4})?)= '
-UID_PATTERN = compile(UID)
-MIU_UID = r'_ء_#=(?P<UID>\d{12})= '
-MIU_UID_PATTERN = compile(MIU_UID)
-MIU_SPLITTER_PATTERN = compile(r'(?:^|\n\n)(?=' + MIU_UID + ')')
+UID = r'(?P<UID>\d{12}(?:-\d{8})?)'
+UID_WITHOUT_CAPTURING_GROUP = r'\d{12}(?:-\d{8})?'
+UID_TAG = r'_ء_(#)?=' + UID + '= '
+UID_TAG_PATTERN = compile(UID_TAG)
+MIU_UID_TAG = r'_ء_#=(?P<UID>\d{12})= '
+MIU_UID_TAG_WITHOUT_CAPTURING_GROUP = r'_ء_#=\d{12}= '
+MIU_UID_TAG_PATTERN = compile(MIU_UID_TAG)
+MIU_SPLITTER_PATTERN = compile(r'(?:^|\n\n)(?=' + MIU_UID_TAG + ')')
 PARAGRAPH_CAT = '::(?P<cat>[A-Z_]+)::'
 PARAGRAPH_CAT_PATTERN = compile(PARAGRAPH_CAT)
 PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS = '::[A-Z_]+::'
 PARAGRAPH_SIMPLE_SPLITTER_PATTERN = compile('\n\n(' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ')\n')
-PARAGRAPH_UID = r'_ء_=\d{12}(?:-\d{4})?= ' + PARAGRAPH_CAT + ' ~'
-PARAGRAPH_UID_WITHOUT_CAPTURING_GROUPS = r'_ء_=\d{12}(?:-\d{4})?= ' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ' ~'
-PARAGRAPH_UID_PATTERN = compile(PARAGRAPH_UID)
+PARAGRAPH_UID_TAG = r'_ء_=' + UID_WITHOUT_CAPTURING_GROUP + '= ' + PARAGRAPH_CAT + ' ~'
+PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS = r'_ء_=' + UID_WITHOUT_CAPTURING_GROUP + '= ' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ' ~'
+PARAGRAPH_UID_TAG_PATTERN = compile(PARAGRAPH_UID_TAG)
 HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = compile(MIU_HEADER)
-HEADING_PATTERN = compile(UID + r'(?P<level>[|]+) (?P<heading>.*)\n')
+HEADING_PATTERN = compile(UID_TAG + r'(?P<level>[|]+) (?P<heading>.*)\n')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = compile(PAGE_TAG)
-ONLY_PAGE_TAG = PARAGRAPH_UID + r'\n' + PAGE_TAG
+ONLY_PAGE_TAG = PARAGRAPH_UID_TAG + r'\n' + PAGE_TAG
 ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
-        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + r'_ء_=\d{12}-\d{4}= ' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ' ~\n' + AR_STR
+        AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ' ~\n' + AR_STR
 )
-TEXT_START_PATTERN = compile(r'_ء_#=\d{12}= [|]')
-PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
+TEXT_START_PATTERN = compile(MIU_UID_TAG + r'[|]')
+PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID_TAG + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
 SIMPLE_MARKDOWN = compile(r'\n#')
 SPAN_ELEMENTS = compile(r'</?span/?>')
 POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 
 # MIU_TAG_PATTERN is used to split text - indices depend on the number of capturing groups so be careful when
 # changing them
-MIU_TAG_PATTERN = compile(r'(' + MIU_UID + r'(?P<category>[^\n]+))')
+MIU_TAG_PATTERN = compile(r'(' + MIU_UID_TAG + r'(?P<category>[^\n]+))')
 CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
-PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
+PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
 TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
-MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(_ء_#=\d{12}= )' + TAG_AND_TEXT_SAME_LINE)
+MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(' + MIU_UID_TAG_WITHOUT_CAPTURING_GROUP + ')' + TAG_AND_TEXT_SAME_LINE)
 
 # Catches MIU tags for BIO, CHR and PARATEXT, EDITOR, etc. (everything in between pipes).
 # Does not catch HEADERS!
-MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID + r'(?:[$@]+?|\|[A-Z]+\|)(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
+MIU_TAG_AND_TEXT_PATTERN = compile(r'(' + MIU_UID_TAG + r'(?:[$@]+?|\|[A-Z]+\|)(?: \d+)?)\n((?:\( ?)?' + AR_STR + r')')
 
 # MIU entity tags
 entity_tags = '|'.join(EntityTags().get_entity_tags())
@@ -81,7 +84,7 @@ SIMPLE_PARAGRAPH_PATTERN = compile(r'\n' + PARAGRAPH_CAT)
 # Fix mARkdown files
 SPACES_CROWD_PATTERN = compile(r'  +')
 NEWLINES_CROWD_PATTERN = compile(r'\n{3,}')
-NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID + '))')
+NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN = compile(r'[^\n]\n(?:(?:# [|$])|(?:' + UID_TAG + '))')
 NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN = compile(r'(?<=\n)[^\n%~]+\n[^\n%]+\n')
 TILDA_HICKUPS_PATTERN = compile(r'~\n~')
 MISSING_DIRECTIONALITY_TAG_PATTERN = compile(r'(\n+)(' + AR_CHR_AND_NOISE + '|%~%|Page|ms)')

@@ -12,7 +12,7 @@ class SubIDs:
 
     def get_id(self):
         id_as_str = str(self.id)
-        while len(id_as_str) < 4:
+        while len(id_as_str) < 8:
             id_as_str = '0' + id_as_str
 
         self.id += 10

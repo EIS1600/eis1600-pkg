@@ -4,7 +4,7 @@ from pandas import DataFrame, options
 from camel_tools.tokenizers.word import simple_word_tokenize
 
 from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_SIMPLE_SPLITTER_PATTERN, \
-    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_PATTERN, PARAGRAPH_SPLITTER_PATTERN, TAG_PATTERN
+    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PARAGRAPH_SPLITTER_PATTERN, TAG_PATTERN
 from eis1600.yml.YAMLHandler import YAMLHandler
 from eis1600.yml.yml_handling import extract_yml_header_and_text
 
@@ -60,7 +60,7 @@ def tokenize_miu_text(
 
     # First item in text_iter is an empty string if there are multiple paragraphs therefore test for None
     while paragraph is not None:
-        if PARAGRAPH_UID_PATTERN.fullmatch(paragraph):
+        if PARAGRAPH_UID_TAG_PATTERN.fullmatch(paragraph):
             section = paragraph
         elif simple_mARkdown and PARAGRAPH_CAT_PATTERN.fullmatch(paragraph):
             section = paragraph

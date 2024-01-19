@@ -2,7 +2,7 @@ from os.path import split, splitext
 from typing import List, Tuple
 
 from eis1600.markdown.markdown_patterns import CATEGORY_PATTERN, HEADER_END_PATTERN, HEADING_PATTERN, MIU_TAG_PATTERN, \
-    MIU_UID_PATTERN, PAGE_TAG_PATTERN
+    MIU_UID_TAG_PATTERN, PAGE_TAG_PATTERN
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_formatting
 from eis1600.yml.yml_handling import create_yml_header
@@ -38,7 +38,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
                 miu_text = ''
                 uid = uri + '.' + 'preface'
                 next(text)  # Skip empty line after header
-            elif MIU_UID_PATTERN.match(text_line):
+            elif MIU_UID_TAG_PATTERN.match(text_line):
                 if HEADING_PATTERN.match(text_line):
                     m = HEADING_PATTERN.match(text_line)
                     heading_text = m.group('heading')

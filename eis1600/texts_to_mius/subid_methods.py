@@ -5,13 +5,13 @@ from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_fo
 
 from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, \
     HEADER_END_PATTERN, \
-    MIU_SPLITTER_PATTERN, MIU_UID_PATTERN, SIMPLE_HEADING_OR_BIO_PATTERN, MISSING_DIRECTIONALITY_TAG_PATTERN, \
+    MIU_SPLITTER_PATTERN, MIU_UID_TAG_PATTERN, SIMPLE_HEADING_OR_BIO_PATTERN, MISSING_DIRECTIONALITY_TAG_PATTERN, \
     MIU_TAG_AND_TEXT_PATTERN, \
     NEWLINES_CROWD_PATTERN, \
     NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, ONLY_PAGE_TAG_PATTERN, PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_ON_NEWLINE_TMP_PATTERN, PAGE_TAG_PATTERN, \
-    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, UID_PATTERN, MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
-    PARAGRAPH_UID_PATTERN
+    PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, UID_TAG_PATTERN, MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
+    PARAGRAPH_UID_TAG_PATTERN
 from eis1600.texts_to_mius.SubIDs import SubIDs
 from eis1600.texts_to_mius.UIDs import UIDs
 
@@ -118,18 +118,18 @@ def update_ids(text: str) -> str:
 
     # 2. Collect existing UIDs
     for idx, paragraph in enumerate(text):
-        if MIU_UID_PATTERN.match(paragraph):
-            uid = int(MIU_UID_PATTERN.match(paragraph).group('UID'))
+        if MIU_UID_TAG_PATTERN.match(paragraph):
+            uid = int(MIU_UID_TAG_PATTERN.match(paragraph).group('UID'))
             if uid not in used_ids:
                 used_ids.append(uid)
             else:
                 # If in the review process an UID was accidentally inserted twice, just remove the second occurrence
                 # - this element will get a new UID in the next steps.
-                if MIU_UID_PATTERN.match(paragraph).group(1):
+                if MIU_UID_TAG_PATTERN.match(paragraph).group(1):
                     # Python returns None for empty capturing groups which messes up the string
-                    text[idx] = MIU_UID_PATTERN.sub('\1', paragraph)
+                    text[idx] = MIU_UID_TAG_PATTERN.sub('\1', paragraph)
                 else:
-                    text[idx] = MIU_UID_PATTERN.sub('', paragraph)
+                    text[idx] = MIU_UID_TAG_PATTERN.sub('', paragraph)
 
     uids = UIDs(used_ids)
 
@@ -156,7 +156,7 @@ def update_ids(text: str) -> str:
                     raise ValueError(
                             f'There is a single new line in this paragraph:\n{paragraph}'
                     )
-            elif not UID_PATTERN.match(paragraph):
+            elif not UID_TAG_PATTERN.match(paragraph):
                 if paragraph.startswith('::'):
                     p_pieces = paragraph.splitlines()
                     section_header = p_pieces[0] + ' ~'
@@ -219,7 +219,7 @@ def update_ids(text: str) -> str:
                         next_p = next(text_iter, None)
                 elif text_updated:
                     text_updated[-1] += ' ' + page_tag
-            elif not PARAGRAPH_UID_PATTERN.fullmatch(paragraph):
+            elif not PARAGRAPH_UID_TAG_PATTERN.fullmatch(paragraph):
                 # Do not add empty paragraphs to the updated text
                 text_updated.append(paragraph)
 
@@ -235,7 +235,7 @@ def update_ids(text: str) -> str:
     text_updated = []
 
     for uid, miu in zip(uids, mius):
-        miu = PARAGRAPH_UID_PATTERN.sub(r'::\g<cat>::', miu)
+        miu = PARAGRAPH_UID_TAG_PATTERN.sub(r'::\g<cat>::', miu)
         sub_ids = SubIDs(uid)
         paragraphs = miu.split('\n\n')
 
@@ -257,7 +257,7 @@ def update_ids(text: str) -> str:
                             '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
                     )
                 paragraph = f'_ء_={sub_ids.get_id()}= {section_header} ~\n' + paragraph
-            elif not MIU_UID_PATTERN.match(paragraph):
+            elif not MIU_UID_TAG_PATTERN.match(paragraph):
                 paragraph = f'_ء_={sub_ids.get_id()}= ::UNDEFINED:: ~\n' + paragraph
 
             text_updated.append(paragraph)

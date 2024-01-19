@@ -151,7 +151,7 @@ def update_ids(text: str) -> str:
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 if len(heading_and_text) == 2:
-                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED:: ~\n\n_ء_ {heading_and_text[1]}'
+                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED::\n\n_ء_ {heading_and_text[1]}'
                 elif len(heading_and_text) > 2:
                     raise ValueError(
                             f'There is a single new line in this paragraph:\n{paragraph}'
@@ -159,7 +159,7 @@ def update_ids(text: str) -> str:
             elif not UID_TAG_PATTERN.match(paragraph):
                 if paragraph.startswith('::'):
                     p_pieces = paragraph.splitlines()
-                    section_header = p_pieces[0] + ' ~'
+                    section_header = p_pieces[0]
                     if '%~%' in paragraph:
                         paragraph = '\n'.join(p_pieces[1:])
                     elif len(p_pieces) > 2:
@@ -174,7 +174,9 @@ def update_ids(text: str) -> str:
                         )
                 else:
                     cat = 'POETRY' if '%~%' in paragraph else 'UNDEFINED'
-                    section_header = f'::{cat}:: ~'
+                    section_header = f'::{cat}::'
+                    if cat == 'POETRY':
+                        paragraph = '\n'.join(paragraph.splitlines())
 
                 paragraph = f'{section_header}\n' + paragraph
             elif MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.match(paragraph):
@@ -182,13 +184,13 @@ def update_ids(text: str) -> str:
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 if '%~%' in '\n'.join(heading_and_text[1:]):
-                    paragraph = heading_and_text[0] + f'\n\n::POETRY:: ~\n_ء_ ' + '\n'.join(heading_and_text[1:])
+                    paragraph = heading_and_text[0] + f'\n\n::POETRY::\n_ء_ ' + '\n'.join(heading_and_text[1:])
                 elif len(heading_and_text) > 2:
                     raise ValueError(
                             f'There is a single new line in this paragraph:\n{paragraph}'
                     )
                 else:
-                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED:: ~\n_ء_ ' + heading_and_text[1]
+                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED::\n_ء_ ' + heading_and_text[1]
             elif MIU_TAG_AND_TEXT_PATTERN.match(paragraph):
                 # TODO
                 uid = MIU_TAG_AND_TEXT_PATTERN.match(paragraph).group('UID')
@@ -196,13 +198,13 @@ def update_ids(text: str) -> str:
                 # Insert a paragraph tag
                 heading_and_text = paragraph.splitlines()
                 if '%~%' in '\n'.join(heading_and_text[1:]):
-                    paragraph = heading_and_text[0] + f'\n\n::POETRY:: ~\n_ء_ ' + '\n'.join(heading_and_text[1:])
+                    paragraph = heading_and_text[0] + f'\n\n::POETRY::\n_ء_ ' + '\n'.join(heading_and_text[1:])
                 elif len(heading_and_text) > 2:
                     raise ValueError(
                             f'There is a single new line in this paragraph:\n{paragraph}'
                     )
                 else:
-                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED:: ~\n_ء_ ' + heading_and_text[1]
+                    paragraph = heading_and_text[0] + f'\n\n::UNDEFINED::\n_ء_ ' + heading_and_text[1]
 
             if ONLY_PAGE_TAG_PATTERN.fullmatch(paragraph):
                 # Add page tags to previous paragraph if there is no other information contained in the current
@@ -210,7 +212,7 @@ def update_ids(text: str) -> str:
                 page_tag = ONLY_PAGE_TAG_PATTERN.match(paragraph).group('page_tag')
                 if PAGE_TAG_IN_BETWEEN_PATTERN.search('\n\n'.join([prev_p, paragraph, next_p])):
                     if text_updated:
-                        next_p_text = next_p.split('::UNDEFINED:: ~\n_ء_ ')[1]
+                        next_p_text = next_p.split('::UNDEFINED::\n_ء_ ')[1]
                         if text_updated[-1][-1] == ' ':
                             text_updated[-1] += page_tag + ' ' + next_p_text
                         else:
@@ -267,7 +269,7 @@ def update_ids(text: str) -> str:
     return text
 
 
-def add_ids(infile: str, ids_update: Optional[bool] = False) -> None:
+def add_ids(infile: str) -> None:
     """Insert UIDs and EIS1600 tags into EIS1600TMP file and thereby convert it to EIS1600 format.
 
 

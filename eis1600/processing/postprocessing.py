@@ -1,4 +1,4 @@
-from typing import Iterator, List, TextIO, Tuple, Union
+from typing import Iterator, List, Optional, TextIO, Tuple, Union
 
 from os import path
 from pandas import DataFrame, notna
@@ -65,6 +65,7 @@ def reconstruct_miu_text_with_tags(
 
     reconstructed_text += '\n\n'
     reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')
+    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')
     reconstructed_text = reconstructed_text.replace('HEMISTICH', '%~%')
     return reconstructed_text
 
@@ -83,15 +84,18 @@ def write_updated_miu_to_file(
         miu_file_object: TextIO,
         yml_handler: YAMLHandler,
         df: DataFrame,
+        forced_re_annotation: Optional[bool] = False
 ) -> None:
     """Write MIU file with annotations and populated YAML header.
 
     :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml_handler: The YAMLHandler of the MIU.
     :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'].
+    :param bool forced_re_annotation: some annotation was added to already existing annotation, therefore merge new
+    annotation into TAGS_LISTS.
     :return None:
     """
-    if not yml_handler.is_reviewed():
+    if not yml_handler.is_reviewed() or forced_re_annotation:
         columns_of_automated_tags = ['DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:

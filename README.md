@@ -236,14 +236,14 @@ $ incorporate_newly_prepared_files_in_corpus
 
 Check if the formatting is correct (structural tagging)
 ```shell
-$ check-formatting <OpenITI_EIS1600_Text/data/path/to/file>.EIS1600
+$ check_formatting <OpenITI_EIS1600_Text/data/path/to/file>.EIS1600
 ```
 
 #### Batch processing
 
 Check the formatting of all `.EIS1600` files:
 ```shell
-$ check-formatting
+$ check_formatting
 ```
 This will create a log-file with all issues found. The log file is here: `OpenITI_EIS1600_Texts/mal_formatted_texts.log`.
 It will print a list of files marked as 'ready' for which no `.EIS1600TMP` file was found.

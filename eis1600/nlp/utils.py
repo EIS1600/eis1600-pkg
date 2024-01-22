@@ -5,7 +5,9 @@ from numpy import nan
 from pandas import notna
 
 from eis1600.bio.md_to_bio import bio_to_md
-from eis1600.nlp.cameltools import lemmatize_and_tag_ner, CamelToolsModels
+from eis1600.models.NasabDetectionModel import NasabDetectionModel
+from eis1600.models.OnomsticElementsModel import OnomasticElementsModel
+from eis1600.nlp.cameltools import lemmatize_and_tag_ner
 
 
 def annotate_miu_text(df):
@@ -103,7 +105,7 @@ def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[s
 
 def insert_onom_tag(df) -> list:
     tokens = df['TOKENS'].fillna('-').to_list()
-    nasab_tagger = CamelToolsModels.getNasabModel()
+    nasab_tagger = NasabDetectionModel()
     shortend_list_of_tokens = tokens[1:]
     __shortend_list_limit = 120
     if len(tokens) > __shortend_list_limit:
@@ -137,7 +139,7 @@ def insert_onom_tag(df) -> list:
 
 
 def insert_onomastic_tags(df):
-    onomastic_tagger = CamelToolsModels.getOnomasticModel()
+    onomastic_tagger = OnomasticElementsModel()
     onomastic_tags = [nan] * len(df['TOKENS'])
     start_nasab_id, end_nasab_id = -1, -1
 

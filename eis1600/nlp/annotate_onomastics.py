@@ -1,14 +1,12 @@
 from glob import glob
 from typing import List, Union
 
-from eis1600.texts_to_mius.subid_methods import pre_clean_text, update_ids
+from tqdm import tqdm
 
-from eis1600.markdown.markdown_patterns import MISSING_DIRECTIONALITY_TAG_PATTERN
 from eis1600.nlp.utils import insert_onom_tag, insert_onomastic_tags
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_yml_and_miu_df
-from eis1600.yml.yml_handling import extract_yml_header_and_text
-from eis1600.yml.YAMLHandler import YAMLHandler
+from eis1600.training_data.online_editor_files import fix_formatting
 
 
 def remove_nasab_tag(tags_list: Union[None, List[str]]):
@@ -26,30 +24,23 @@ def annotation(path: str):
         df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df)
         df['TAGS_LISTS'] = df['TAGS_LISTS'].apply(remove_nasab_tag)
 
-    with open(path.replace('12k/', ''), 'w', encoding='utf-8') as out_file_object:
+    with open(path.replace('12k/', '12k_copy/'), 'w', encoding='utf-8') as out_file_object:
         write_updated_miu_to_file(
                 out_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'ONOM_TAGS', 'ONOMASTIC_TAGS']],
                 forced_re_annotation=True
         )
 
 
-def fix_formatting(file: str):
-    with open(file, 'r', encoding='utf-8') as fh:
-        yml_str, text = extract_yml_header_and_text(fh, False)
-        yml_handler = YAMLHandler().from_yml_str(yml_str)
-
-    updated_text = text.replace('#', '_ء_#')
-    updated_text = pre_clean_text(updated_text)
-    updated_text = MISSING_DIRECTIONALITY_TAG_PATTERN.sub('\g<1>_ء_ \g<2>', updated_text)
-    updated_text = update_ids(updated_text)
-
-    with open(file, 'w', encoding='utf-8') as fh:
-        fh.write(str(yml_handler) + updated_text)
-
-
 def main():
-    infiles = glob('12k/*_dt.EIS1600')
+    infiles = glob('12k/*.EIS1600')
 
-    for file in infiles:
-        fix_formatting(file)
+    x = 869
+    for idx, file in tqdm(list(enumerate(infiles[x:]))):
+        try:
+            fix_formatting(file)
+        except ValueError:
+            print(idx + x, file)
+        except Exception:
+            print(idx + x, file)
+
         annotation(file)

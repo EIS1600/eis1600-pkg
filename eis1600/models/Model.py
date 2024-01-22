@@ -1,24 +1,19 @@
-from threading import Lock
 from typing import List
+from threading import Lock
 
 from camel_tools.ner import NERecognizer
 
 
 class Model:
-    __model = None
-    __lock = Lock()
-
     def __init__(self, model_path: str) -> None:
-        Model.__model = NERecognizer(model_path)
-        Model.__lock = Lock()
+        self.model = NERecognizer(model_path)
+        self.lock = Lock()
 
-    @staticmethod
-    def predict_sentence(tokens: List[str]) -> List[str]:
-        with Model.__lock:
-            return Model.__model.predict_sentence(tokens)
+    def predict_sentence(self, tokens: List[str]) -> List[str]:
+        with self.lock:
+            return self.model.predict_sentence(tokens)
 
-    @staticmethod
-    def predict_sentence_with_windowing(tokens: List[str]) -> List[str]:
+    def predict_sentence_with_windowing(self, tokens: List[str]) -> List[str]:
         windows = []
         batch_length = 450
         window_size = 50
@@ -38,9 +33,9 @@ class Model:
             i += 1
 
         prediction_lists = []
-        with Model.__lock:
+        with self.lock:
             for window in windows:
-                prediction_lists.append(Model.__model.predict_sentence(window))
+                prediction_lists.append(self.model.predict_sentence(window))
 
         # Align windows
         predictions = []

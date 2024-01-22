@@ -34,7 +34,7 @@ Run without input arg to batch process all double-checked and ready files from t
     debug = args.debug
 
     if infile:
-        add_ids(infile, ids_update=True)
+        add_ids(infile)
     else:
         files_ready, files_double_checked = get_ready_and_double_checked_files()
         files = files_ready + files_double_checked

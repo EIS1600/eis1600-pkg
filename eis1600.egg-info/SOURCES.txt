@@ -50,6 +50,8 @@ eis1600/model_evaluations/__init__.py
 eis1600/model_evaluations/eval_date_model.py
 eis1600/model_evaluations/eval_topo_cat_model.py
 eis1600/models/Model.py
+eis1600/models/NasabDetectionModel.py
+eis1600/models/OnomsticElementsModel.py
 eis1600/models/ToponymDescriptionModel.py
 eis1600/models/__init__.py
 eis1600/nlp/__init__.py
@@ -96,6 +98,8 @@ eis1600/toponyms/__init__.py
 eis1600/toponyms/annotation.py
 eis1600/toponyms/methods.py
 eis1600/toponyms/toponym_categories.py
+eis1600/training_data/__init__.py
+eis1600/training_data/online_editor_files.py
 eis1600/yml/YAMLHandler.py
 eis1600/yml/__init__.py
 eis1600/yml/yml_handling.py

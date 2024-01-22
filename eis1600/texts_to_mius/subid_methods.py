@@ -1,7 +1,4 @@
 from os.path import splitext
-from typing import Optional
-
-from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_formatting
 
 from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, \
     HEADER_END_PATTERN, \
@@ -14,6 +11,7 @@ from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, \
     PARAGRAPH_UID_TAG_PATTERN
 from eis1600.texts_to_mius.SubIDs import SubIDs
 from eis1600.texts_to_mius.UIDs import UIDs
+from eis1600.texts_to_mius.check_formatting_methods import check_formatting_before_update_ids
 
 
 def pre_clean_text(text: str) -> str:
@@ -289,7 +287,7 @@ def add_ids(infile: str) -> None:
             text = pre_clean_text(text)
             text = MISSING_DIRECTIONALITY_TAG_PATTERN.sub('\g<1>_ء_ \g<2>', text)
 
-            check_file_for_mal_formatting(infile, text)
+            check_formatting_before_update_ids(infile, text)
             text = update_ids(text)
 
             final = header + '\n\n' + text

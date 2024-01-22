@@ -45,6 +45,7 @@ PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ' ~\n' + AR_STR
 )
 TEXT_START_PATTERN = compile(MIU_UID_TAG + r'[|]')
+SIMPLE_MARKDOWN_TEXT_START_PATTERN = compile(r'# [|]')
 PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID_TAG + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
 SIMPLE_MARKDOWN = compile(r'\n#')
 SPAN_ELEMENTS = compile(r'</?span/?>')

@@ -1,6 +1,7 @@
 from eis1600.markdown.markdown_patterns import NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, \
     NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PARAGRAPH_TAG_MISSING, EMPTY_PARAGRAPH_CHECK_PATTERN, \
     SIMPLE_MARKDOWN, MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, TEXT_START_PATTERN, TILDA_HICKUPS_PATTERN
+from markdown.markdown_patterns import SIMPLE_MARKDOWN_TEXT_START_PATTERN
 
 
 def check_file_for_mal_formatting(infile: str, content: str):
@@ -58,3 +59,37 @@ def check_formatting(infile: str):
             check_file_for_mal_formatting(infile, header_text[1])
         except ValueError:
             raise
+
+
+def check_formatting_before_update_ids(infile: str, content: str):
+    if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content) \
+            or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content) \
+            or TILDA_HICKUPS_PATTERN.search(content) \
+            or NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content) \
+            or EMPTY_PARAGRAPH_CHECK_PATTERN.search(content) \
+            or SPAN_ELEMENTS.search(content):
+
+        error = ''
+        if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content):
+            error += '\n * Text does not start with Header or PARATEXT, check if the preface is tagged.'
+        if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+            error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
+        if TILDA_HICKUPS_PATTERN.search(content):
+            error += '\n * There is this pattern with tildes: `~\\n~`.'
+        if NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
+            error += '\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing).'
+        if EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
+            error += '\n * There are empty paragraphs in the text.'
+        if SPAN_ELEMENTS.search(content):
+            error += '\n * There are span elements in the text.'
+
+        raise ValueError(
+                f'Correct the following errors\n'
+                f'open -a kate {infile}\n'
+                f'kate {infile}\n'
+                f'{error}\n\n'
+                f'And now run\n'
+                f'ids_insert_or_update {infile}\n'
+                f'Check if everything is working with\n'
+                f'check_formatting {infile}\n'
+        )

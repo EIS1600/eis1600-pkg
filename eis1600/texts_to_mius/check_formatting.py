@@ -47,3 +47,4 @@ def main():
 
         logger.info(f'\n\n\n{count}/{len(files)} files need fixing')
 
+    print('Done')

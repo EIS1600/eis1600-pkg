@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.3.9',
+      version='1.4.0',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -17,8 +17,8 @@ setup(name='eis1600',
       entry_points={
           'console_scripts': [
                   'analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [EIS]',
-                  'annotate_goldstandard = eis1600.nlp.annotate_goldstandard:main [NER]',
-                  'annotate_mius = eis1600.nlp.ner_annotate_mius:main [NER]',
+                  'analyse_text = eis1600.corpus_analysis.analyse_text:main [EIS]',
+                  'reannotation = eis1600.training_data.reannotation:main',
                   'annotate_topd = eis1600.toponym_descriptions.annotate_topd:main [NER]',
                   'btopd_to_bio = eis1600.toponym_descriptions.btopd_to_bio:main',
                   'check_formatting = eis1600.texts_to_mius.check_formatting:main',
@@ -31,16 +31,13 @@ setup(name='eis1600',
                   'eis1600.texts_to_mius.incorporate_newly_prepared_files_in_corpus:main',
                   'miu_random_revisions = eis1600.helper.miu_random_revisions:main',
                   'mius_count_categories = eis1600.statistics.count_categories:main',
-                  'annotate_onomastics = eis1600.nlp.annotate_onomastics:main',
-                  'onomastic_annotation = eis1600.onomastics.annotation:main',
                   'q_tags_to_bio = eis1600.bio.q_tags_to_bio:main',
                   'sheets_topod_stats = eis1600.toponym_descriptions.topod_sheets_stats:main',
                   'split_mius_into_paragraphs = eis1600.paragraphs.split_mius_into_paragraphs:main',
                   'topo_tags_to_bio = eis1600.bio.topo_tags_to_bio:main',
                   'topod_extract_incomplete = eis1600.toponym_descriptions.topod_extract_incomplete:main',
                   'topod_extract_places_regex = eis1600.toponym_descriptions.topod_extract_places_regex:main',
-                  'topod_insert_into_miu = eis1600.toponym_descriptions.topod_insert_into_miu:main',
-                  'toponym_annotation = eis1600.toponyms.annotation:main'
+                  'topod_insert_into_miu = eis1600.toponym_descriptions.topod_insert_into_miu:main'
           ],
       },
       python_requires='>=3.7',

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from threading import Lock
 
 from camel_tools.ner import NERecognizer
@@ -6,11 +6,14 @@ from camel_tools.ner import NERecognizer
 
 class Model:
     def __init__(self, model_path: str) -> None:
+        self.model_path = model_path
         self.model = NERecognizer(model_path)
         self.lock = Lock()
 
-    def predict_sentence(self, tokens: List[str]) -> List[str]:
+    def predict_sentence(self, tokens: List[str], debug: Optional[bool] = False) -> List[str]:
         with self.lock:
+            if debug:
+                print(self.model_path)
             return self.model.predict_sentence(tokens)
 
     def predict_sentence_with_windowing(self, tokens: List[str]) -> List[str]:

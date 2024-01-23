@@ -1,8 +1,9 @@
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from pathlib import Path
-from sys import argv, exit
 from typing import Optional
-from logging import ERROR
+from sys import argv, exit
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from functools import partial
+from pathlib import Path
+from logging import ERROR, Formatter, INFO
 from time import process_time, time
 
 import jsonpickle
@@ -14,7 +15,7 @@ from torch import cuda
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.logging import setup_logger
-from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_files_from_eis1600_dir, read_files_from_autoreport
+from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
 
 
 def routine_per_text(infile: str, debug: Optional[bool] = False):
@@ -30,9 +31,9 @@ def routine_per_text(infile: str, debug: Optional[bool] = False):
     res = []
     if debug:
         for idx, tup in tqdm(list(enumerate(mius_list[:20]))):
-            res.append(analyse_miu(tup))
+            res.append(analyse_miu(tup, debug))
     else:
-        res += p_uimap(analyse_miu, mius_list[:20])
+        res += p_uimap(partial(analyse_miu, debug=debug), mius_list[:20])
 
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
@@ -61,15 +62,15 @@ def main():
     stp = process_time()
 
     # Retrieve all double-checked texts
-    input_dir = TEXT_REPO
-    files_list = read_files_from_autoreport(input_dir)
+    files_ready, files_double_checked = get_ready_and_double_checked_files()
+    infiles = files_ready + files_double_checked
 
-    infiles = get_files_from_eis1600_dir(input_dir, files_list, 'EIS1600')
     if not infiles:
         print('There are no EIS1600 files to process')
         exit()
 
-    logger = setup_logger('disassemble', 'disassemble.log')
+    formatter = Formatter('%(message)s\n\n\n')
+    logger = setup_logger('analyse_all_on_cluster', 'analyse_all_on_cluster.log', INFO, formatter)
     for i, infile in tqdm(list(enumerate(infiles[:5]))):
         try:
             print(f'{i} {infile}')

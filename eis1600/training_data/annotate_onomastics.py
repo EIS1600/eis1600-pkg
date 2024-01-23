@@ -40,7 +40,8 @@ def main():
             fix_formatting(file)
         except ValueError:
             print(idx + x, file)
-        except Exception:
+        except Exception as e:
             print(idx + x, file)
+            print(e)
 
         annotation(file)

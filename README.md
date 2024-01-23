@@ -10,8 +10,7 @@
   * [convert_mARkdown_to_EIS1600TMP](#convert-markdown-to-eis1600-files)
   * [ids_insert_or_update](#eis1600TMP-to-eis1600)
   * [check_formatting](#check-eis1600-formatting)
-  * [annotate_mius](#annotation)
-  * [onomastic_annotation](#only-onomastic-annotation)
+  * [reannotation](#reannotation)
   * [q_tags_to_bio](#get-training-data-from-q-annotations)
   * [miu_random_revision](#miu-revision)
 
@@ -251,38 +250,22 @@ It will also print a list of files marked as 'double-cheked' for which no `.EIS1
 Check if the author or book URI are still matching the folders and the file in the `OpenITI_EIS1600_Texts` directory.
 
 
-### Annotation
+### Reannotation
 
-NER annotation for persons, toponyms, misc, and also dates, beginning and ending of onomastic information (*NASAB*), and onomastic information.
+This script can be run on a folder containing files which were exported from the onine editor. Those files are MIUs but are missing directionality tags and paragraph tags (they use new lines to indicate paragraphs).
+Use these flags to active the respective model for annotation:
+  * NER
+  * O [_Onomastics_]
+  * P [_Persons and STFCOX_]
+  * T [_Toponyms and BDKOPRX_]
 
-**Note** Can only be run if package was installed with *NER* flag AND if the ML models are in the [EIS1600_Pretrained_Models](#structure-of-the-working-directory) directory.
 
-If no input is given, annotation is run for the whole repository. Can be used with `-p` option for parallelization.
-Run from the [parent directory](#structure-of-the-working-directory) `EIS1600` (internally used path starts with: `EIS1600_MIUs/`).
+__THIS WILL OVERWRITE THE ORIGINAL FILES IN THE FOLDER!__
 ```shell
-$ annotate_mius -p
+$ reannotation -NER -O -P -T <path/to/folder>
 ```
 
-To annotate all MIU files of a text give the IDs file as argument.
-Can be used with `-p` option to run in parallel.
-```shell
-$ annotate_mius <uri>.IDs
-```
 
-To annotate an individual MIU file, give MIU file as argument.
-```shell
-$ annotate_mius <uri>/MIUs/<uri>.<UID>.EIS1600
-```
-
-### Only Onomastic Annotation
-
-**Only for test purposes!**
-Can be run with `-D` to process one file at a time, otherwise runs in parallel.
-Can be run with `-T` to use gold-standard data as input.
-Run from the [parent directory](#structure-of-the-working-directory) `EIS1600`.
-```shell
-$ onomastic_annotation
-```
 
 ### Get training data from Q annotations
 

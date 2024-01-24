@@ -85,7 +85,7 @@ def tag_dates_fulltext(text: str) -> str:
     m = DATE_PATTERN.search(text_updated)
     while m:
         # While date phrases are recognized in the text
-        if m.group('year'):
+        if m.group('year') and len(m.group('year').split()) > 1:
             # Check if phrase is an actual date. Date phrases give the years after the word sana. In
             # contrast, age phrases give the years before the word sana.
             year = 0

@@ -1,6 +1,5 @@
 from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from logging import Formatter, INFO
 
 from eis1600.corpus_analysis.analyse_all_on_cluster import routine_per_text
 

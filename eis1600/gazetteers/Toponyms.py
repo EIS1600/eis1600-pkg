@@ -28,7 +28,6 @@ class Toponyms:
     __rpl = None
 
     def __init__(self) -> None:
-        print('TOPONYMS')
         df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'])
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 

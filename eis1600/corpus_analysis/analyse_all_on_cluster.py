@@ -30,11 +30,16 @@ def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optio
     mius_list = get_text_as_list_of_mius(infile)
 
     res = []
+    error = ''
     if parallel:
         res += p_uimap(partial(analyse_miu, debug=debug), mius_list[:20])
     else:
         for idx, tup in tqdm(list(enumerate(mius_list[:20]))):
-            res.append(analyse_miu(tup, debug))
+            try:
+                res.append(analyse_miu(tup, debug))
+            except Exception as e:
+                uid, miu_as_text, analyse_flag = tup
+                error += f'{uid}\n{e}\n\n\n'
 
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
@@ -45,6 +50,9 @@ def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optio
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(res, unpicklable=False)
         fh.write(json_str)
+
+    if error:
+        raise ValueError(error)
 
 
 def main():
@@ -79,7 +87,6 @@ def main():
             print(f'{i} {infile}')
             routine_per_text(infile, parallel, debug)
         except ValueError as e:
-            errors = True
             logger.log(ERROR, f'{infile}\n{e}')
 
     et = time()

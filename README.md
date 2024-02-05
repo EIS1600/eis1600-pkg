@@ -183,10 +183,12 @@ Path variables are in the module `eis1600/helper/repo`.
 
 __All commands must be run from the [parent directory](#structure-of-the-working-directory) `EIS1600`!__
 See also [Processing Workflow](#processing-workflow).
+* Use `-D` flag to get detailed debug messages in the console.
 
 ### Annotation Pipeline
 
-Use `-D` flag to run annotation of MIUs in sequence, otherwise the annotation will be run in parallel, and it will eat up __ALL__ resources.
+* Use `-P` flag to run annotation of MIUs in parallel, parallel processing will eat up __ALL__ resources!
+* Use `-D` flag to get detailed debug messages in the console.
 ```shell
 $ analyse_all_on_cluster
 ```

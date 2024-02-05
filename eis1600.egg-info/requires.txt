@@ -12,6 +12,7 @@ camel-tools
 torch
 torchaudio
 torchvision
+transformers
 
 [EVAL]
 evaluate

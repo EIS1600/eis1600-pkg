@@ -4,13 +4,13 @@ from pathlib import Path
 from glob import glob
 from functools import partial
 
-from eis1600.texts_to_mius.convert_mARkdown_methods import convert_to_EIS1600TMP
 from tqdm import tqdm
 from p_tqdm import p_uimap
 
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingMARKdownAction
 from eis1600.repositories.repo import get_files_from_eis1600_dir, read_files_from_readme, \
     update_texts_fixed_poetry_readme
+from eis1600.texts_to_mius.convert_mARkdown_methods import convert_to_EIS1600TMP
 
 
 def main():

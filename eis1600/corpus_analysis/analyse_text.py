@@ -13,6 +13,7 @@ def main():
             description='''Script to re-annotated files from the online-editor.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
+    arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600 text file to annotate.',
@@ -20,6 +21,7 @@ def main():
     )
     args = arg_parser.parse_args()
     debug = args.debug
+    parallel = args.parallel
     infile = args.input
 
-    routine_per_text(infile, debug)
+    routine_per_text(infile, parallel, debug)

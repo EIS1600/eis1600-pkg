@@ -31,6 +31,7 @@ eis1600/gazetteers/data/months_gazetteer.csv
 eis1600/gazetteers/data/onomastic_gazetteer.csv
 eis1600/gazetteers/data/spelling_gazetteer.csv
 eis1600/gazetteers/data/toponyms_gazetteer.csv
+eis1600/gazetteers/data/toponyms_gazetteer_operational.csv
 eis1600/gazetteers/data/years_gazetteer.csv
 eis1600/helper/CheckFileEndingActions.py
 eis1600/helper/Singleton.py
@@ -50,7 +51,9 @@ eis1600/model_evaluations/EvalResultsEncoder.py
 eis1600/model_evaluations/__init__.py
 eis1600/model_evaluations/eval_date_model.py
 eis1600/model_evaluations/eval_topo_cat_model.py
+eis1600/models/BiosPunctuationModel.py
 eis1600/models/Disambiguator.py
+eis1600/models/EventsPunctuationModel.py
 eis1600/models/FamilyContactOpinionModel.py
 eis1600/models/Lemmatizer.py
 eis1600/models/Model.py
@@ -58,6 +61,7 @@ eis1600/models/NERModel.py
 eis1600/models/NasabDetectionModel.py
 eis1600/models/OnomsticElementsModel.py
 eis1600/models/POSTagger.py
+eis1600/models/PoetryDetectionModel.py
 eis1600/models/StudentTeacherModel.py
 eis1600/models/ToponymDescriptionModel.py
 eis1600/models/ToponymModel.py

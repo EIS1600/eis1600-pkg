@@ -18,22 +18,23 @@ from eis1600.helper.logging import setup_logger
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
 
 
-def routine_per_text(infile: str, debug: Optional[bool] = False):
+def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optional[bool] = False):
     """Entry into analysis routine per text.
 
     Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
     the list of MIUs with their analysis results.
     :param ste infile: EIS1600 text which is analysed.
-    :param bool debug: Debug flag for serial processing, otherwise parallel processing.
+    :param bool parallel: Parallel flag for parallel processing, otherwise serial processing.
+    :param bool debug: Debug flag for more console messages.
     """
     mius_list = get_text_as_list_of_mius(infile)
 
     res = []
-    if debug:
+    if parallel:
+        res += p_uimap(partial(analyse_miu, debug=debug), mius_list[:20])
+    else:
         for idx, tup in tqdm(list(enumerate(mius_list[:20]))):
             res.append(analyse_miu(tup, debug))
-    else:
-        res += p_uimap(partial(analyse_miu, debug=debug), mius_list[:20])
 
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
@@ -52,9 +53,11 @@ def main():
             description='''Script to parse whole corpus to annotated MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
+    arg_parser.add_argument('-P', '--parallel', action='store_true')
 
     args = arg_parser.parse_args()
     debug = args.debug
+    parallel = args.parallel
 
     print(f'GPU available: {cuda.is_available()}')
 
@@ -74,7 +77,7 @@ def main():
     for i, infile in tqdm(list(enumerate(infiles[:5]))):
         try:
             print(f'{i} {infile}')
-            routine_per_text(infile, debug)
+            routine_per_text(infile, parallel, debug)
         except ValueError as e:
             errors = True
             logger.log(ERROR, f'{infile}\n{e}')

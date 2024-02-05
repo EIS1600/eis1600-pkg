@@ -35,6 +35,10 @@ class Model:
             windows.append(tokens[start: end])
             i += 1
 
+        print(tokens)
+        for w in windows:
+            print(w)
+
         prediction_lists = []
         with self.lock:
             for window in windows:

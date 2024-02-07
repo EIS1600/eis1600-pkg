@@ -1,7 +1,9 @@
 from typing import Dict, Optional, Tuple
 
+from eis1600.dates.month_methods import month_annotate_miu_text
+
 from eis1600.bio.md_to_bio import bio_to_md
-from eis1600.dates.methods import date_annotate_miu_text
+from eis1600.dates.date_methods import date_annotate_miu_text
 from eis1600.nlp.annotation_utils import annotate_miu_text, insert_onom_tag, insert_onomastic_tags
 from eis1600.nlp.utils import aggregate_STFCON_classes, merge_ner_with_person_classes, merge_ner_with_toponym_classes
 from eis1600.processing.postprocessing import merge_tagslists, reconstruct_miu_text_with_tags
@@ -46,6 +48,7 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
         if debug:
             print('4. annotate dates')
         df['DATE_TAGS'] = date_annotate_miu_text(df[['TOKENS']], uid, yml_handler)
+        df['MONTH_TAGS'] = month_annotate_miu_text(df[['TOKENS']], uid)
 
         # 5. insert BONOM and EONOM tags with the pretrained transformer model
         df['ONOM_TAGS'] = insert_onom_tag(df, debug)
@@ -59,7 +62,7 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
         # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
         if debug:
             print('Reconstruct the text, populate yml with annotated entities and save it to the output file')
-        columns_of_automated_tags = ['DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
+        columns_of_automated_tags = ['DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:
                 df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)

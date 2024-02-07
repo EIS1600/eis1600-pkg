@@ -65,9 +65,9 @@ MONTHS = {
         'ذو قعدة': 11, 'ذو الحجة': 12, 'ذو حجة': 12, 'اخر': -1
 }
 MONTHS_NOR = normalize_dict(MONTHS)
-SANA = ['سنة', 'عام', 'في حدود']
+SANA = sorted(['سنة', 'عام', 'في حدود سنة', 'في حدود'], key=len, reverse=True)
 
-AR_MONTHS = '|'.join([denormalize(key) for key in MONTHS.keys()])
+AR_MONTHS = '|'.join(sorted([denormalize(key) for key in MONTHS.keys()], key=len, reverse=True))
 AR_ONES = '|'.join([denormalize(key) for key in ONES.keys()])
 AR_TEN = '|'.join([denormalize(key) for key in TEN.keys()])
 AR_HUNDRED = '|'.join([denormalize(key) for key in HUNDRED.keys()])
@@ -76,10 +76,11 @@ AR_ONES_DAY = '|'.join([denormalize(key) for key in DAY_ONES.keys()])
 AR_TEN_DAY = '|'.join([denormalize(key) for key in DAY_TEN.keys()])
 AR_WEEKDAY = '|'.join([denormalize(key) for key in WEEKDAYS.keys()])
 AR_SANA = '|'.join([denormalize(s) for s in SANA])
+MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?:ال)?(?P<month>' + AR_MONTHS + r')(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
 DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(:?ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(:?و)?(:?ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
-       r'(?:\s(?:(?:من\s)?(?:شهر\s)?)?(?:ال)?(?P<month>' + AR_MONTHS + r')(?:\s(?:من|ف[يى])(?:\sشهور)?)?)?' + \
+       MONTH_IN_CONTEXT + \
        r'(?P<year>' + \
               r'\s(?P<sana>' + AR_SANA + ')' + \
               r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + \
@@ -92,6 +93,8 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
 
 DATE_PATTERN = compile(DATE)
 MONTH_PATTERN = compile(AR_MONTHS)
+MONTH_IN_CONTEXT_PATTERN = compile(MONTH_IN_CONTEXT)
+SANA_PATTERN = compile(r'\s' + r'|'.join([denormalize(s) for s in SANA]))
 
 DATE_CATEGORIES_DICT = {
        'ولد': 'B', 'مولد': 'B',

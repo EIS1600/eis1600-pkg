@@ -4,6 +4,7 @@ person,PERSON,P
 book,BOOK,B
 misc,MISC,M
 date,DATE,Y
+month,LUNAR_MONTH,L
 age,AGE,A
 spelling,,SPL
 explanatory terms,,EXP

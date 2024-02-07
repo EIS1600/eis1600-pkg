@@ -6,8 +6,8 @@ from typing import Match, Optional
 from openiti.helper.ara import normalize_ara_heavy
 
 from eis1600.dates.Date import Date
-from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, \
-    ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR, ONES_HINDI
+from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTERN, DATE_PATTERN, MONTHS_NOR, \
+    ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR, ONES_HINDI, SANA_PATTERN
 from eis1600.processing.preprocessing import get_tokens_and_tags
 from eis1600.yml.YAMLHandler import YAMLHandler
 
@@ -50,10 +50,10 @@ def parse_year(m: Match[str]) -> (int, int):
             year = year_digits
         elif year != year_digits:
             raise ValueError(
-                f"Date recognition: parsed value and given value are at odds. Check {m.group(0)}\n"
-                f"given: {year_digits}\n"
-                f"parsed: {year}"
-                )
+                    f"Date recognition: parsed value and given value are at odds. Check {m.group(0)}\n"
+                    f"given: {year_digits}\n"
+                    f"parsed: {year}"
+            )
 
     return year, length
 
@@ -85,7 +85,7 @@ def tag_dates_fulltext(text: str) -> str:
     m = DATE_PATTERN.search(text_updated)
     while m:
         # While date phrases are recognized in the text
-        if m.group('year') and len(m.group('year').split()) > 1:
+        if m.group('year') and not SANA_PATTERN.fullmatch(m.group('year')):
             # Check if phrase is an actual date. Date phrases give the years after the word sana. In
             # contrast, age phrases give the years before the word sana.
             year = 0

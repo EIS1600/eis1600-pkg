@@ -155,7 +155,6 @@ def add_annotated_entities_to_yml(
                 yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
                 return
         elif cat == 'TOPONYM':
-            print('Identify toponym')
             # Identify toponym
             place, uris_tag, list_of_uris, list_of_provinces = Toponyms().look_up_entity(entity)
             if notna(sub_cat):

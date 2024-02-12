@@ -3,7 +3,7 @@ from typing import Iterator, List, Optional, TextIO, Tuple, Union
 from os import path
 from pandas import DataFrame, notna
 
-from eis1600.markdown.markdown_patterns import ENTITY_TAGS_PATTERN
+from eis1600.markdown.markdown_patterns import ENTITY_TAGS_PATTERN, PUNCTUATION_DICT
 from eis1600.yml.YAMLHandler import YAMLHandler
 from eis1600.yml.yml_handling import add_annotated_entities_to_yml
 
@@ -61,12 +61,18 @@ def reconstruct_miu_text_with_tags(
             print("df['TAGS_LISTS'] must be list")
             raise TypeError
         if notna(token):
+            print(token)
+            print(reconstructed_text)
             reconstructed_text += ' ' + token
 
     reconstructed_text += '\n\n'
-    reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')
+
+    # Replace tag replacements with their actual EIS1600 tags (we use PERIOD, ARCOMMA and COLON while processing
+    # because the simple_word_tokenizer would return 3 tokens '_', '.', '_' and the tags are no longer recognized.
     reconstructed_text = reconstructed_text.replace(' NEWLINE ', '\n_ء_ ')
     reconstructed_text = reconstructed_text.replace('HEMISTICH', '%~%')
+    for key, val in PUNCTUATION_DICT.items():
+        reconstructed_text = reconstructed_text.replace(val, '_' + key + '_')
     return reconstructed_text
 
 

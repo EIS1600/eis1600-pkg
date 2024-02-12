@@ -1,16 +1,17 @@
-from typing import List, Literal, Optional, Tuple
+from pathlib import Path
+from typing import Dict, List, Literal, Optional, Tuple
 
-from pandas import isna, DataFrame
+from pandas import isna, DataFrame, notna
 
-from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_UID_TAG_PATTERN
+from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PUNCTUATION_DICT
 from eis1600.models.BiosPunctuationModel import BiosPunctuationModel
 from eis1600.models.EventsPunctuationModel import EventsPunctuationModel
 from eis1600.models.PoetryDetectionModel import PoetryDetectionModel
 from eis1600.processing.preprocessing import get_yml_and_miu_df, tokenize_miu_text
-from eis1600.processing.postprocessing import reconstruct_miu_text_with_tags
-from eis1600.repositories.repo import TEXT_REPO
+from eis1600.processing.postprocessing import merge_tagslists, reconstruct_miu_text_with_tags
+from eis1600.repositories.repo import TEXT_REPO, TEXT_REPO_ERROR_LOG
 
-PUNCTUATION = ['.', ',', '،', ':']
+PUNCTUATION = PUNCTUATION_DICT.keys()
 
 
 def test_for_poetry(tokens: List[str], debug: Optional[bool] = False):
@@ -22,9 +23,11 @@ def remove_punctuation(df: DataFrame) -> DataFrame:
     for section, token, tag in df.itertuples(index=False):
         if token in PUNCTUATION:
             if not isna(section):
-                raise ValueError('First token in this section is punctuation:\n'
-                                 f'{section}\n'
-                                 'This is not allowed during the re-splitting routine.\n')
+                raise ValueError(
+                    'First token in this section is punctuation:\n'
+                    f'{section}\n'
+                    'This is not allowed during the re-splitting routine.\n'
+                    )
             elif not isna(tag):
                 # Extend TAGS_LIST of prev token with tags from the punctuation token
                 if not isna(tags[-1]):
@@ -63,11 +66,20 @@ def get_old_paragraphs(df: DataFrame) -> List[Tuple[str, List[str]]]:
     return paragraphs[1:]  # First element is (None, '') due to the MIU header
 
 
-def remove_original_paragraphs(old_paragraphs: List[Tuple[str, List[str]]]) -> List[Tuple[str, List[str]]]:
+def remove_original_paragraphs(old_paragraphs: List[Tuple[str, List[str]]]) -> \
+        Tuple[List[Tuple[str, List[str]]], List[Dict]]:
     mergeable_paragraphs = []
     unsplitted = []
+    poetry_test_res = []
     for cat, tokens in old_paragraphs:
-        if cat == 'POETRY' or '%~%' in tokens or (len(tokens) < 60 and test_for_poetry(tokens)):
+        if 20 >= len(tokens) >= 3:
+            is_poetry, res = test_for_poetry(tokens)
+            poetry_test_res.append(res)
+        else:
+            is_poetry = False
+
+        if cat == 'POETRY' or '%~%' in tokens or is_poetry:
+            # TODO does that mean we should remove the HEMISTICH from text?
             unsplitted.append(('UNDEFINED', mergeable_paragraphs))
             mergeable_paragraphs = []
             if '%~%' not in tokens:
@@ -78,7 +90,7 @@ def remove_original_paragraphs(old_paragraphs: List[Tuple[str, List[str]]]) -> L
     if mergeable_paragraphs:
         unsplitted.append(('UNDEFINED', mergeable_paragraphs))
 
-    return unsplitted
+    return unsplitted, poetry_test_res
 
 
 def split_by_model(tokens: List[str], miu_cat: Literal['B', 'C']) -> List[Tuple[str, str]]:
@@ -86,6 +98,7 @@ def split_by_model(tokens: List[str], miu_cat: Literal['B', 'C']) -> List[Tuple[
         # TODO insert Bio Punctuation model after training
         # punctuation_predictions = BiosPunctuationModel().predict_sentence(tokens)
         punctuation_predictions = [None] * len(tokens)
+        punctuation_predictions = EventsPunctuationModel().predict_sentence(tokens)
     else:
         punctuation_predictions = EventsPunctuationModel().predict_sentence(tokens)
     text_with_punctuation = ''
@@ -93,67 +106,88 @@ def split_by_model(tokens: List[str], miu_cat: Literal['B', 'C']) -> List[Tuple[
         text_with_punctuation += t + ' '
         if p:
             text_with_punctuation += p + ' '
-    paragraphs = text_with_punctuation.split('. ')
+    paragraphs = text_with_punctuation.split('PERIOD ')
 
-    return [('UNDEFINED', paragraph + '.') for paragraph in paragraphs if paragraph]
+    return [('UNDEFINED', paragraph + 'PERIOD') for paragraph in paragraphs if paragraph]
 
 
-def redefine_paragraphs(uid: str, miu_as_text: str) -> None:
+def redefine_paragraphs(uid: str, miu_as_text: str) -> List[Dict]:
     yml_handler, df_original = get_yml_and_miu_df(miu_as_text)
-    miu_header = df_original['SECTIONS'].iloc[0]
+    miu_header = df_original['SECTIONS'].iat[0]
     if MIU_TAG_PATTERN.match(miu_header).group('category').startswith('$'):
-        miu_cat = 'B'   # MIU is a biography
+        miu_cat = 'B'  # MIU is a biography
     else:
-        miu_cat = 'C'     # MIU is not a biography and therefore we assume it is events
-
-    print(miu_header)
-
-    # DEBUG
-    df_original.to_csv(TEXT_REPO + f'Footnotes_noise_example.{uid}_original.csv')
+        miu_cat = 'C'  # MIU is not a biography and therefore we assume it is events
 
     df_new = remove_punctuation(df_original)
     old_paragraphs = get_old_paragraphs(df_new)
-    unsplitted_text = remove_original_paragraphs(old_paragraphs)
+    unsplitted_text, poetry_test_res = remove_original_paragraphs(old_paragraphs)
 
     new_paragraphs = []
     for cat, unsplitted in unsplitted_text:
         if cat == 'UNDEFINED':
             new_paragraphs.extend(split_by_model(unsplitted, miu_cat))
         else:
-            new_paragraphs.append((cat, unsplitted))
+            new_paragraphs.append((cat, ' '.join(unsplitted)))
 
     # And now puzzle everything together
     text_with_new_paragraphs = miu_header + '\n\n'
     for cat, paragraph in new_paragraphs:
         text_with_new_paragraphs += f'::{cat}::\n{paragraph}\n\n'
 
-    text_with_new_paragraphs = text_with_new_paragraphs[:-2]    # delete new-lines from the end
     # TODO How to aline with TAGS_LISTS?
     zipped = tokenize_miu_text(text_with_new_paragraphs, simple_mARkdown=True)
-    sections, tokens, punctuation = [], [], []
-    for section, token, _ in zipped:
-        if token in PUNCTUATION:
-            punctuation[-1] = token
-        else:
-            sections.append(section)
-            tokens.append(token)
-            punctuation.append(None)
+    data = [(s, token, tags[0]) if tags else (s, token, None) for s, token, tags in zipped]
+    df_punctuation = DataFrame(data, columns=['SECTIONS', 'TOKENS', 'PUNCTUATION'])
+    df_original['PUNCTUATION'] = None
 
-    df_punctuation = DataFrame(zip(sections, tokens, punctuation), columns=['SECTIONS', 'TOKENS', 'PUNCTUATION'])
-    df_new['TAGS_LISTS'] = None
-
-    count = 0
-    for row in df_new.itertuples():
+    count = 1  # First token is None because that row only holds the MIU header -> if we start at 0 this will break
+    # the loop because we test for notna(token)!
+    tmp = []
+    df_original['TOKENS'].mask(isna(df_original['TOKENS']), other='', inplace=True)
+    poetry = False
+    missing = False
+    for row in df_original.itertuples():
         token = row.TOKENS
         idx = row.Index
-        if token == df_original['TOKENS'].iloc[count]:
-            df_new['TAGS_LISTS'].iloc[idx] = df_original['TAGS_LISTS'].iloc[count]
+        if notna(row.SECTIONS):
+            poetry = 'POETRY' in row.SECTIONS
+            if idx > 0 and notna(df_punctuation['SECTIONS'].iat[count]):
+                df_original['PUNCTUATION'].iat[idx] = None
+
+        if poetry:
             count += 1
+        else:
+            tmp.append(
+                    (token, token == df_punctuation['TOKENS'].iat[count], df_punctuation['TOKENS'].iat[count], count)
+                    )
+            if notna(token) and token == df_punctuation['TOKENS'].iat[count]:
+                df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
+                if idx > 0:
+                    df_original['SECTIONS'].iat[idx] = df_punctuation['SECTIONS'].iat[count]
+                count += 1
+                missing = False
+            elif notna(token) and token in PUNCTUATION:
+                pass
+            elif notna(token) and idx == len(df_original) - 1:
+                df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
+            elif missing:
+                Path(TEXT_REPO_ERROR_LOG).mkdir(exist_ok=True, parents=True)
+                df_original.to_csv(TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_original.csv')
+                df_punctuation.to_csv(TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_punc.csv')
+                DataFrame(tmp, columns=['token', 'equals', 'punc', 'count']).to_csv(
+                        TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_tmp.csv'
+                )
+                error = f'Something in the alignment broke, check the DataFrames in {TEXT_REPO_ERROR_LOG}'
+                raise IndexError(error)
+            else:
+                missing = True
 
-    # DEBUG
-    df_punctuation.to_csv(TEXT_REPO + f'Footnotes_noise_example.{uid}_pun.csv')
-    df_new.to_csv(TEXT_REPO + f'Footnotes_noise_example.{uid}_new.csv')
+    df_original['TAGS_LISTS'] = df_original.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['PUNCTUATION']), axis=1)
 
-    updated_text = reconstruct_miu_text_with_tags(df_new)
+    updated_text = reconstruct_miu_text_with_tags(df_original[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
+    # TODO get whole file back together
     with open(TEXT_REPO + f'Footnotes_noise_example.{uid}.EIS1600', 'w', encoding='utf-8') as fh:
         fh.write(updated_text)
+
+    return poetry_test_res

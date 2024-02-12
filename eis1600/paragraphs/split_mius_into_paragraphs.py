@@ -1,14 +1,12 @@
 from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from eis1600.repositories.repo import TEXT_REPO
+from pandas import DataFrame, concat
 
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrEIS1600TMPAction
 from eis1600.paragraphs.paragraph_methods import redefine_paragraphs
-
-# split_mius_into_paragraphs OpenITI_EIS1600_Texts/data/0346Mascudi/0346Mascudi.TanbihWaIshraf/0346Mascudi.TanbihWaIshraf.Shamela0023718-ara1.EIS1600
-
+from eis1600.repositories.repo import TEXT_REPO
 
 
 def main():
@@ -28,9 +26,19 @@ def main():
     infile = TEXT_REPO + 'Footnotes_noise example.EIS1600'
 
     mius_list = get_text_as_list_of_mius(infile)
-
+    columns = ['uid', 'text', 'meter', 'score']
+    poetry_test_res = DataFrame(None, columns=columns)
     x = 0
     for i, tup in enumerate(mius_list[x:]):
         uid, miu_as_text, analyse_flag = tup
         print(i + x, uid)
-        redefine_paragraphs(uid, miu_as_text)
+        poetry_tests_list = redefine_paragraphs(uid, miu_as_text)
+        data = [(uid, dict_per_paragraph['text'], dict_per_paragraph['label'], dict_per_paragraph['score']) for
+               dict_per_paragraph in poetry_tests_list]
+        tmp = DataFrame(data, columns=columns)
+        if poetry_test_res.empty:
+            poetry_test_res = tmp
+        else:
+            poetry_test_res = concat([poetry_test_res, tmp])
+
+    poetry_test_res.to_csv(TEXT_REPO + 'Footnotes_noise example_poetry_test_res.csv')

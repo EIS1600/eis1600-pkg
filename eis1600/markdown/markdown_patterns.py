@@ -2,6 +2,8 @@ from re import compile
 
 from eis1600.markdown.EntityTags import EntityTags
 
+PUNCTUATION_DICT = {'.': 'PERIOD', ',': 'LATINCOMMA', '،': 'COMMA', ':': 'COLON'}
+
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
         u'\u0628\u0629\u062a\u062b\u062c\u062d\u062e'
@@ -56,7 +58,8 @@ POETRY_ATTACHED_AFTER_PAGE_TAG = compile('Page[VP0-9]+[^\n%]+%')
 MIU_TAG_PATTERN = compile(r'(' + MIU_UID_TAG + r'(?P<category>[^\n]+))')
 CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
 PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
-TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|(?:::)')
+TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|::|' +
+                      '|'.join(PUNCTUATION_DICT.values()))
 NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(' + MIU_UID_TAG_WITHOUT_CAPTURING_GROUP + ')' + TAG_AND_TEXT_SAME_LINE)

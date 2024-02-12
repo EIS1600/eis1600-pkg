@@ -196,7 +196,7 @@ def nasab_annotate_miu(
 
     # The following blacklisted elements are considered noise in the text data and are therefore ignored but kept
     blacklist = ['(', ')', '[', ']', '"', "'", '.', '،', '؟', '!', ':', '؛', ',', ';', '?', '|']
-    nasab_idx = df.loc[df['TOKENS'].notna() & ~df['TOKENS'].isin(blacklist) & df.index.isin(df.iloc[:idx].index)].index
+    nasab_idx = df.loc[df['TOKENS'].notna() & ~df['TOKENS'].isin(blacklist) & df.index.isin(df.iat[:idx].index)].index
 
     text = ' '.join(df['TOKENS'].loc[nasab_idx])
 
@@ -238,7 +238,7 @@ def nasab_annotation(file: str, test: Optional[bool] = False):
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
     if test:
         # Only used if run on training_data batch because this information is missing there
-        if '$' not in df.iloc[0]['SECTIONS'] or '$$$' in df.iloc[0]['SECTIONS'] or not yml_handler.is_reviewed():
+        if '$' not in df.iat[0]['SECTIONS'] or '$$$' in df.iat[0]['SECTIONS'] or not yml_handler.is_reviewed():
             df['ONOM_TAGS'] = Series([nan] * len(df))
         else:
             yml_handler.set_category('$')

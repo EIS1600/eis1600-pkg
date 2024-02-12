@@ -97,6 +97,6 @@ class Onomastics:
             all_pos = ['Ü' + cat + str(n) for cat, n in zip(lookup['CATEGORY'].to_list(), lookup['NGRAM'].to_list())]
             return '___'.join(all_pos) + ' '
         elif len(lookup) == 1:
-            return 'Ü' + str(lookup.iloc[0]['CATEGORY']) + str(lookup.iloc[0]['NGRAM']) + ' '
+            return 'Ü' + str(lookup.iat[0]['CATEGORY']) + str(lookup.iat[0]['NGRAM']) + ' '
         else:
             return 'ÜNaN' + str(len(ngram)) + ' '

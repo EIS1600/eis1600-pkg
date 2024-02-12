@@ -4,7 +4,7 @@ from pandas import DataFrame, options
 from camel_tools.tokenizers.word import simple_word_tokenize
 
 from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_SIMPLE_SPLITTER_PATTERN, \
-    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PARAGRAPH_SPLITTER_PATTERN, TAG_PATTERN
+    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PARAGRAPH_SPLITTER_PATTERN, PUNCTUATION_DICT, TAG_PATTERN
 from eis1600.yml.YAMLHandler import YAMLHandler
 from eis1600.yml.yml_handling import extract_yml_header_and_text
 
@@ -69,7 +69,12 @@ def tokenize_miu_text(
             # NEWLINE is treated like a tag
             text_wo_new_lines = paragraph.replace('\n_ء_', ' NEWLINE ')
             text_wo_new_lines = text_wo_new_lines.replace('\n', ' NEWLINE ')
+            # Replace %~% with HEMISTICH since the simple_word_tokenizer would return '%', '~', '%' and it would no
+            # longer be recognizable as a tag
             text_wo_new_lines = text_wo_new_lines.replace('%~%', 'HEMISTICH')
+            # The same for automated punctuation
+            for key, val in PUNCTUATION_DICT.items():
+                text_wo_new_lines = text_wo_new_lines.replace(f'_{key}_', val)
             tokens = simple_word_tokenize(text_wo_new_lines)
             tag = None
             for t in tokens:
@@ -87,11 +92,15 @@ def tokenize_miu_text(
                     ar_tokens.append(t)
                     tags.append(tag)
                     tag = None
+            # We need to add this empty token at the end of the paragraph because in some cases we have a tag as last
+            # element of the paragraph (EONOM or automated punctuation)
+            sections.append(section)
+            section = None
+            ar_tokens.append('')
             if tag:
-                sections.append(section)
-                section = None
-                ar_tokens.append('')
                 tags.append(tag)
+            else:
+                tags.append(None)
 
         paragraph = next(text_iter, None)
 

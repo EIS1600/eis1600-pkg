@@ -1,6 +1,6 @@
 from typing import Optional
 from sys import argv, exit
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from functools import partial
 from pathlib import Path
 from logging import ERROR, Formatter, INFO
@@ -18,6 +18,16 @@ from eis1600.helper.logging import setup_logger
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
 
 
+def parse_range(arg: str) -> tuple[int, int | None]:
+    try:
+        i, j = arg.split(",")
+        i = int(i) - 1 if i else 0
+        j = int(j) if j else None
+        return i, j
+    except ValueError:
+        raise ArgumentTypeError("range must be i,j with both i and j being integers")
+
+
 def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optional[bool] = False):
     """Entry into analysis routine per text.
 
@@ -32,9 +42,9 @@ def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optio
     res = []
     error = ''
     if parallel:
-        res += p_uimap(partial(analyse_miu, debug=debug), mius_list[:20])
+        res += p_uimap(partial(analyse_miu, debug=debug), mius_list)
     else:
-        for idx, tup in tqdm(list(enumerate(mius_list[:20]))):
+        for idx, tup in tqdm(list(enumerate(mius_list))):
             try:
                 res.append(analyse_miu(tup, debug))
             except Exception as e:
@@ -57,8 +67,14 @@ def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optio
 
 def main():
     arg_parser = ArgumentParser(
-            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
-            description='''Script to parse whole corpus to annotated MIUs.'''
+        prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
+        description='''Script to parse whole corpus to annotated MIUs.'''
+    )
+    arg_parser.add_argument(
+        '--range',
+        metavar="ini,end",
+        type=parse_range,
+        help='process file range [i,j] (both are optional)'
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-P', '--parallel', action='store_true')
@@ -82,9 +98,13 @@ def main():
 
     formatter = Formatter('%(message)s\n\n\n')
     logger = setup_logger('analyse_all_on_cluster', 'analyse_all_on_cluster.log', INFO, formatter)
-    for i, infile in tqdm(list(enumerate(infiles[:5]))):
+
+    if args.range:
+        infiles = infiles[args.range[0]:args.range[1]]
+
+    for i, infile in tqdm(list(enumerate(infiles))):
         try:
-            print(f'{i} {infile}')
+            print(f'[{i}] {infile}')
             routine_per_text(infile, parallel, debug)
         except ValueError as e:
             logger.log(ERROR, f'{infile}\n{e}')
@@ -93,5 +113,5 @@ def main():
     etp = process_time()
 
     print('Done')
-    print(f'Processing time: {etp-stp} seconds')
-    print(f'Execution time: {et-st} seconds')
+    print(f'Processing time: {etp - stp} seconds')
+    print(f'Execution time: {et - st} seconds')

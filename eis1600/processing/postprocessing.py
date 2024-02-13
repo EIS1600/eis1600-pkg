@@ -61,8 +61,6 @@ def reconstruct_miu_text_with_tags(
             print("df['TAGS_LISTS'] must be list")
             raise TypeError
         if notna(token):
-            print(token)
-            print(reconstructed_text)
             reconstructed_text += ' ' + token
 
     reconstructed_text += '\n\n'

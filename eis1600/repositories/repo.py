@@ -36,6 +36,7 @@ GAZETTEERS_REPO = 'gazetteers/'
 MC_REPO = 'MasterChronicle/'
 BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
+POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
 
 def get_ready_and_double_checked_files() -> Tuple[List[str], List[str]]:

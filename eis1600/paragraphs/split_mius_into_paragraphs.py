@@ -1,3 +1,4 @@
+from pathlib import Path
 from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
@@ -6,7 +7,7 @@ from pandas import DataFrame, concat
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrEIS1600TMPAction
 from eis1600.paragraphs.paragraph_methods import redefine_paragraphs
-from eis1600.repositories.repo import TEXT_REPO
+from eis1600.repositories.repo import POETRY_TEST_RES_REPO, TEXT_REPO
 
 
 def main():
@@ -22,6 +23,7 @@ def main():
 
     args = arg_parser.parse_args()
 
+    infile = TEXT_REPO + 'data/0902Sakhawi/0902Sakhawi.DawLamic/0902Sakhawi.DawLamic.ITO20230111-ara1.EIS1600'
     infile = args.input
     infile = TEXT_REPO + 'Footnotes_noise example.EIS1600'
 
@@ -41,4 +43,9 @@ def main():
         else:
             poetry_test_res = concat([poetry_test_res, tmp])
 
-    poetry_test_res.to_csv(TEXT_REPO + 'Footnotes_noise example_poetry_test_res.csv')
+    poetry_test_res_path = infile.replace(TEXT_REPO, POETRY_TEST_RES_REPO).replace('EIS1600', 'csv')
+    path_parts = poetry_test_res_path.split('/')
+    print(path_parts)
+    print('/'.join(path_parts[:-1]))
+    Path('/'.join(path_parts[:-1])).mkdir(exist_ok=True, parents=True)
+    poetry_test_res.to_csv(poetry_test_res_path)

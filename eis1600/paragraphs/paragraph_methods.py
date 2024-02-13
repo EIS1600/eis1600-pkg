@@ -71,24 +71,64 @@ def remove_original_paragraphs(old_paragraphs: List[Tuple[str, List[str]]]) -> \
     mergeable_paragraphs = []
     unsplitted = []
     poetry_test_res = []
+    lines = []
     for cat, tokens in old_paragraphs:
-        if 20 >= len(tokens) >= 3:
-            is_poetry, res = test_for_poetry(tokens)
+        if cat == 'POETRY':
+            curr_line = []
+            for token in tokens:
+                if token == '\n':
+                    lines.append(curr_line)
+                    curr_line = []
+                else:
+                    curr_line.append(token)
+            lines.append(curr_line)
+        else:
+            lines.append(tokens)
+
+    is_poetry = False
+    curr_meter = None
+    for line in lines:
+        if 20 >= len(line) >= 3:
+            is_poetry, res = test_for_poetry(line)
             poetry_test_res.append(res)
+            if is_poetry:
+                if '%~%' not in line:
+                    line = ['%~%'] + line
+
+                if curr_meter:
+                    if curr_meter == res['label']:
+                        mergeable_paragraphs.extend(['\n'] + line)
+                    else:
+                        unsplitted.append(('POETRY', mergeable_paragraphs))
+                        mergeable_paragraphs = line
+                        curr_meter = res['label']
+                else:
+                    unsplitted.append(('UNDEFINED', mergeable_paragraphs))
+                    mergeable_paragraphs = line
+                    curr_meter = res['label']
+            else:
+                is_poetry = False
+                if curr_meter:
+                    unsplitted.append(('POETRY', mergeable_paragraphs))
+                    mergeable_paragraphs = line
+                    curr_meter = None
+                else:
+                    mergeable_paragraphs.extend(line)
+
         else:
             is_poetry = False
+            if curr_meter:
+                unsplitted.append(('POETRY', mergeable_paragraphs))
+                mergeable_paragraphs = []
+                curr_meter = None
 
-        if cat == 'POETRY' or '%~%' in tokens or is_poetry:
-            # TODO does that mean we should remove the HEMISTICH from text?
-            unsplitted.append(('UNDEFINED', mergeable_paragraphs))
-            mergeable_paragraphs = []
-            if '%~%' not in tokens:
-                tokens = ['%~%'] + tokens
-            unsplitted.append(('POETRY', tokens))
-        else:
-            mergeable_paragraphs.extend(tokens)
+            mergeable_paragraphs.extend(line)
+
     if mergeable_paragraphs:
-        unsplitted.append(('UNDEFINED', mergeable_paragraphs))
+        if is_poetry:
+            unsplitted.append(('POETRY', mergeable_paragraphs))
+        else:
+            unsplitted.append(('UNDEFINED', mergeable_paragraphs))
 
     return unsplitted, poetry_test_res
 
@@ -135,7 +175,6 @@ def redefine_paragraphs(uid: str, miu_as_text: str) -> List[Dict]:
     for cat, paragraph in new_paragraphs:
         text_with_new_paragraphs += f'::{cat}::\n{paragraph}\n\n'
 
-    # TODO How to aline with TAGS_LISTS?
     zipped = tokenize_miu_text(text_with_new_paragraphs, simple_mARkdown=True)
     data = [(s, token, tags[0]) if tags else (s, token, None) for s, token, tags in zipped]
     df_punctuation = DataFrame(data, columns=['SECTIONS', 'TOKENS', 'PUNCTUATION'])
@@ -145,43 +184,35 @@ def redefine_paragraphs(uid: str, miu_as_text: str) -> List[Dict]:
     # the loop because we test for notna(token)!
     tmp = []
     df_original['TOKENS'].mask(isna(df_original['TOKENS']), other='', inplace=True)
-    poetry = False
     missing = False
     for row in df_original.itertuples():
         token = row.TOKENS
         idx = row.Index
-        if notna(row.SECTIONS):
-            poetry = 'POETRY' in row.SECTIONS
-            if idx > 0 and notna(df_punctuation['SECTIONS'].iat[count]):
-                df_original['PUNCTUATION'].iat[idx] = None
 
-        if poetry:
+        # print(token, df_punctuation['TOKENS'].iat[count])
+
+        tmp.append((token, token == df_punctuation['TOKENS'].iat[count], df_punctuation['TOKENS'].iat[count], count))
+        if notna(token) and token == df_punctuation['TOKENS'].iat[count]:
+            df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
+            if idx > 0:
+                df_original['SECTIONS'].iat[idx] = df_punctuation['SECTIONS'].iat[count]
             count += 1
+            missing = False
+        elif notna(token) and token in PUNCTUATION or token == '':
+            pass
+        elif notna(token) and idx == len(df_original) - 1:
+            df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
+        elif missing:
+            Path(TEXT_REPO_ERROR_LOG).mkdir(exist_ok=True, parents=True)
+            df_original.to_csv(TEXT_REPO_ERROR_LOG + f'{uid}_original.csv')
+            df_punctuation.to_csv(TEXT_REPO_ERROR_LOG + f'{uid}_punc.csv')
+            DataFrame(tmp, columns=['token', 'equals', 'punc', 'count']).to_csv(
+                    TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_tmp.csv'
+            )
+            error = f'Something in the alignment broke, check the DataFrames in {TEXT_REPO_ERROR_LOG}'
+            raise IndexError(error)
         else:
-            tmp.append(
-                    (token, token == df_punctuation['TOKENS'].iat[count], df_punctuation['TOKENS'].iat[count], count)
-                    )
-            if notna(token) and token == df_punctuation['TOKENS'].iat[count]:
-                df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
-                if idx > 0:
-                    df_original['SECTIONS'].iat[idx] = df_punctuation['SECTIONS'].iat[count]
-                count += 1
-                missing = False
-            elif notna(token) and token in PUNCTUATION:
-                pass
-            elif notna(token) and idx == len(df_original) - 1:
-                df_original['PUNCTUATION'].iat[idx] = df_punctuation['PUNCTUATION'].iat[count]
-            elif missing:
-                Path(TEXT_REPO_ERROR_LOG).mkdir(exist_ok=True, parents=True)
-                df_original.to_csv(TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_original.csv')
-                df_punctuation.to_csv(TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_punc.csv')
-                DataFrame(tmp, columns=['token', 'equals', 'punc', 'count']).to_csv(
-                        TEXT_REPO_ERROR_LOG + f'Footnotes_noise_example.{uid}_tmp.csv'
-                )
-                error = f'Something in the alignment broke, check the DataFrames in {TEXT_REPO_ERROR_LOG}'
-                raise IndexError(error)
-            else:
-                missing = True
+            missing = True
 
     df_original['TAGS_LISTS'] = df_original.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['PUNCTUATION']), axis=1)
 

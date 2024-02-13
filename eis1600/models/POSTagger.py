@@ -1,6 +1,5 @@
 from threading import Lock
 from typing import List, Optional
-from eis1600.helper.Singleton import singleton
 
 from camel_tools.disambig.mle import MLEDisambiguator
 from camel_tools.tagger.default import DefaultTagger

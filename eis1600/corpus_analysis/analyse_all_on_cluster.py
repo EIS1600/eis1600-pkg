@@ -5,6 +5,7 @@ from functools import partial
 from pathlib import Path
 from logging import ERROR, Formatter, INFO
 from time import process_time, time
+from random import shuffle
 
 import jsonpickle
 from tqdm import tqdm
@@ -28,15 +29,28 @@ def parse_range(arg: str) -> tuple[int, int | None]:
         raise ArgumentTypeError("range must be i,j with both i and j being integers")
 
 
-def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optional[bool] = False):
+def routine_per_text(
+        infile: str,
+        parallel: Optional[bool] = False,
+        force: Optional[bool] = False,
+        debug: Optional[bool] = False,
+    ):
     """Entry into analysis routine per text.
 
     Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
     the list of MIUs with their analysis results.
     :param ste infile: EIS1600 text which is analysed.
     :param bool parallel: Parallel flag for parallel processing, otherwise serial processing.
+    :param bool force: Do processing even though file already exists.
     :param bool debug: Debug flag for more console messages.
     """
+    out_path = infile.replace(TEXT_REPO, JSON_REPO)
+    out_path = out_path.replace('.EIS1600', '.json')
+
+    # do not process file is it's already generated
+    if Path(out_path).is_file() and not force:
+        return
+
     mius_list = get_text_as_list_of_mius(infile)
 
     res = []
@@ -51,8 +65,6 @@ def routine_per_text(infile: str, parallel: Optional[bool] = False, debug: Optio
                 uid, miu_as_text, analyse_flag = tup
                 error += f'{uid}\n{e}\n\n\n'
 
-    out_path = infile.replace(TEXT_REPO, JSON_REPO)
-    out_path = out_path.replace('.EIS1600', '.json')
     dir_path = '/'.join(out_path.split('/')[:-1])
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
@@ -70,18 +82,29 @@ def main():
         prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
         description='''Script to parse whole corpus to annotated MIUs.'''
     )
+    arg_parser.add_argument('-D', '--debug', action='store_true')
+    arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
         '--range',
         metavar="ini,end",
         type=parse_range,
         help='process file range [i,j] (both are optional)'
     )
-    arg_parser.add_argument('-D', '--debug', action='store_true')
-    arg_parser.add_argument('-P', '--parallel', action='store_true')
+    arg_parser.add_argument(
+        "--random", "-r",
+        action="store_true",
+        help="randomise list of files"
+    )
+    arg_parser.add_argument(
+        "--force", "-f",
+        action="store_true",
+        help="process file regardless if it exist and overwrite it"
+    )
 
     args = arg_parser.parse_args()
     debug = args.debug
     parallel = args.parallel
+    force = args.force
 
     print(f'GPU available: {cuda.is_available()}')
 
@@ -102,10 +125,15 @@ def main():
     if args.range:
         infiles = infiles[args.range[0]:args.range[1]]
 
-    for i, infile in tqdm(list(enumerate(infiles))):
+    infiles_indexes = list(range(len(infiles)))
+    if args.random:
+        shuffle(infiles_indexes)
+
+    for i in tqdm(infiles_indexes):
+        infile = infiles[infiles_indexes[i]]
         try:
             print(f'[{i}] {infile}')
-            routine_per_text(infile, parallel, debug)
+            routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
             logger.log(ERROR, f'{infile}\n{e}')
 

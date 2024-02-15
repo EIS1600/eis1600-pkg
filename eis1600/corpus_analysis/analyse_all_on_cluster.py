@@ -7,6 +7,8 @@ from logging import ERROR, Formatter, INFO
 from time import process_time, time
 from random import shuffle
 
+import os #FIXME
+
 import jsonpickle
 from tqdm import tqdm
 from p_tqdm import p_uimap
@@ -48,7 +50,7 @@ def routine_per_text(
     out_path = out_path.replace('.EIS1600', '.json')
 
     # do not process file is it's already generated
-    if Path(out_path).is_file() and not force:
+    if Path(out_path).exists() and not force:
         return
 
     mius_list = get_text_as_list_of_mius(infile)
@@ -126,13 +128,17 @@ def main():
         infiles = infiles[args.range[0]:args.range[1]]
 
     infiles_indexes = list(range(len(infiles)))
+
+    infiles_indexes = sorted(infiles_indexes, key=lambda f: os.path.getsize(infiles[f]), reverse=True) #FIXME
+
     if args.random:
         shuffle(infiles_indexes)
 
     for i in tqdm(infiles_indexes):
-        infile = infiles[infiles_indexes[i]]
+        infile = infiles[i]
         try:
-            print(f'[{i}] {infile}')
+            file_size = os.path.getsize(infile)         #FIXME
+            print(f'{i:>4} {file_size:>10_} {infile}')  #FIXME
             routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
             logger.log(ERROR, f'{infile}\n{e}')

@@ -2,7 +2,6 @@ from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from eis1600.corpus_analysis.analyse_all_on_cluster import routine_per_text
-
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600TextAction
 
 

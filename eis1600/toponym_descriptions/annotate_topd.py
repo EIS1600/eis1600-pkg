@@ -22,7 +22,7 @@ def annotate_miu(file: str) -> str:
     toponym_labels = ToponymDescriptionModel().predict_sentence(df['TOKENS'].fillna('-').to_list())
     if 'B-TOPD' in toponym_labels:
         df['Q'] = bio_to_md(toponym_labels, umlaut_prefix=False)
-        df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['Q']), axis=1)
+        df['TAGS_LISTS'] = df.apply(merge_tagslists, key='Q', axis=1)
 
         yml_handler.unset_reviewed()
         updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])

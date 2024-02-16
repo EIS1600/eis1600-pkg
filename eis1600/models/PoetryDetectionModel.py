@@ -25,7 +25,7 @@ class PoetryDetectionModel:
             res = self.model(' '.join(tokens))
             res = res[0]
             res['text'] = ' '.join(tokens)
-            if res['label'] in self.not_poetry or res['score'] < 0.75:
+            if res['label'] in self.not_poetry or res['score'] < 0.95:
                 return False, res
             else:
                 return True, res

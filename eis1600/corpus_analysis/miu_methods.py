@@ -65,7 +65,7 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
         columns_of_automated_tags = ['DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:
-                df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)
+                df['TAGS_LISTS'] = df.apply(merge_tagslists, key=col, axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
         add_annotated_entities_to_yml(df_subset, yml_handler, uid)

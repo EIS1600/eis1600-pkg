@@ -25,7 +25,8 @@ from eis1600.texts_to_mius.download_text_selection_sheet import download_text_se
 
 MIU_REPO = 'EIS1600_MIUs/'
 TEXT_REPO = 'OpenITI_EIS1600_Texts/'
-TEXT_REPO_ERROR_LOG = 'OpenITI_EIS1600_Texts/error_log/'
+NEW_PARAGRAPHS_REPO_ERROR_LOG = 'OpenITI_EIS1600_Texts_New_Paragraphs/error_log/'
+NEW_PARAGRAPHS_REPO = 'OpenITI_EIS1600_Texts_New_Paragraphs/'
 JSON_REPO = 'EIS1600_JSONs/'
 PRETRAINED_MODELS_REPO = 'EIS1600_Pretrained_Models/'
 TOPO_REPO = 'Topo_Data/'

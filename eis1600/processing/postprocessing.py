@@ -76,18 +76,18 @@ def reconstruct_miu_text_with_tags(
 
 
 def merge_tagslists(row, key):
-    if isinstance(row['TAGS_LISTS'], list) and row[key]:
+    if isinstance(row['TAGS_LISTS'], list) and row[key] and notna(row[key]):
         row['TAGS_LISTS'].append(row[key])
-    elif row[key]:
+    elif row[key] and notna(row[key]):
         row['TAGS_LISTS'] = [row[key]]
     return row['TAGS_LISTS']
 
 
 def merge_tagslists_without_duplicates(row, key):
-    if isinstance(row['TAGS_LISTS'], list) and row[key]:
+    if isinstance(row['TAGS_LISTS'], list) and row[key] and notna(row[key]):
         row['TAGS_LISTS'].extend(row[key])
         return list(set(row['TAGS_LISTS']))
-    elif row[key]:
+    elif row[key] and notna(row[key]):
         return row[key]
     else:
         return None

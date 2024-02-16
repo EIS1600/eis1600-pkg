@@ -46,7 +46,7 @@ def annotated_to_miu(row):
     tokens, tags = get_tokens_and_tags(text_updated)
 
     df.loc[df['TOKENS'].notna(), 'TPD_TAGS'] = tags
-    df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x['TPD_TAGS']), axis=1)
+    df['TAGS_LISTS'] = df.apply(merge_tagslists, key='TPD_TAGS', axis=1)
 
     updated_text = reconstruct_miu_text_with_tags(df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']])
 

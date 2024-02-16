@@ -51,7 +51,7 @@ def routine_per_text(
     if Path(out_path).is_file() and not force:
         return
 
-    mius_list = get_text_as_list_of_mius(infile)
+    meta_data_header, mius_list = get_text_as_list_of_mius(infile)
 
     res = []
     error = ''

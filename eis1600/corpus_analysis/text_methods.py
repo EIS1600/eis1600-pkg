@@ -8,7 +8,7 @@ from eis1600.texts_to_mius.check_formatting_methods import check_file_for_mal_fo
 from eis1600.yml.yml_handling import create_yml_header
 
 
-def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
+def get_text_as_list_of_mius(infile: str) -> Tuple[str, List[Tuple[str, str, bool]]]:
     """Disassemble text into list of MIUs.
 
     Splits the texts into individual MIUs and returns a list of all contained MIUs.
@@ -23,6 +23,7 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
 
     with open(infile, 'r', encoding='utf8') as text:
         header_text = text.read().split('#META#Header#End#\n\n')
+        meta_data_header = header_text[0] + '#META#Header#End#\n\n'
 
         try:
             check_file_for_mal_formatting(infile, header_text[1])
@@ -74,4 +75,4 @@ def get_text_as_list_of_mius(infile: str) -> List[Tuple[str, str, bool]]:
         for elem in mal_formatted:
             print(elem)
 
-    return mius
+    return meta_data_header, mius

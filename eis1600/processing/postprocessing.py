@@ -58,7 +58,8 @@ def reconstruct_miu_text_with_tags(
         if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
         elif tags is not None:
-            print("df['TAGS_LISTS'] must be list")
+            print("df['TAGS_LISTS'] must be list but is " + type(tags))
+            print(tags)
             raise TypeError
         if notna(token):
             reconstructed_text += ' ' + token
@@ -74,14 +75,22 @@ def reconstruct_miu_text_with_tags(
     return reconstructed_text
 
 
-def merge_tagslists(lst1, lst2):
-    if isinstance(lst1, list):
-        if notna(lst2):
-            lst1.append(lst2)
+def merge_tagslists(row, key):
+    if isinstance(row['TAGS_LISTS'], list) and row[key]:
+        row['TAGS_LISTS'].append(row[key])
+    elif row[key]:
+        row['TAGS_LISTS'] = [row[key]]
+    return row['TAGS_LISTS']
+
+
+def merge_tagslists_without_duplicates(row, key):
+    if isinstance(row['TAGS_LISTS'], list) and row[key]:
+        row['TAGS_LISTS'].extend(row[key])
+        return list(set(row['TAGS_LISTS']))
+    elif row[key]:
+        return row[key]
     else:
-        if notna(lst2):
-            lst1 = [lst2]
-    return lst1
+        return None
 
 
 def write_updated_miu_to_file(
@@ -103,7 +112,7 @@ def write_updated_miu_to_file(
         columns_of_automated_tags = ['DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:
-                df['TAGS_LISTS'] = df.apply(lambda x: merge_tagslists(x['TAGS_LISTS'], x[col]), axis=1)
+                df['TAGS_LISTS'] = df.apply(merge_tagslists, key=col, axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
     else:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]

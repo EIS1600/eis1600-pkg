@@ -18,9 +18,11 @@ eis1600/corpus_analysis/analyse_text.py
 eis1600/corpus_analysis/miu_methods.py
 eis1600/corpus_analysis/text_methods.py
 eis1600/dates/Date.py
+eis1600/dates/Month.py
 eis1600/dates/__init__.py
+eis1600/dates/date_methods.py
 eis1600/dates/date_patterns.py
-eis1600/dates/methods.py
+eis1600/dates/month_methods.py
 eis1600/gazetteers/Onomastics.py
 eis1600/gazetteers/Spellings.py
 eis1600/gazetteers/Toponyms.py
@@ -31,7 +33,6 @@ eis1600/gazetteers/data/months_gazetteer.csv
 eis1600/gazetteers/data/onomastic_gazetteer.csv
 eis1600/gazetteers/data/spelling_gazetteer.csv
 eis1600/gazetteers/data/toponyms_gazetteer.csv
-eis1600/gazetteers/data/toponyms_gazetteer_operational.csv
 eis1600/gazetteers/data/years_gazetteer.csv
 eis1600/helper/CheckFileEndingActions.py
 eis1600/helper/Singleton.py

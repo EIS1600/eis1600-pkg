@@ -2,6 +2,7 @@ from typing import List
 
 from openiti.helper.ara import normalize_ara_heavy
 
+ALIF_VARIATIONS = ['ا', 'أ', 'ٱ', 'آ', 'إ']
 
 def normalize_dict(o_set: dict) -> dict:
     n_set = {}
@@ -18,10 +19,13 @@ def denormalize_list(elem: str) -> List[str]:
     tmp = [elem]
     if elem.startswith(('أ', 'ٱ', 'آ', 'إ')):
         # alifs
-        tmp.append('ا' + elem[1:])
+        tmp.extend([alif_variation + elem[1:] for alif_variation in ALIF_VARIATIONS])
+    if elem.startswith(('الأ', 'الٱ', 'الآ', 'الإ')):
+        #  al + alifs
+        tmp.extend(['ال' + alif_variation + elem[3:] for alif_variation in ALIF_VARIATIONS])
     if elem.endswith(('يء', 'ىء', 'ؤ', 'ئ')):
         # hamzas
-        tmp.append([var[:-1] + 'ء' for var in tmp])
+        tmp.extend([var[:-1] + 'ء' for var in tmp])
     if elem.endswith('ى'):
         # alif maqsura
         tmp.extend([var[:-1] + 'ي' for var in tmp])

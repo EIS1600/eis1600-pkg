@@ -76,7 +76,7 @@ AR_ONES_DAY = '|'.join([denormalize(key) for key in DAY_ONES.keys()])
 AR_TEN_DAY = '|'.join([denormalize(key) for key in DAY_TEN.keys()])
 AR_WEEKDAY = '|'.join([denormalize(key) for key in WEEKDAYS.keys()])
 AR_SANA = '|'.join([denormalize(s) for s in SANA])
-MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?:ال)?(?P<month>' + AR_MONTHS + r')(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
+MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?P<month>(?:ال)?(?:' + AR_MONTHS + r'))(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
 DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(:?ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(:?و)?(:?ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \

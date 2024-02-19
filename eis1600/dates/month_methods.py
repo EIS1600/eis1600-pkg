@@ -13,7 +13,10 @@ def tag_months_fulltext(text: str) -> str:
     m = MONTH_IN_CONTEXT_PATTERN.search(text_updated)
     while m:
         if m.group('month'):
-            month_str = normalize_ara_heavy(m.group('month'))
+            month_str = m.group('month')
+            if month_str.startswith('ال'):
+                month_str = month_str[2:]
+            month_str = normalize_ara_heavy(month_str)
             month = MONTHS_NOR.get(month_str)
             date = Month(month, len(m.group('month').split()))
             pos = m.start('month')

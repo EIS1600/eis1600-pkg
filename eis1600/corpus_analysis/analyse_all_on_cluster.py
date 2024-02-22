@@ -1,6 +1,6 @@
 from typing import Optional
 from sys import argv, exit
-from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
 from logging import ERROR, Formatter, INFO
@@ -16,17 +16,8 @@ from torch import cuda
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.helper.logging import setup_logger
+from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
-
-
-def parse_range(arg: str) -> tuple[int, int | None]:
-    try:
-        i, j = arg.split(",")
-        i = int(i) - 1 if i else 0
-        j = int(j) if j else None
-        return i, j
-    except ValueError:
-        raise ArgumentTypeError("range must be i,j with both i and j being integers")
 
 
 def routine_per_text(
@@ -47,7 +38,7 @@ def routine_per_text(
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
 
-    # do not process file is it's already generated
+    # do not process file if it's already generated
     if Path(out_path).is_file() and not force:
         return
 

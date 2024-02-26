@@ -40,7 +40,7 @@ def routine_per_text(
         infile: str,
         parallel: Optional[bool] = False,
         force: Optional[bool] = False,
-        debug: Optional[bool] = False,
+        debug: Optional[bool] = False
     ):
     meta_data_header, mius_list = get_text_as_list_of_mius(infile)
     out_path = infile.replace(TEXT_REPO, TOPO_REPO)
@@ -60,8 +60,9 @@ def routine_per_text(
     dir_path = '/'.join(out_path.split('/')[:-1])
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-    with open(out_path, 'w', encoding='utf-8') as fh:
-        fh.write('\n\n'.join([r for r in res if r]))
+    if not all(r is None for r in res):
+        with open(out_path, 'w', encoding='utf-8') as fh:
+            fh.write('\n\n'.join([r for r in res if r]))
 
     if error:
         raise ValueError(error)

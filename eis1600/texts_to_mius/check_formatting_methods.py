@@ -1,4 +1,5 @@
-from eis1600.markdown.markdown_patterns import NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, \
+from eis1600.markdown.markdown_patterns import MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
+    NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, \
     NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PARAGRAPH_TAG_MISSING, EMPTY_PARAGRAPH_CHECK_PATTERN, \
     SIMPLE_MARKDOWN, MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, TEXT_START_PATTERN, TILDA_HICKUPS_PATTERN
 from eis1600.markdown.markdown_patterns import SIMPLE_MARKDOWN_TEXT_START_PATTERN
@@ -9,6 +10,7 @@ def check_file_for_mal_formatting(infile: str, content: str):
             or PARAGRAPH_TAG_MISSING.search(content) \
             or SIMPLE_MARKDOWN.search(content) \
             or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content) \
+            or MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.search(content) \
             or TILDA_HICKUPS_PATTERN.search(content) \
             or NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content) \
             or EMPTY_PARAGRAPH_CHECK_PATTERN.search(content) \
@@ -25,6 +27,9 @@ def check_file_for_mal_formatting(infile: str, content: str):
             error += '\n * There is simple mARkdown left.'
         if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
             error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
+        if MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.search(content):
+            error += '\n * There is text on the same line as the start of a biography, fix it by running ' \
+                     f'`ids_insert_or_update` on {infile}'
         if TILDA_HICKUPS_PATTERN.search(content):
             error += '\n * There is this pattern with tildes: `~\\n~`.'
         if NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):

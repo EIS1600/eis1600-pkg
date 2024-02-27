@@ -60,7 +60,7 @@ CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
 PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
 TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|::|' +
                       '|'.join(PUNCTUATION_DICT.values()))
-NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
+NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']*?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(' + MIU_UID_TAG_WITHOUT_CAPTURING_GROUP + ')' + TAG_AND_TEXT_SAME_LINE)
 

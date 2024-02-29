@@ -3,15 +3,13 @@ from typing import Dict, List, Optional, Tuple
 
 from pandas import isna, DataFrame, notna
 
-from eis1600.markdown.markdown_patterns import PARAGRAPH_UID_TAG_PATTERN, PUNCTUATION_DICT
+from eis1600.markdown.markdown_patterns import PARAGRAPH_UID_TAG_PATTERN, PUNCTUATION
 from eis1600.models.BiosPunctuationModel import BiosPunctuationModel
 from eis1600.models.EventsPunctuationModel import EventsPunctuationModel
 from eis1600.models.PoetryDetectionModel import PoetryDetectionModel
 from eis1600.processing.preprocessing import get_yml_and_miu_df, tokenize_miu_text
 from eis1600.processing.postprocessing import merge_tagslists_without_duplicates, reconstruct_miu_text_with_tags
 from eis1600.repositories.repo import NEW_PARAGRAPHS_REPO_ERROR_LOG
-
-PUNCTUATION = PUNCTUATION_DICT.keys()
 
 
 def test_for_poetry(tokens: List[str], debug: Optional[bool] = False):

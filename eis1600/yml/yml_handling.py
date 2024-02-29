@@ -5,6 +5,7 @@ from operator import itemgetter
 from os import makedirs
 from os.path import dirname, split, splitext
 
+from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 from pandas import DataFrame, notna
 
 from eis1600.gazetteers.Toponyms import Toponyms
@@ -178,6 +179,13 @@ def add_annotated_entities_to_yml(
                 if len(list_of_uris) > 1:
                     # The toponym is ambiguous and matched multiple entries in our gazetteer
                     ambiguous_toponyms = True
+        elif cat == 'PERSON' or cat == 'BOOK':
+            if notna(sub_cat):
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
+            else:
+                print(f'Tag is missing the sub-classification: {row["full_tag"]}\nCheck: {file_path}')
+                yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': 'X'}, tag)
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
@@ -188,9 +196,6 @@ def add_annotated_entities_to_yml(
             else:
                 add_to_entities_dict(entities_dict, cat, entity, tag)
             LOGGER_NASAB_KNOWN.info(f'{tag},{entity}')
-        elif cat == 'BOOK':
-            if notna(sub_cat):
-                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
         else:
             add_to_entities_dict(entities_dict, cat, entity, tag)
 
@@ -256,4 +261,5 @@ def add_statistics_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
 ) -> None:
-    yml_handler.add_number_of_tokens(len(df['TOKENS'].notna()))
+    tokens_without_punctuation_df = df['TOKENS'].loc[df['TOKENS'].notna() & ~df['TOKEN'].isin(UNICODE_PUNCT_CHARSET)]
+    yml_handler.add_number_of_tokens(tokens_without_punctuation_df.count())  # Count() counts all non-na values

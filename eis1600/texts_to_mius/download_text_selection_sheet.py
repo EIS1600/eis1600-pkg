@@ -20,7 +20,6 @@ def download_text_selection(text_repo: str) -> str:
     request.urlcleanup()
     try:
         response = request.urlopen(latest_csv)
-        print(response)
     except URLError:
         print('Could not download latest version, fall back to locally saved version')
         if isfile(csv_path):

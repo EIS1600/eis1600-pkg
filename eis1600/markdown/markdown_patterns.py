@@ -3,6 +3,7 @@ from re import compile
 from eis1600.markdown.EntityTags import EntityTags
 
 PUNCTUATION_DICT = {'.': 'PERIOD', ',': 'LATINCOMMA', '،': 'COMMA', ':': 'COLON'}
+PUNCTUATION = PUNCTUATION_DICT.keys()
 
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'

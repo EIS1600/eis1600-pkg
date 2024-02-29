@@ -1,7 +1,8 @@
+from typing import Tuple, Union
 from argparse import ArgumentTypeError
 
 
-def parse_range(arg: str) -> tuple[int, int | None]:
+def parse_range(arg: str) -> Tuple[int, Union[int, None]]:
     try:
         i, j = arg.split(",")
         i = int(i) - 1 if i else 0

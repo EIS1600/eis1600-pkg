@@ -16,6 +16,7 @@ def get_yrs_tag_value(tag: str) -> Tuple[int, str]:
         m = AGE_PATTERN.match(tag)
     elif LUNAR_PATTERN.match(tag):
         m = LUNAR_PATTERN.match(tag)
+        return int(m.group('written')), m.group('cat')
     else:
         raise ValueError
 

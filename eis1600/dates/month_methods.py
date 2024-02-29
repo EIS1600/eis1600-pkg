@@ -18,12 +18,16 @@ def tag_months_fulltext(text: str) -> str:
                 month_str = month_str[2:]
             month_str = normalize_ara_heavy(month_str)
             month = MONTHS_NOR.get(month_str)
-            date = Month(month, len(m.group('month').split()))
-            pos = m.start('month')
-            text_updated = text_updated[:pos] + date.get_tag() + text_updated[pos:]
+            if month == -1:
+                # This is not a valid month but still needed in the dict so that the regex for dates matches
+                m = MONTH_IN_CONTEXT_PATTERN.search(text_updated, m.end('month'))
+            else:
+                date = Month(month, len(m.group('month').split()))
+                pos = m.start('month')
+                text_updated = text_updated[:pos] + date.get_tag() + text_updated[pos:]
 
-            # Recognize next date phrase
-            m = MONTH_IN_CONTEXT_PATTERN.search(text_updated, m.end('month') + len(date.get_tag()))
+                # Recognize next date phrase
+                m = MONTH_IN_CONTEXT_PATTERN.search(text_updated, m.end('month') + len(date.get_tag()))
         else:
             # Recognize next date phrase
             m = MONTH_IN_CONTEXT_PATTERN.search(text_updated, m.end('month'))

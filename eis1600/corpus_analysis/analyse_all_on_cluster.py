@@ -3,7 +3,7 @@ from sys import argv, exit
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
-from logging import ERROR, Formatter, INFO
+from logging import Formatter, INFO
 from time import process_time, time
 from random import shuffle
 
@@ -25,7 +25,7 @@ def routine_per_text(
         parallel: Optional[bool] = False,
         force: Optional[bool] = False,
         debug: Optional[bool] = False,
-    ):
+):
     """Entry into analysis routine per text.
 
     Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
@@ -49,12 +49,14 @@ def routine_per_text(
     if parallel:
         res += p_uimap(partial(analyse_miu, debug=debug), mius_list)
     else:
-        for idx, tup in tqdm(list(enumerate(mius_list))):
+        for idx, tup in tqdm(list(enumerate([mius_list[-1]]))):
             try:
                 res.append(analyse_miu(tup, debug))
-            except Exception as e:
+            except ValueError as e:
                 uid, miu_as_text, analyse_flag = tup
                 error += f'{uid}\n{e}\n\n\n'
+            except Exception:
+                raise
 
     dir_path = '/'.join(out_path.split('/')[:-1])
     Path(dir_path).mkdir(parents=True, exist_ok=True)
@@ -70,26 +72,26 @@ def routine_per_text(
 
 def main():
     arg_parser = ArgumentParser(
-        prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
-        description='''Script to parse whole corpus to annotated MIUs.'''
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
+            description='''Script to parse whole corpus to annotated MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
-        '--range',
-        metavar="ini,end",
-        type=parse_range,
-        help='process file range [i,j] (both are optional)'
+            '--range',
+            metavar="ini,end",
+            type=parse_range,
+            help='process file range [i,j] (both are optional)'
     )
     arg_parser.add_argument(
-        "--random", "-r",
-        action="store_true",
-        help="randomise list of files"
+            "--random", "-r",
+            action="store_true",
+            help="randomise list of files"
     )
     arg_parser.add_argument(
-        "--force", "-f",
-        action="store_true",
-        help="process file regardless if it exist and overwrite it"
+            "--force", "-f",
+            action="store_true",
+            help="process file regardless if it exist and overwrite it"
     )
 
     args = arg_parser.parse_args()
@@ -126,7 +128,10 @@ def main():
             print(f'[{i}] {infile}')
             routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
-            logger.log(ERROR, f'{infile}\n{e}')
+            logger.error(f'{infile}\n{e}')
+        except Exception as e:
+            print(e)
+            logger.exception(f'{infile}\n{e}')
 
     et = time()
     etp = process_time()

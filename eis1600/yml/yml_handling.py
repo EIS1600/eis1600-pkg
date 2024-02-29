@@ -271,5 +271,5 @@ def add_statistics_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
 ) -> None:
-    tokens_without_punctuation_df = df['TOKENS'].loc[df['TOKENS'].notna() & ~df['TOKEN'].isin(UNICODE_PUNCT_CHARSET)]
+    tokens_without_punctuation_df = df['TOKENS'].loc[df['TOKENS'].notna() & ~df['TOKENS'].isin(UNICODE_PUNCT_CHARSET)]
     yml_handler.add_number_of_tokens(tokens_without_punctuation_df.count())  # Count() counts all non-na values

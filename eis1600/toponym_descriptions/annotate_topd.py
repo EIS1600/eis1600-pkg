@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional, Tuple, Union
 from sys import argv
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from logging import ERROR, Formatter, INFO
+from logging import Formatter, INFO
 from time import process_time, time
 from random import shuffle
 
@@ -126,7 +126,7 @@ def main():
             print(f'[{i}] {infile}')
             routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
-            logger.log(ERROR, f'{infile}\n{e}')
+            logger.error(f'{infile}\n{e}')
 
     et = time()
     etp = process_time()

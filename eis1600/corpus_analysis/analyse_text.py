@@ -22,4 +22,4 @@ def main():
     parallel = args.parallel
     infile = args.input
 
-    routine_per_text(infile, parallel, debug)
+    routine_per_text(infile, parallel, force=True, debug=debug)

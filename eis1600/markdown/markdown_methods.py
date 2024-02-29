@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from eis1600.markdown.markdown_patterns import AGE_PATTERN, YEAR_PATTERN
+from eis1600.markdown.markdown_patterns import AGE_PATTERN, LUNAR_PATTERN, YEAR_PATTERN
 
 
 def get_yrs_tag_value(tag: str) -> Tuple[int, str]:
@@ -14,6 +14,8 @@ def get_yrs_tag_value(tag: str) -> Tuple[int, str]:
         m = YEAR_PATTERN.match(tag)
     elif AGE_PATTERN.match(tag):
         m = AGE_PATTERN.match(tag)
+    elif LUNAR_PATTERN.match(tag):
+        m = LUNAR_PATTERN.match(tag)
     else:
         raise ValueError
 

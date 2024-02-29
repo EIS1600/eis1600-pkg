@@ -17,7 +17,6 @@ from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.repositories.repo import GAZETTEERS_REPO
 from eis1600.yml.YAMLHandler import YAMLHandler
 
-
 __log_filename_nasab = GAZETTEERS_REPO + 'logs/nasab_known.log'
 makedirs(dirname(__log_filename_nasab), exist_ok=True)
 LOGGER_NASAB_KNOWN = setup_logger('nasab_known', __log_filename_nasab)
@@ -83,7 +82,8 @@ def add_to_entities_dict(
     :param Dict entities_dict: Dict containing previous tagged entities.
     :param str cat: Category of the entity.
     :param Union[str|int] entity: Entity - might be int if entity is a date, otherwise str.
-    :param str tag: Optional, onomastic classification used to differentiate between onomastic elements, defaults to None.
+    :param str tag: Optional, onomastic classification used to differentiate between onomastic elements, defaults to
+    None.
     """
     cat = cat.lower() + 's'
     if tag:
@@ -109,7 +109,8 @@ def add_to_entities_dict(
 def add_annotated_entities_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
-        file_path: str
+        file_path: str,
+        reconstructed_miu_text_with_tags: str
 ) -> None:
     """Populates YAMLHeader with annotated entities.
 
@@ -140,7 +141,7 @@ def add_annotated_entities_to_yml(
         length = int(row['length'])
         sub_cat = row['sub_cat']
         try:
-            entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
+            entity = ' '.join(df['TOKENS'].iloc[index:index + length].to_list())
         except TypeError:
             print(f'Something is at odd here: {row["full_tag"]}\nCheck: {file_path}')
             yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
@@ -154,7 +155,10 @@ def add_annotated_entities_to_yml(
                 val, e_cat = get_yrs_tag_value(row['full_tag'])
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
-                print(f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}')
+                print(
+                        f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}\n'
+                        f'{reconstructed_miu_text_with_tags}'
+                )
                 yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
                 return
         elif cat == 'TOPONYM':
@@ -183,7 +187,10 @@ def add_annotated_entities_to_yml(
             if notna(sub_cat):
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
             else:
-                print(f'Tag is missing the sub-classification: {row["full_tag"]}\nCheck: {file_path}')
+                print(
+                    f'Tag is missing the sub-classification: {row["full_tag"]}\nCheck: {file_path}\n'
+                    f'{reconstructed_miu_text_with_tags}'
+                    )
                 yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': 'X'}, tag)
         elif cat == 'ONOMASTIC':
@@ -207,10 +214,13 @@ def add_annotated_entities_to_yml(
 
     if 'onomastics' in entities_dict.keys():
         # Sort dict by keys
-        entities_dict['onomastics'] = dict(sorted(
-                [(k, list(v)) if isinstance(v, set) else (k, v) for k,  v in entities_dict.get('onomastics').items()],
-                key=itemgetter(0)
-        ))
+        entities_dict['onomastics'] = dict(
+                sorted(
+                        [(k, list(v)) if isinstance(v, set) else (k, v) for k, v in
+                         entities_dict.get('onomastics').items()],
+                        key=itemgetter(0)
+                )
+        )
 
     # Generate edges
     if settlements_set:

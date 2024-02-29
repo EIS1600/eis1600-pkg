@@ -16,7 +16,10 @@ class Spellings:
     __regex = ''
 
     def __init__(self) -> None:
-        df = read_csv(path)
+        try:
+            df = read_csv(path)
+        except Exception as e:
+            print(f'Check if the {self.__class__.__name__} gazetteer is correctly formatted with commas and not tabs.')
         df['NGRAM'] = df['NGRAM'].astype('uint8')
         df['CATEGORY'] = df['CATEGORY'].astype('category')
 

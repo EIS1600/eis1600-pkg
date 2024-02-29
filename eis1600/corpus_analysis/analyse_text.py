@@ -13,11 +13,6 @@ def main():
     arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
-            "--force", "-f",
-            action="store_true",
-            help="process file regardless if it exist and overwrite it"
-    )
-    arg_parser.add_argument(
             'input', type=str, nargs='?',
             help='EIS1600 text file to annotate.',
             action=CheckFileEndingEIS1600TextAction
@@ -27,4 +22,4 @@ def main():
     parallel = args.parallel
     infile = args.input
 
-    routine_per_text(infile, parallel, debug)
+    routine_per_text(infile, parallel, True, debug)

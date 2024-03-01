@@ -8,7 +8,7 @@ from eis1600.texts_to_mius.subid_methods import add_ids
 
 def main():
     """Script to check file formatting based on text selection."""
-    ready_files, double_checked_files = get_ready_and_double_checked_files()
+    ready_files, double_checked_files = get_ready_and_double_checked_files(only_complete=True)
 
     formatter = Formatter('%(message)s\n\n\n')
     logger = setup_logger('mal_formatted_texts', TEXT_REPO + 'mal_formatted_texts.log', INFO, formatter)

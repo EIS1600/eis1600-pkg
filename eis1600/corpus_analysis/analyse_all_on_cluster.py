@@ -17,7 +17,7 @@ from torch import cuda
 
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
-from eis1600.helper.logging import setup_logger
+from eis1600.helper.logging import setup_persistent_logger
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
 
 
@@ -121,24 +121,20 @@ def main():
         print('There are no EIS1600 files to process')
         exit()
 
-    formatter = Formatter('%(message)s\n\n\n')
-    logger = setup_logger('analyse_all_on_cluster', 'analyse_all_on_cluster.log', INFO, formatter)
+    logger = setup_persistent_logger('analyse_all_on_cluster', 'analyse_all_on_cluster.log', INFO)
 
     if args.range:
         infiles = infiles[args.range[0]:args.range[1]]
 
     infiles_indexes = list(range(len(infiles)))
 
-    infiles_indexes = sorted(infiles_indexes, key=lambda f: os.path.getsize(infiles[f]), reverse=True) #FIXME
-
     if args.random:
         shuffle(infiles_indexes)
 
     for i in tqdm(infiles_indexes):
         infile = infiles[i]
+        print(f"[{i+1}] {infile}")
         try:
-            file_size = os.path.getsize(infile)         #FIXME
-            print(f'{i:>4} {file_size:>10_} {infile}')  #FIXME
             routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
             logger.log(ERROR, f'{infile}\n{e}')

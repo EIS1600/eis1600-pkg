@@ -1,7 +1,11 @@
-from eis1600.markdown.markdown_patterns import NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, \
+from os import remove
+from os.path import splitext, exists
+from itertools import zip_longest
+from eis1600.markdown.markdown_patterns import NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, HEADER_END_PATTERN, \
     NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PARAGRAPH_TAG_MISSING, EMPTY_PARAGRAPH_CHECK_PATTERN, \
     SIMPLE_MARKDOWN, MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, TEXT_START_PATTERN, TILDA_HICKUPS_PATTERN
 from eis1600.markdown.markdown_patterns import SIMPLE_MARKDOWN_TEXT_START_PATTERN
+from eis1600.repositories.repo import get_part_filepath
 
 
 def check_file_for_mal_formatting(infile: str, content: str):
@@ -93,3 +97,54 @@ def check_formatting_before_update_ids(infile: str, content: str):
                 f'Check if everything is working with\n'
                 f'check_formatting {infile}\n'
         )
+
+
+def check_file_split(infile: str, debug: bool = False):
+
+    with open(infile) as infp:
+        original_content = infp.read()
+    file_base, file_ext = splitext(infile)
+
+    i = 1
+    chunks = []
+    header = ""
+    part_paths = []  # in case of error they will be removed
+
+    while True:
+
+        if not exists(part_fpath := get_part_filepath(file_base, i, file_ext)):
+            break
+
+        part_paths.append(part_fpath)
+
+        with open(part_fpath) as infp:
+            part_content = infp.read()
+
+        header_and_text = HEADER_END_PATTERN.split(part_content)
+        header = header_and_text[0] + header_and_text[1]
+        text = header_and_text[2].lstrip('\n')
+
+        chunks.append(text)
+        i += 1
+
+    if original_content == (complete := header + '\n\n' + "\n".join(chunks)):
+        #if debug:
+        #    print(f"File {infile} has been splitted correctly or has only one part")
+        return
+
+    if debug:
+        max_lines_print = 50
+        print(f"\nError splitting file {infile}. These lines differ (original vs reconstructed):\n")
+        for ori, part in zip_longest(original_content.splitlines(True), complete.splitlines(True)):
+            if ori != part:
+                print(f"{repr(ori):>100}  ≠  {repr(part):>100}")
+                max_lines_print -= 1
+            if not max_lines_print:
+                print("...")
+                break
+
+    for fpath in part_paths:
+        remove(fpath)
+
+    raise f"splitting of file {infile} failed!"
+

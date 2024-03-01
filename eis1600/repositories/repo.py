@@ -13,7 +13,7 @@ Functions:
 from typing import List, Literal, Optional, Tuple
 
 import re
-from os.path import split, splitext
+from os.path import split, splitext, exists
 from glob import glob
 
 from pandas import DataFrame, read_csv
@@ -39,10 +39,17 @@ BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
 POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
+SPLITTED_PART_NAME_INFIX = '_part'
 
-def get_ready_and_double_checked_files() -> Tuple[List[str], List[str]]:
+
+def get_part_filepath(file_base: str, i: int, file_ext: str) -> str:
+    return f"{file_base}{SPLITTED_PART_NAME_INFIX}{i:04}{file_ext}"
+
+
+def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[List[str], List[str]]:
     """Get prepared texts prepared for the processing pipeline.
 
+    :param bool only_complete: get only all complete EIS1600 files.
     :return Tuple[DataFrame, DataFrame]: returns two DataFrames, one for ready texts and the other for double-checked files.
     """
     csv_path = download_text_selection(TEXT_REPO)
@@ -51,10 +58,12 @@ def get_ready_and_double_checked_files() -> Tuple[List[str], List[str]]:
     df_double_checked = df.loc[df['PREPARED'].str.fullmatch('double-checked')]
 
     print(f'Files marked as "ready": {len(df_ready)}')
-    print(f'Files marked ad "double-checked": {len(df_double_checked)}\n')
+    print(f'Files marked as "double-checked": {len(df_double_checked)}\n')
 
     double_checked_files = []
     ready_files = []
+
+    #FIXME modify ready files logic !!
 
     # Check if any EIS1600TMP files are missing
     missing_texts = []
@@ -86,8 +95,27 @@ def get_ready_and_double_checked_files() -> Tuple[List[str], List[str]]:
         author, text = uri.split('.')
         text_path = TEXT_REPO + 'data/' + author + '/' + uri + '/'
         eis_files = glob(text_path + '*.EIS1600')
+
         if eis_files:
-            double_checked_files.append(eis_files[0])
+
+            # get original EIS1600 complete files
+            if only_complete:
+                for eis_file in eis_files:
+                    if SPLITTED_PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
+                        double_checked_files.append(eis_file)
+                        break
+
+            # get parts of file or original EIS1600 file if not splitted in parts
+            else:
+                if part_files := [f for f in eis_files if SPLITTED_PART_NAME_INFIX in f]:
+                    for part_file in part_files:
+                        double_checked_files.append(part_file)
+
+                else:
+                    for eis_file in eis_files:
+                        if SPLITTED_PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
+                            double_checked_files.append(eis_file)
+                            break
         else:
             missing_texts.append(uri)
 

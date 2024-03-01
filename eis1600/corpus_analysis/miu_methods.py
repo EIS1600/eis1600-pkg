@@ -33,7 +33,7 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
         if debug:
             print('2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information')
         df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
-        df['TOPONYM_LABELS'] = annotate_miu_text(df, debug)
+            df['TOPONYM_LABELS'] = annotate_miu_text(df, debug)
 
         # 3. convert cameltools labels format to markdown format
         if debug:

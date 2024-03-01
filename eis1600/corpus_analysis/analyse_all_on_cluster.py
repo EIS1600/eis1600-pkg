@@ -49,7 +49,7 @@ def routine_per_text(
     if parallel:
         res += p_uimap(partial(analyse_miu, debug=debug), mius_list)
     else:
-        for idx, tup in tqdm(list(enumerate([mius_list[-1]]))):
+        for idx, tup in tqdm(list(enumerate(mius_list))):
             try:
                 res.append(analyse_miu(tup, debug))
             except ValueError as e:

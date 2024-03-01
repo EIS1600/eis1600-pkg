@@ -5,6 +5,7 @@ from operator import itemgetter
 from os import makedirs
 from os.path import dirname, split, splitext
 
+from camel_tools.utils.charsets import UNICODE_PUNCT_CHARSET
 from pandas import DataFrame, notna
 
 from eis1600.gazetteers.Toponyms import Toponyms
@@ -15,7 +16,6 @@ from eis1600.markdown.markdown_patterns import ENTITY_TAGS_PATTERN, MIU_HEADER_P
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.repositories.repo import GAZETTEERS_REPO
 from eis1600.yml.YAMLHandler import YAMLHandler
-
 
 __log_filename_nasab = GAZETTEERS_REPO + 'logs/nasab_known.log'
 makedirs(dirname(__log_filename_nasab), exist_ok=True)
@@ -82,7 +82,8 @@ def add_to_entities_dict(
     :param Dict entities_dict: Dict containing previous tagged entities.
     :param str cat: Category of the entity.
     :param Union[str|int] entity: Entity - might be int if entity is a date, otherwise str.
-    :param str tag: Optional, onomastic classification used to differentiate between onomastic elements, defaults to None.
+    :param str tag: Optional, onomastic classification used to differentiate between onomastic elements, defaults to
+    None.
     """
     cat = cat.lower() + 's'
     if tag:
@@ -108,7 +109,8 @@ def add_to_entities_dict(
 def add_annotated_entities_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
-        file_path: str
+        file_path: str,
+        reconstructed_miu_text_with_tags: str
 ) -> None:
     """Populates YAMLHeader with annotated entities.
 
@@ -139,7 +141,7 @@ def add_annotated_entities_to_yml(
         length = int(row['length'])
         sub_cat = row['sub_cat']
         try:
-            entity = ' '.join(df['TOKENS'].iloc[index:index+length].to_list())
+            entity = ' '.join(df['TOKENS'].iloc[index:index + length].to_list())
         except TypeError:
             print(f'Something is at odd here: {row["full_tag"]}\nCheck: {file_path}')
             yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
@@ -153,7 +155,10 @@ def add_annotated_entities_to_yml(
                 val, e_cat = get_yrs_tag_value(row['full_tag'])
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})
             except ValueError:
-                print(f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}')
+                print(
+                        f'Tag is neither year nor age: {row["full_tag"]}\nCheck: {file_path}\n'
+                        f'{reconstructed_miu_text_with_tags}'
+                )
                 yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
                 return
         elif cat == 'TOPONYM':
@@ -178,6 +183,16 @@ def add_annotated_entities_to_yml(
                 if len(list_of_uris) > 1:
                     # The toponym is ambiguous and matched multiple entries in our gazetteer
                     ambiguous_toponyms = True
+        elif cat == 'PERSON' or cat == 'BOOK':
+            if notna(sub_cat):
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
+            else:
+                print(
+                    f'Tag is missing the sub-classification: {row["full_tag"]}\nCheck: {file_path}\n'
+                    f'{reconstructed_miu_text_with_tags}'
+                    )
+                yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])
+                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': 'X'}, tag)
         elif cat == 'ONOMASTIC':
             if tag.startswith('SHR') and entity.startswith('ب'):
                 entity = entity[1:]
@@ -188,9 +203,6 @@ def add_annotated_entities_to_yml(
             else:
                 add_to_entities_dict(entities_dict, cat, entity, tag)
             LOGGER_NASAB_KNOWN.info(f'{tag},{entity}')
-        elif cat == 'BOOK':
-            if notna(sub_cat):
-                add_to_entities_dict(entities_dict, cat, {'entity': entity, 'cat': sub_cat}, tag)
         else:
             add_to_entities_dict(entities_dict, cat, entity, tag)
 
@@ -202,10 +214,13 @@ def add_annotated_entities_to_yml(
 
     if 'onomastics' in entities_dict.keys():
         # Sort dict by keys
-        entities_dict['onomastics'] = dict(sorted(
-                [(k, list(v)) if isinstance(v, set) else (k, v) for k,  v in entities_dict.get('onomastics').items()],
-                key=itemgetter(0)
-        ))
+        entities_dict['onomastics'] = dict(
+                sorted(
+                        [(k, list(v)) if isinstance(v, set) else (k, v) for k, v in
+                         entities_dict.get('onomastics').items()],
+                        key=itemgetter(0)
+                )
+        )
 
     # Generate edges
     if settlements_set:
@@ -256,4 +271,7 @@ def add_statistics_to_yml(
         df: DataFrame,
         yml_handler: YAMLHandler,
 ) -> None:
-    yml_handler.add_number_of_tokens(len(df['TOKENS'].notna()))
+    tokens_without_punctuation_df = df['TOKENS'].loc[df['TOKENS'].notna() & ~df['TOKENS'].isin(UNICODE_PUNCT_CHARSET)]
+    # Count() counts all non-na values and returns Decimal, not int - jsonpickle skips decimal type,
+    # therefore convert to int
+    yml_handler.add_number_of_tokens(int(tokens_without_punctuation_df.count()))

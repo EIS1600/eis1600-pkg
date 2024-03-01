@@ -3,6 +3,7 @@ from re import compile
 from eis1600.markdown.EntityTags import EntityTags
 
 PUNCTUATION_DICT = {'.': 'PERIOD', ',': 'LATINCOMMA', '،': 'COMMA', ':': 'COLON'}
+PUNCTUATION = PUNCTUATION_DICT.keys()
 
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
@@ -62,7 +63,7 @@ CATEGORY_PATTERN = compile(r'[$|@]+(?:[A-Z_]+[|$])?')
 PARAGRAPH_SPLITTER_PATTERN = compile(r'\n\n(' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ')\n(?:_ء_)?')
 TAG_PATTERN = compile(r'Ü?(?:[a-zA-Z_%~]+(?:\.[a-zA-Z0-9_%~]+)?)|' + PAGE_TAG + '|::|' +
                       '|'.join(PUNCTUATION_DICT.values()))
-NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']+?'
+NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']*?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(' + MIU_UID_TAG_WITHOUT_CAPTURING_GROUP + ')' + TAG_AND_TEXT_SAME_LINE)
 # for chunking the files by first level headings
@@ -80,6 +81,7 @@ ENTITY_TAGS_PATTERN = compile(r'\bÜ?(?P<full_tag>'
                                                              r'(?:(?P<sub_cat>[A-Z]+)|['r'A-Z0-9]+)?)\b')
 YEAR_PATTERN = compile(r'Ü?Y(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])(?P<written>\d{4}|None)(?P<i>I)?Y(?P<real>\d{4})?')
 AGE_PATTERN = compile(r'Ü?A\d(?P<cat>[A-Z])(?P<written>\d{2,4})(?P<i>I)?A(?P<real>\d{2,4})?')
+LUNAR_PATTERN = compile(r'Ü?L\d(?P<cat>X)(?P<written>\d{2})L')
 TOPONYM_PATTERN = compile(r'Ü?T(?P<num_tokens>\d{1,2})(?P<cat>[A-Z])')
 onom_tags = '|'.join(EntityTags().get_onom_tags())
 ONOM_TAGS_PATTERN = compile(r'Ü?(?P<entity>' + onom_tags + r')(?P<length>\d{1,2})')

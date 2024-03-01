@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any, Dict, Optional
 
 from ast import literal_eval
@@ -191,6 +192,11 @@ class YAMLHandler:
                     json_dict[key] = val.to_json()
                 else:
                     json_dict[key] = val
+                    if isinstance(val, Decimal):
+                        raise TypeError(
+                            f'{val} is of type {type(val)} which is not pickable - make sure to use int '
+                            f'or float'
+                            )
         return json_dict
 
     def is_bio(self) -> bool:

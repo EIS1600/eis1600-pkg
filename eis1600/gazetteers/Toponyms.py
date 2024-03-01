@@ -28,7 +28,10 @@ class Toponyms:
     __rpl = None
 
     def __init__(self) -> None:
-        df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'])
+        try:
+            df = read_csv(toponyms_path, usecols=['URI_GRAVITON', 'LABEL', 'TOPONYM', 'METAREGION', 'TYPE'])
+        except Exception as e:
+            print(f'Check if the {self.__class__.__name__} gazetteer is correctly formatted with commas and not tabs.')
         prefixes = ['ب', 'و', 'وب', 'ل', 'ول']
 
         def get_all_variations(top: str) -> List[str]:

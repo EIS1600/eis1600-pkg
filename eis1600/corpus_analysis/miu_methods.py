@@ -68,10 +68,11 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
                 df['TAGS_LISTS'] = df.apply(merge_tagslists, key=col, axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
-        add_annotated_entities_to_yml(df_subset, yml_handler, uid)
+        reconstructed_miu_text_with_tags = reconstruct_miu_text_with_tags(df_subset)
+        add_annotated_entities_to_yml(df_subset, yml_handler, uid, reconstructed_miu_text_with_tags)
         add_statistics_to_yml(df_subset, yml_handler)
         if debug:
-            print(reconstruct_miu_text_with_tags(df_subset))
+            print(reconstructed_miu_text_with_tags)
 
     # return as JSON Object
     author, text, edition, miu_uid = uid.split('.')

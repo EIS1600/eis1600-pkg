@@ -37,7 +37,10 @@ class Onomastics:
     __ngrams_regex = None
 
     def __init__(self) -> None:
-        oa_df = read_csv(path)
+        try:
+            oa_df = read_csv(path)
+        except Exception as e:
+            print(f'Check if the {self.__class__.__name__} gazetteer is correctly formatted with commas and not tabs.')
         oa_df['NGRAM'] = oa_df['NGRAM'].astype('uint8')
         oa_df['CATEGORY'] = oa_df['CATEGORY'].astype('category')
 

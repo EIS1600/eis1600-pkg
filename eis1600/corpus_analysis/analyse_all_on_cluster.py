@@ -1,13 +1,11 @@
 from typing import Optional
 from sys import argv, exit
-from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
-from logging import ERROR, Formatter, INFO
+from logging import INFO
 from time import process_time, time
 from random import shuffle
-
-import os #FIXME
 
 import jsonpickle
 from tqdm import tqdm
@@ -17,18 +15,11 @@ from torch import cuda
 
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
+
+
 from eis1600.helper.logging import setup_persistent_logger
+from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
-
-
-def parse_range(arg: str) -> tuple[int, int | None]:
-    try:
-        i, j = arg.split(",")
-        i = int(i) - 1 if i else 0
-        j = int(j) if j else None
-        return i, j
-    except ValueError:
-        raise ArgumentTypeError("range must be i,j with both i and j being integers")
 
 
 def routine_per_text(
@@ -36,7 +27,7 @@ def routine_per_text(
         parallel: Optional[bool] = False,
         force: Optional[bool] = False,
         debug: Optional[bool] = False,
-    ):
+):
     """Entry into analysis routine per text.
 
     Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
@@ -49,8 +40,8 @@ def routine_per_text(
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
 
-    # do not process file is it's already generated
-    if Path(out_path).exists() and not force:
+    # do not process file if it's already generated
+    if Path(out_path).is_file() and not force:
         return
 
     meta_data_header, mius_list = get_text_as_list_of_mius(infile)
@@ -63,9 +54,11 @@ def routine_per_text(
         for idx, tup in tqdm(list(enumerate(mius_list))):
             try:
                 res.append(analyse_miu(tup, debug))
-            except Exception as e:
+            except ValueError as e:
                 uid, miu_as_text, analyse_flag = tup
                 error += f'{uid}\n{e}\n\n\n'
+            except Exception:
+                raise
 
     dir_path = '/'.join(out_path.split('/')[:-1])
     Path(dir_path).mkdir(parents=True, exist_ok=True)
@@ -81,26 +74,26 @@ def routine_per_text(
 
 def main():
     arg_parser = ArgumentParser(
-        prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
-        description='''Script to parse whole corpus to annotated MIUs.'''
+            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
+            description='''Script to parse whole corpus to annotated MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
-        '--range',
-        metavar="ini,end",
-        type=parse_range,
-        help='process file range [i,j] (both are optional)'
+            '--range',
+            metavar="ini,end",
+            type=parse_range,
+            help='process file range [i,j] (both are optional)'
     )
     arg_parser.add_argument(
-        "--random", "-r",
-        action="store_true",
-        help="randomise list of files"
+            "--random", "-r",
+            action="store_true",
+            help="randomise list of files"
     )
     arg_parser.add_argument(
-        "--force", "-f",
-        action="store_true",
-        help="process file regardless if it exist and overwrite it"
+            "--force", "-f",
+            action="store_true",
+            help="process file regardless if it exist and overwrite it"
     )
 
     args = arg_parser.parse_args()
@@ -137,7 +130,10 @@ def main():
         try:
             routine_per_text(infile, parallel, force, debug)
         except ValueError as e:
-            logger.log(ERROR, f'{infile}\n{e}')
+            logger.error(f'{infile}\n{e}')
+        except Exception as e:
+            print(e)
+            logger.exception(f'{infile}\n{e}')
 
     et = time()
     etp = process_time()

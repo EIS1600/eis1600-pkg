@@ -53,6 +53,7 @@ def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[Lis
     :return Tuple[DataFrame, DataFrame]: returns two DataFrames, one for ready texts and the other for double-checked files.
     """
     csv_path = download_text_selection(TEXT_REPO)
+    # csv_path = TEXT_REPO + '_EIS1600 - Text Selection - Serial Source Test - EIS1600_AutomaticSelectionForReview.csv'
     df = read_csv(csv_path, usecols=['Book Title', 'PREPARED']).dropna()
     df_ready = df.loc[df['PREPARED'].str.fullmatch('ready')]
     df_double_checked = df.loc[df['PREPARED'].str.fullmatch('double-checked')]

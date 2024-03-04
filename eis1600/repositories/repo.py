@@ -20,6 +20,7 @@ from pandas import DataFrame, read_csv
 
 from eis1600.markdown.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 from eis1600.texts_to_mius.download_text_selection_sheet import download_text_selection
+from eis1600.helper.part_file_names import get_part_number
 
 # Path variables
 
@@ -109,6 +110,7 @@ def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[Lis
             # get parts of file or original EIS1600 file if not splitted in parts
             else:
                 if part_files := [f for f in eis_files if SPLITTED_PART_NAME_INFIX in f]:
+                    part_files.sort(key=get_part_number)
                     for part_file in part_files:
                         double_checked_files.append(part_file)
 

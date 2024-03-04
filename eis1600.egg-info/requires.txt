@@ -1,17 +1,17 @@
+openiti
+pandas
+numpy
+tqdm
+p_tqdm
 importlib_resources
 jsonpickle
-numpy
-openiti
-p_tqdm
-pandas
 requests
-tqdm
 
 [EIS]
 camel-tools
 torch
-torchaudio
 torchvision
+torchaudio
 transformers
 
 [EVAL]

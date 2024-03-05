@@ -41,7 +41,8 @@ setup(name='eis1600',
                   'topo_tags_to_bio = eis1600.bio.topo_tags_to_bio:main',
                   'topod_extract_incomplete = eis1600.toponym_descriptions.topod_extract_incomplete:main',
                   'topod_extract_places_regex = eis1600.toponym_descriptions.topod_extract_places_regex:main',
-                  'topod_insert_into_miu = eis1600.toponym_descriptions.topod_insert_into_miu:main'
+                  'topod_insert_into_miu = eis1600.toponym_descriptions.topod_insert_into_miu:main',
+                  'tsv_dump = eis1600.dump.corpus_dump:main'
           ],
       },
       python_requires='>=3.7',
@@ -53,7 +54,8 @@ setup(name='eis1600',
               'p_tqdm',
               'importlib_resources',
               'jsonpickle',
-              'requests'
+              'requests',
+              'ujson'
       ],
       extras_require={
               'NER': ['camel-tools', 'torch'],

@@ -10,13 +10,15 @@ Functions:
 :function get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to):
 :function travers_eis1600_dir(path, file_ext_from, file_ext_to): Discontinued
 """
-from typing import List, Literal, Optional, Tuple
+from typing import List, Literal, Optional, Tuple, Generator
 
 import re
-from os.path import split, splitext, exists
+import os
+
+
 from glob import glob
 
-from pandas import DataFrame, read_csv
+from pandas import read_csv
 
 from eis1600.markdown.markdown_patterns import FIXED_POETRY_OLD_PATH_PATTERN
 from eis1600.texts_to_mius.download_text_selection_sheet import download_text_selection
@@ -42,9 +44,19 @@ POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
 SPLITTED_PART_NAME_INFIX = '_part'
 
+STRUCTURAL_TSV = "eis1600-structure.tsv"
+CONTENT_TSV = "eis1600-content.tsv"
 
-def get_part_filepath(file_base: str, i: int, file_ext: str) -> str:
-    return f"{file_base}{SPLITTED_PART_NAME_INFIX}{i:04}{file_ext}"
+# columns for tsv output
+COLUMNS = ["MIUID", "ENTITY", "VALUE"]
+
+# separators for tsv containing annotated tokens
+SEP = ":::"
+SEP2 = "==="
+
+
+def get_part_filepath(file_path_base: str, i: int, file_ext: str) -> str:
+    return f"{file_path_base}{SPLITTED_PART_NAME_INFIX}{i:04}{file_ext}"
 
 
 def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[List[str], List[str]]:
@@ -187,11 +199,11 @@ def write_to_readme(path: str, files: List[str], which: str, ext: Optional[str] 
 
         # Change the file ending for files which have been processed if necessary (if new file ending is given)
         for file in files:
-            file_path, uri = split(file)
+            file_path, uri = os.path.split(file)
             if ext:
-                uri, _ = splitext(uri)
+                uri, _ = os.path.splitext(uri)
             else:
-                uri, ext = splitext(uri)
+                uri, ext = os.path.splitext(uri)
             if checked_boxes:
                 file_list.append((uri + ext + '\n', checked))
             else:
@@ -215,8 +227,8 @@ def write_to_readme(path: str, files: List[str], which: str, ext: Optional[str] 
         # Fallback option - if anything goes wrong at least print the list of changed files to a log
         file_list = []
         for file in files:
-            file_path, uri = split(file)
-            uri, ext = splitext(uri)
+            file_path, uri = os.path.split(file)
+            uri, ext = os.path.splitext(uri)
             file_list.append(uri + '.EIS1600\n')
         with open(path + 'FILE_LIST.log', 'w', encoding='utf8') as file_list_h:
             file_list_h.writelines(file_list)
@@ -379,3 +391,25 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
             return out_path + MIU_REPO + 'data/'
         else:
             return out_path + TEXT_REPO + 'data/'
+
+
+def get_output_json_files(path: str) -> Generator[str, None, None]:
+    """Get list of json files to from output EIS1600 directory.
+
+    :param str path: Path to the json directory root.
+    :return list[str]: List of all files to process with exact path, not containing those files which have already
+    been processed.
+    """
+    path += 'data/'
+    for author_fobj in os.scandir(path):
+        if not author_fobj.is_dir():
+            continue
+        for text_fobj in os.scandir(author_fobj):
+            if not text_fobj.is_dir():
+                continue
+            part_files = [fo.path for fo in os.scandir(text_fobj) if fo.name.endswith(".json")]
+            if len(part_files) == 1:
+                yield part_files[0]
+            else:
+                part_files.sort(key=get_part_number)
+                yield from part_files

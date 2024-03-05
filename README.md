@@ -314,3 +314,18 @@ to
 ```yaml
 reviewed    : REVIEWED
 ```
+
+
+### TSV dump
+
+Run the following command from the root of the MIU repo to revise create tsv files with the corpus dump:
+```shell
+$ tsv_dump
+```
+
+This command will create two files:
+1. eis1600-structure.tsv contains all structural data from the eis1600 corpus
+2. eis1600-content.tsv contains all content data from the eis1600 corpus.
+   - By default, this file is splitted in 4 parts (eis1600-content_part0001.tsv, etc), so that the files are not too large. The output can be splitted in a different number of files using the argument --part, e.g. `$ tsv_dump --parts 0` will create only one file, without any parts.
+   - By default, all entities will be added to the tsv output. The list of entities are: SECTIONS, TOKENS, TAGS_LISTS, NER_LABELS, LEMMAS, POS_TAGS, ROOTS, TOPONYM_LABELS, NER_TAGS, DATE_TAGS, MONTH_TAGS, ONOM_TAGS,
+                        ONOMASTIC_TAGS. A different selection of output entities can be done with the argument --label_list, e.g. `$ tsv_dump --label_list NER_LABELS NER_TAGS` will output only the information included in those entities.

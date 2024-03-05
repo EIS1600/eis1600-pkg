@@ -138,6 +138,3 @@ def main():
             print(f"Part {i} of content eis1600 data saved in file {part_file}")
     else:
         print(f"Content eis1600 data saved in file {CONTENT_TSV}")
-
-
-

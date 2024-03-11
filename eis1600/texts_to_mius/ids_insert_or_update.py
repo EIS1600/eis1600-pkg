@@ -92,5 +92,3 @@ Run without input arg to batch process all double-checked and ready files from t
 
     print('Done')
 
-
-

@@ -44,9 +44,6 @@ POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
 SPLITTED_PART_NAME_INFIX = '_part'
 
-STRUCTURAL_TSV = "eis1600-structure.tsv"
-CONTENT_TSV = "eis1600-content.tsv"
-
 # columns for tsv output
 COLUMNS = ["MIUID", "ENTITY", "VALUE"]
 

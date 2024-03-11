@@ -1,14 +1,13 @@
+import os.path
+
 import jsonpickle
-from os import remove
-from os.path import exists, splitext
 from sys import argv
 import ujson as json
 import pandas as pd
 from tqdm import tqdm
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from eis1600.repositories.repo import JSON_REPO, STRUCTURAL_TSV, CONTENT_TSV, COLUMNS, SEP, SEP2, \
-    get_output_json_files, get_part_filepath
+from eis1600.repositories.repo import JSON_REPO, COLUMNS, SEP, SEP2, get_output_json_files, get_part_filepath
 
 
 def main():
@@ -36,30 +35,15 @@ def main():
     arg_parser.add_argument("-D", "--debug", action="store_true")
     args = arg_parser.parse_args()
 
-    # remove previous complete and part content files
-    file_path_base, file_ext = splitext(CONTENT_TSV)
-    i = 1
-    if exists(CONTENT_TSV):
-        remove(CONTENT_TSV)
-    while exists(old_part_file := get_part_filepath(file_path_base, i, file_ext)):
-        remove(old_part_file)
-        i += 1
-
     files = list(get_output_json_files(JSON_REPO))
 
     structural_data, content_data = [], []
 
-    if args.parts != 0:
-        chunk_size = len(files) // args.parts
-        i_chunk = 0
-        i_part = 1
-        created_part_files = []
-
-    for i, file in tqdm(enumerate(files, 1), total=len(files)):
+    for i, fpath in tqdm(enumerate(files, 1), total=len(files)):
         if args.debug:
-            print(f"[{i}] {file}")
+            print(f"[{i}] {fpath}")
 
-        with open(file, "r", encoding="utf-8") as fp:
+        with open(fpath, "r", encoding="utf-8") as fp:
             data = json.load(fp)
 
             for miu in data:
@@ -93,48 +77,28 @@ def main():
                             else:
                                 structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_value}"))
                     else:
-                        raise ValueError(f'Fatal error dumping data of "{file}".')
+                        raise ValueError(f'Fatal error dumping data of "{fpath}".')
 
                 # get content data
                 miu_df = jsonpickle.decode(miu["df"])
                 for entity in args.label_list:
                     if entity not in miu_df:
                         continue
-                    for _, value in miu_df[entity].items():
+                    for j, (_, value) in enumerate(miu_df[entity].items(), 1):
                         if type(value) == list:
-                            content_data.append((uid, entity, SEP.join(value)))
-                        else:
-                            if value:
-                                content_data.append((uid, entity, value))
+                            value = SEP2.join(value)
+                        content_data.append((uid, entity, f"{j}{SEP}{value}"))
 
-        if args.parts != 0:
-            if i_chunk > chunk_size:
-                content_df = pd.DataFrame(content_data, columns=COLUMNS)
-                part_file = get_part_filepath(file_path_base, i_part, file_ext)
-                content_df.to_csv(part_file, sep="\t", index=False)
-                created_part_files.append(part_file)
-                i_chunk = 0
-                i_part += 1
-                content_data = []
-            else:
-                i_chunk += 1
+        fbase, _ = os.path.splitext(fpath)
 
-    struct_df = pd.DataFrame(structural_data, columns=COLUMNS)
-    struct_df.to_csv(STRUCTURAL_TSV, sep="\t", index=False)
-
-    if args.parts != 0:
         content_df = pd.DataFrame(content_data, columns=COLUMNS)
-        part_file = get_part_filepath(file_path_base, i_part, file_ext)
-        content_df.to_csv(part_file, sep="\t", index=False)
-        created_part_files.append(part_file)
-    else:
-        content_df = pd.DataFrame(content_data, columns=COLUMNS)
-        content_df.to_csv(CONTENT_TSV, sep="\t", index=False)
+        content_df.to_csv(f"{fbase}_df.tsv", sep="\t", index=False)
+
+        struct_df = pd.DataFrame(structural_data, columns=COLUMNS)
+        struct_df.to_csv(f"{fbase}_yml.tsv", sep="\t", index=False)
+
+        structural_data, content_data = [], []
 
     print(f"Processed {len(files)} files")
-    print(f"Structural eis1600 data saved in file {STRUCTURAL_TSV}")
-    if args.parts != 0:
-        for i, part_file in enumerate(created_part_files, 1):
-            print(f"Part {i} of content eis1600 data saved in file {part_file}")
-    else:
-        print(f"Content eis1600 data saved in file {CONTENT_TSV}")
+    print(f"For each json file in {JSON_REPO} directory, "
+          f"a tsv with the yml data and a tsv with the df data have been generated.")

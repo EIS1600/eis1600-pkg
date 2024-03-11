@@ -20,6 +20,10 @@ def main():
             help='EIS1600 or EIS1600TMP file to process',
             action=CheckFileEndingEIS1600OrEIS1600TMPAction
     )
+    arg_parser.add_argument(
+            '--parts', action='store_true',
+            help='check part files instead of original in case file is splitted',
+    )
 
     args = arg_parser.parse_args()
 
@@ -28,7 +32,7 @@ def main():
     if infile:
         check_formatting(infile)
     else:
-        files_ready, files_double_checked = get_ready_and_double_checked_files()
+        files_ready, files_double_checked = get_ready_and_double_checked_files(only_complete=not args.parts)
         files = files_ready + files_double_checked
 
         formatter = Formatter('%(message)s\n\n\n')

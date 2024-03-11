@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from eis1600.repositories.repo import JSON_REPO, COLUMNS, SEP, SEP2, get_output_json_files, get_part_filepath
+from eis1600.repositories.repo import JSON_REPO, COLUMNS, SEP, SEP2, get_output_json_files
 
 
 def main():

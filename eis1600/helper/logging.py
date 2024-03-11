@@ -1,28 +1,36 @@
-from logging import FileHandler, Formatter, getLogger, INFO, Logger
+import logging
 
-FORMATTER = Formatter('%(message)s')
-PERSISTENT_FORMATTER = Formatter('%(asctime)s - %(levelname)s - %(message)s')
+FORMATTER = logging.Formatter('%(message)s')
+PERSISTENT_FORMATTER = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
 
-def setup_logger(name: str, log_file: str, level=INFO, formatter=FORMATTER) -> Logger:
+def setup_logger(name: str, log_file: str, level=logging.INFO, formatter=FORMATTER) -> logging.Logger:
 
-    handler = FileHandler(log_file, 'w', encoding='utf-8')
+    handler = logging.FileHandler(log_file, 'w', encoding='utf-8')
     handler.setFormatter(formatter)
 
-    logger = getLogger(name)
+    logger = logging.getLogger(name)
+
     logger.setLevel(level)
     logger.addHandler(handler)
+    logger.addHandler(logging.StreamHandler())
 
     return logger
 
 
-def setup_persistent_logger(name: str, log_file: str, level=INFO, formatter=PERSISTENT_FORMATTER) -> Logger:
+def setup_persistent_logger(
+        name: str,
+        log_file: str,
+        level=logging.INFO,
+        formatter=PERSISTENT_FORMATTER
+    ) -> logging.Logger:
 
-    handler = FileHandler(log_file, encoding='utf-8')
+    handler = logging.FileHandler(log_file, encoding='utf-8')
     handler.setFormatter(formatter)
 
-    logger = getLogger(name)
+    logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.addHandler(handler)
+    logger.addHandler(logging.StreamHandler())
 
     return logger

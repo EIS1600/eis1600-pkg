@@ -69,10 +69,14 @@ def analyse_miu(tup: Tuple[str, str, bool], debug: Optional[bool] = False) -> Di
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
         reconstructed_miu_text_with_tags = reconstruct_miu_text_with_tags(df_subset)
+        if debug:
+            print("  add_annotated_entities_to_yml")
         add_annotated_entities_to_yml(df_subset, yml_handler, uid, reconstructed_miu_text_with_tags)
+        if debug:
+            print("  add_statistics_to_yml")
         add_statistics_to_yml(df_subset, yml_handler)
         if debug:
-            print(reconstructed_miu_text_with_tags)
+            print("Reconstructed text =", reconstructed_miu_text_with_tags)
 
     # return as JSON Object
     author, text, edition, miu_uid = uid.split('.')

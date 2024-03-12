@@ -1,8 +1,7 @@
-from sys import argv
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from logging import Formatter, INFO
-
+import sys
+import logging
 from tqdm import tqdm
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600OrEIS1600TMPAction
 from eis1600.helper.logging import setup_logger
@@ -12,7 +11,7 @@ from eis1600.texts_to_mius.check_formatting_methods import check_formatting
 
 def main():
     arg_parser = ArgumentParser(
-            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description=''
     )
     arg_parser.add_argument(
@@ -35,8 +34,14 @@ def main():
         files_ready, files_double_checked = get_ready_and_double_checked_files(only_complete=not args.parts)
         files = files_ready + files_double_checked
 
-        formatter = Formatter('%(message)s\n\n\n')
-        logger = setup_logger('mal_formatted_texts', TEXT_REPO + 'mal_formatted_texts.log', INFO, formatter)
+        formatter = logging.Formatter('%(message)s\n\n\n')
+        logger = setup_logger(
+            name='mal_formatted_texts',
+            log_file=TEXT_REPO + 'mal_formatted_texts.log',
+            level=logging.INFO,
+            formatter=formatter,
+            add_stderr=True
+        )
         print('Check formatting for double-checked and ready texts')
 
         count = 0

@@ -26,26 +26,28 @@ def check_file_for_mal_formatting(infile: str, content: str):
         error = ''
         if not TEXT_START_PATTERN.match(content):
             error += '\n * Text does not start with a MIU tag, check if the preface is tagged as PARATEXT.'
-        if PARAGRAPH_TAG_MISSING.search(content):
-            error += '\n * There are missing paragraph tags.'
-        if SIMPLE_MARKDOWN.search(content):
-            error += '\n * There is simple mARkdown left.'
-        if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
-            error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-        if MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.search(content):
+        if m := PARAGRAPH_TAG_MISSING.search(content):
+            error += f'\n * There are missing paragraph tags. Failed at "{m.group(0)}"'
+        if m := SIMPLE_MARKDOWN.search(content):
+            error += f'\n * There is simple mARkdown left. Failed at "{m.group(0)}"'
+        if m := NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+            error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing). ' \
+                     f'Failed at "{m.group(0)}"'
+        if m := MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN.search(content):
             error += '\n * There is text on the same line as the start of a biography, fix it by running ' \
-                     f'`ids_insert_or_update` on {infile}'
-        if TILDA_HICKUPS_PATTERN.search(content):
-            error += '\n * There is this pattern with tildes: `~\\n~`.'
-        if NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
-            error += '\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing).'
-        if EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
-            error += '\n * There are empty paragraphs in the text.'
-        if SPAN_ELEMENTS.search(content):
-            error += '\n * There are span elements in the text.'
-        if MISSING_DIRECTIONALITY_TAG_PATTERN.search(content):
+                     f'`ids_insert_or_update` on {infile}. Failed at "{m.group(0)}"'
+        if m := TILDA_HICKUPS_PATTERN.search(content):
+            error += f'\n * There is this pattern with tildes: `~\\n~`. Failed at "{m.group(0)}"'
+        if m := NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
+            error += '\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing).  '\
+                     f'Failed at "{m.group(0)}"'
+        if m := EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
+            error += f'\n * There are empty paragraphs in the text. Failed at "{m.group(0)}"'
+        if m := SPAN_ELEMENTS.search(content):
+            error += f'\n * There are span elements in the text. Failed at "{m.group(0)}"'
+        if m := MISSING_DIRECTIONALITY_TAG_PATTERN.search(content):
             error += '\n * There are missing direction tags at the beginning of paragraphs, fix it by running ' \
-                     f'`ids_insert_or_update` on {infile}'
+                     f'`ids_insert_or_update` on {infile}. Failed at "{m.group(0)}"'
         # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
         #     error += '\n * There is poetry attached to a PageTag (there should be a linebreak instead).'
 
@@ -64,7 +66,6 @@ def check_file_for_mal_formatting(infile: str, content: str):
 def check_formatting(infile: str):
     with open(infile, 'r', encoding='utf8') as text:
         header_text = text.read().split('#META#Header#End#\n\n')
-
         try:
             check_file_for_mal_formatting(infile, header_text[1])
         except ValueError:
@@ -81,17 +82,19 @@ def check_formatting_before_update_ids(infile: str, content: str):
 
         error = ''
         if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content):
-            error += '\n * Text does not start with Header or PARATEXT, check if the preface is tagged.'
-        if NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
-            error += '\n * There are elements missing the double newline (somewhere the emtpy line is missing).'
-        if TILDA_HICKUPS_PATTERN.search(content):
-            error += '\n * There is this pattern with tildes: `~\\n~`.'
-        if NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
-            error += '\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing).'
-        if EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
-            error += '\n * There are empty paragraphs in the text.'
-        if SPAN_ELEMENTS.search(content):
-            error += '\n * There are span elements in the text.'
+            error += f'\n * Text does not start with Header or PARATEXT, check if the preface is tagged.'
+        if m := NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+            error += f'\n * There are elements missing the double newline (somewhere the emtpy line is missing). '\
+                     f'Failed at "{m.group(0)}"'
+        if m := TILDA_HICKUPS_PATTERN.search(content):
+            error += f'\n * There is this pattern with tildes: `~\\n~`. Failed at "{m.group(0)}"'
+        if m := NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
+            error += f'\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing). ' \
+                     f'Failed at "{m.group(0)}"'
+        if m := EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
+            error += f'\n * There are empty paragraphs in the text. Failed at "{m.group(0)}"'
+        if m := SPAN_ELEMENTS.search(content):
+            error += f'\n * There are span elements in the text. Failed at "{m.group(0)}"'
 
         raise ValueError(
                 f'Correct the following errors\n'

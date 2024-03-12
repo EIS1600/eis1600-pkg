@@ -87,7 +87,8 @@ def main():
                     for j, (_, value) in enumerate(miu_df[entity].items(), 1):
                         if type(value) == list:
                             value = SEP2.join(value)
-                        content_data.append((uid, entity, f"{j}{SEP}{value}"))
+                        if value:
+                            content_data.append((uid, entity, f"{j}{SEP}{value}"))
 
         fbase, _ = os.path.splitext(fpath)
 

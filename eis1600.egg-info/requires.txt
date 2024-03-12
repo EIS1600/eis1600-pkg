@@ -6,6 +6,7 @@ p_tqdm
 importlib_resources
 jsonpickle
 requests
+ujson
 
 [EIS]
 camel-tools

@@ -13,7 +13,6 @@ eis1600/bio/md_to_bio.py
 eis1600/bio/q_tags_to_bio.py
 eis1600/bio/topo_tags_to_bio.py
 eis1600/corpus_analysis/__init__.py
-eis1600/corpus_analysis/analyse_all_on_cluster.bk.py
 eis1600/corpus_analysis/analyse_all_on_cluster.py
 eis1600/corpus_analysis/analyse_text.py
 eis1600/corpus_analysis/miu_methods.py
@@ -40,6 +39,7 @@ eis1600/helper/Singleton.py
 eis1600/helper/__init__.py
 eis1600/helper/ar_normalization.py
 eis1600/helper/chunking.py
+eis1600/helper/files_sizes.py
 eis1600/helper/logging.py
 eis1600/helper/miu_random_revisions.py
 eis1600/helper/parse_range.py
@@ -92,6 +92,7 @@ eis1600/texts_to_mius/UIDs.py
 eis1600/texts_to_mius/__init__.py
 eis1600/texts_to_mius/check_formatting.py
 eis1600/texts_to_mius/check_formatting_methods.py
+eis1600/texts_to_mius/check_miu_list.py
 eis1600/texts_to_mius/convert_mARkdown_methods.py
 eis1600/texts_to_mius/convert_mARkdown_to_EIS1600TMP.py
 eis1600/texts_to_mius/download_text_selection_sheet.py

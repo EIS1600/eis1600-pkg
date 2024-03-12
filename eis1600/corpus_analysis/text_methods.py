@@ -55,7 +55,7 @@ def get_text_as_list_of_mius(infile: str) -> Tuple[str, List[Tuple[str, str, boo
                 try:
                     category = CATEGORY_PATTERN.search(m.group('category')).group(0)
                 except AttributeError:
-                    mal_formatted.append(m.group('category'))
+                    mal_formatted.append(f"Category not recognised: {m.group(0)}\n")
                 yml_header = create_yml_header(category, heading_tracker.get_curr_state())
                 analyse_flag = category not in ['|PARATEXT|', '|EDITOR|']
                 miu_text = yml_header
@@ -71,7 +71,7 @@ def get_text_as_list_of_mius(infile: str) -> Tuple[str, List[Tuple[str, str, boo
 
     if mal_formatted:
         print('Something seems to be mal-formatted, check:')
-        print(infile + '\n')
+        print(infile)
         for elem in mal_formatted:
             print(elem)
 

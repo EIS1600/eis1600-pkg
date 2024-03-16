@@ -42,7 +42,9 @@ BACKEND_REPO = 'backend/'
 TOPO_TRAINING_REPO = 'topo_training/data/'
 POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
-SPLITTED_PART_NAME_INFIX = '_part'
+PART_NAME_INFIX = '_part'
+
+PART_NUM_REGEX = re.compile(fr"{PART_NAME_INFIX}0+([0-9]+)")
 
 # columns for tsv output
 COLUMNS = ["MIUID", "ENTITY", "VALUE"]
@@ -53,7 +55,7 @@ SEP2 = "==="
 
 
 def get_part_filepath(file_path_base: str, i: int, file_ext: str) -> str:
-    return f"{file_path_base}{SPLITTED_PART_NAME_INFIX}{i:04}{file_ext}"
+    return f"{file_path_base}{PART_NAME_INFIX}{i:04}{file_ext}"
 
 
 def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[List[str], List[str]]:
@@ -112,20 +114,20 @@ def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[Lis
             # get original EIS1600 complete files
             if only_complete:
                 for eis_file in eis_files:
-                    if SPLITTED_PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
+                    if PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
                         double_checked_files.append(eis_file)
                         break
 
             # get parts of file or original EIS1600 file if not splitted in parts
             else:
-                if part_files := [f for f in eis_files if SPLITTED_PART_NAME_INFIX in f]:
+                if part_files := [f for f in eis_files if PART_NAME_INFIX in f]:
                     part_files.sort(key=get_part_number)
                     for part_file in part_files:
                         double_checked_files.append(part_file)
 
                 else:
                     for eis_file in eis_files:
-                        if SPLITTED_PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
+                        if PART_NAME_INFIX not in eis_file and eis_file.endswith(".EIS1600"):
                             double_checked_files.append(eis_file)
                             break
         else:
@@ -388,25 +390,3 @@ def get_path_to_other_repo(infile: str, which: Literal['MIU', 'TEXT']) -> str:
             return out_path + MIU_REPO + 'data/'
         else:
             return out_path + TEXT_REPO + 'data/'
-
-
-def get_output_json_files(path: str) -> Generator[str, None, None]:
-    """Get list of json files to from output EIS1600 directory.
-
-    :param str path: Path to the json directory root.
-    :return list[str]: List of all files to process with exact path, not containing those files which have already
-    been processed.
-    """
-    path += 'data/'
-    for author_fobj in os.scandir(path):
-        if not author_fobj.is_dir():
-            continue
-        for text_fobj in os.scandir(author_fobj):
-            if not text_fobj.is_dir():
-                continue
-            part_files = [fo.path for fo in os.scandir(text_fobj) if fo.name.endswith(".json")]
-            if len(part_files) == 1:
-                yield part_files[0]
-            else:
-                part_files.sort(key=get_part_number)
-                yield from part_files

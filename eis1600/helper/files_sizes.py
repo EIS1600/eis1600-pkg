@@ -40,4 +40,4 @@ def main():
     for i, (file, size) in enumerate(infiles, 1):
        mb = size >> 20
        i = f"[{i}]"
-       print(f"{i:<6} {mb:<2} {file}")
+       print(f"{i:<5} {size:>8} bytes = {mb:>2} MB - {file}")

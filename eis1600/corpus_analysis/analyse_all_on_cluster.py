@@ -1,5 +1,7 @@
+import sys
+import glob
+import os.path
 from typing import Optional
-from sys import argv, exit
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from functools import partial
 from pathlib import Path
@@ -19,15 +21,17 @@ from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 
 from eis1600.helper.logging import setup_persistent_logger
 from eis1600.helper.parse_range import parse_range
-from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, get_ready_and_double_checked_files
+from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
+                                       get_ready_and_double_checked_files
 
 
 def routine_per_text(
         infile: str,
         parallel: Optional[bool] = False,
         force: Optional[bool] = False,
+        clean_out_dir: Optional[bool] = False,
         debug: Optional[bool] = False,
-):
+    ):
     """Entry into analysis routine per text.
 
     Each text is disassembled into the list of MIUs. Analysis is applied to each MIU. Writes a JSON file containing
@@ -35,12 +39,14 @@ def routine_per_text(
     :param ste infile: EIS1600 text which is analysed.
     :param bool parallel: Parallel flag for parallel processing, otherwise serial processing.
     :param bool force: Do processing even though file already exists.
+    :param bool clean_out_dir: When processing all files, clean json output in case there are previous splitting.
+        This param will remove all json files in subfolder when file is original or part 1.
     :param bool debug: Debug flag for more console messages.
     """
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
     out_path = out_path.replace('.EIS1600', '.json')
 
-    # do not process file if it's already generated
+    # do not process file if it's already generated and it should not be overwritten
     if Path(out_path).is_file() and not force:
         return
 
@@ -60,8 +66,14 @@ def routine_per_text(
             except Exception:
                 raise
 
-    dir_path = '/'.join(out_path.split('/')[:-1])
+    dir_path, _ = os.path.split(out_path)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
+
+    # if file is original or part 1, remove previous json files to avoid problem with previous chunkings
+    if clean_out_dir and (PART_NAME_INFIX not in out_path or int(PART_NUM_REGEX.search(out_path).group(1)) == 1):
+        if os.path.exists(dir_path):
+            for json_file in glob.iglob(f"{dir_path}*.json"):
+                os.remove(json_file)
 
     with open(out_path, 'w', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
@@ -74,7 +86,7 @@ def routine_per_text(
 
 def main():
     arg_parser = ArgumentParser(
-            prog=argv[0], formatter_class=RawDescriptionHelpFormatter,
+            prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to parse whole corpus to annotated MIUs.'''
     )
     arg_parser.add_argument('-D', '--debug', action='store_true')
@@ -127,8 +139,9 @@ def main():
     for i in tqdm(infiles_indexes):
         infile = infiles[i]
         print(f"[{i+1}] {infile}")
+
         try:
-            routine_per_text(infile, parallel, force, debug)
+            routine_per_text(infile, parallel=parallel, force=force, clean_out_dir=True, debug=debug)
         except ValueError as e:
             logger.error(f'{infile}\n{e}')
         except Exception as e:

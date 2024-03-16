@@ -4,7 +4,7 @@ from typing import List
 from os.path import splitext, getsize, exists
 from itertools import groupby
 
-from eis1600.repositories.repo import SPLITTED_PART_NAME_INFIX, get_part_filepath
+from eis1600.repositories.repo import PART_NAME_INFIX, get_part_filepath
 from eis1600.texts_to_mius.check_formatting_methods import check_file_split
 from eis1600.markdown.markdown_patterns import HEADER_END_PATTERN, MISSING_DIRECTIONALITY_TAG_PATTERN, \
     FIRST_LEVEL_HEADING_PATTERN
@@ -47,7 +47,7 @@ def split_file(infile: str, max_size: int, debug: bool = False):
     :param bool debug: show warnings.
     :return None:
     """
-    if SPLITTED_PART_NAME_INFIX in infile:
+    if PART_NAME_INFIX in infile:
         return
 
     file_path, file_ext = splitext(infile)

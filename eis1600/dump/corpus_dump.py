@@ -50,7 +50,7 @@ def dump_file(fpath: str, label_list: List[str]):
                     elif type(sub_value) == dict:
                         # e.g. onomastics elements
                         for sub_sub_ent, sub_sub_val in sub_value.items():
-                            structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_sub_ent}{SEP2}{val}"))
+                            structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_sub_ent}{SEP2}"))
                     else:
                         structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_value}"))
             else:

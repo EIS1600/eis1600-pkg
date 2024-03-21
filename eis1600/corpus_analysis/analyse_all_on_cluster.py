@@ -17,8 +17,7 @@ from torch import cuda
 
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
-
-
+from eis1600.dump.corpus_dump import dump_file
 from eis1600.helper.logging import setup_persistent_logger
 from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
@@ -92,6 +91,11 @@ def main():
     arg_parser.add_argument('-D', '--debug', action='store_true')
     arg_parser.add_argument('-P', '--parallel', action='store_true')
     arg_parser.add_argument(
+        '--no_tsv',
+        action='store_true',
+        help='do not make tsv conversion'
+    )
+    arg_parser.add_argument(
             '--range',
             metavar="ini,end",
             type=parse_range,
@@ -142,6 +146,8 @@ def main():
 
         try:
             routine_per_text(infile, parallel=parallel, force=force, clean_out_dir=True, debug=debug)
+            if not args.no_tsv:
+                dump_file(infile)
         except ValueError as e:
             logger.error(f'{infile}\n{e}')
         except Exception as e:

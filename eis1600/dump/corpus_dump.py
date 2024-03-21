@@ -5,14 +5,17 @@ from sys import argv
 import ujson as json
 import pandas as pd
 from tqdm import tqdm
-from typing import List
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, COLUMNS, SEP, SEP2
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600TextAction
 
 
-def dump_file(fpath: str, label_list: List[str]):
+ALL_LABELS = ("SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_TAGS", "ROOTS", "TOPONYM_LABELS",
+              "NER_TAGS", "DATE_TAGS", "MONTH_TAGS", "ONOM_TAGS", "ONOMASTIC_TAGS")
+
+
+def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
 
     fpath = fpath.replace(TEXT_REPO, JSON_REPO)
     fpath = fpath.replace('.EIS1600', '.json')
@@ -90,8 +93,7 @@ def main():
     arg_parser.add_argument(
         "--label_list",
         nargs="*",
-        default=["SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_TAGS", "ROOTS", "TOPONYM_LABELS",
-                 "NER_TAGS", "DATE_TAGS", "MONTH_TAGS", "ONOM_TAGS", "ONOMASTIC_TAGS"],
+        default=ALL_LABELS,
         help="entities from content data to add to output. The default is all entities: "
              "SECTIONS, TOKENS, TAGS_LISTS, NER_LABELS, LEMMAS, POS_TAGS, ROOTS, TOPONYM_LABELS, "
              "NER_TAGS, DATE_TAGS, MONTH_TAGS, ONOM_TAGS, ONOMASTIC_TAGS"

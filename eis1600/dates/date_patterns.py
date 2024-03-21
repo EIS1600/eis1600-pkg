@@ -79,8 +79,8 @@ AR_SANA = '|'.join([denormalize(s) for s in SANA])
 MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?P<month>(?:ال)?(?:' + AR_MONTHS + r'))(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
 DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
-       r'(?:\s(:?ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(:?و)?(:?ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
-       MONTH_IN_CONTEXT + \
+       r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
+       r'(?:' + MONTH_IN_CONTEXT + r')?' +\
        r'(?P<year>' + \
               r'\s(?P<sana>' + AR_SANA + ')' + \
               r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + \
@@ -90,6 +90,7 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
               r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + \
        r')' + \
        r'(?=(?:' + WORD + r'|[\s.,]|$))'
+
 
 DATE_PATTERN = compile(DATE)
 MONTH_PATTERN = compile(AR_MONTHS)

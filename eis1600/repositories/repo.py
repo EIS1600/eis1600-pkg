@@ -10,11 +10,10 @@ Functions:
 :function get_files_from_eis1600_dir(path, file_list, file_ext_from, file_ext_to):
 :function travers_eis1600_dir(path, file_ext_from, file_ext_to): Discontinued
 """
-from typing import List, Literal, Optional, Tuple, Generator
+from typing import List, Literal, Optional, Tuple
 
 import re
 import os
-
 
 from glob import glob
 
@@ -56,6 +55,25 @@ SEP2 = "==="
 
 def get_part_filepath(file_path_base: str, i: int, file_ext: str) -> str:
     return f"{file_path_base}{PART_NAME_INFIX}{i:04}{file_ext}"
+
+
+def get_all_part_files(
+        file_name: str) -> list[str]:
+    """ get all part files from file_name
+    e.g. '0748Dhahabi.TarikhIslam.MGR20180917-ara1_part0001.EIS1600' ->
+         ['0748Dhahabi.TarikhIslam.MGR20180917-ara1_part0001.EIS1600',
+         ['0748Dhahabi.TarikhIslam.MGR20180917-ara1_part0002.EIS1600',
+         ['0748Dhahabi.TarikhIslam.MGR20180917-ara1_part0003.EIS1600']
+    """
+    file_base, _ = os.path.splitext(file_name)
+    if PART_NAME_INFIX in file_base:
+        file_base = file_base.rsplit("_", 1)[0]
+    i = 1
+    part_files = []
+    while os.path.exists(fpath := get_part_filepath(file_base, i, ".EIS1600")):
+        part_files.append(fpath)
+        i += 1
+    return part_files
 
 
 def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[List[str], List[str]]:

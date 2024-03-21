@@ -21,9 +21,14 @@ def main():
         action="store_true",
         help="sort files by size in descending order"
     )
+    arg_parser.add_argument(
+        "--complete",
+        action="store_true",
+        help="get complete files, not part files"
+    )
     args = arg_parser.parse_args()
 
-    files_ready, files_double_checked = get_ready_and_double_checked_files()
+    files_ready, files_double_checked = get_ready_and_double_checked_files(only_complete=args.complete)
     infiles = files_ready + files_double_checked
 
     if not infiles:

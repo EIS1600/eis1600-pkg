@@ -117,7 +117,7 @@ def write_updated_miu_to_file(
     else:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
-    add_annotated_entities_to_yml(df_subset, yml_handler, path.realpath(miu_file_object.name))
+    add_annotated_entities_to_yml(df_subset, yml_handler, path.realpath(miu_file_object.name), df_subset)
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     miu_file_object.seek(0)

@@ -8,7 +8,7 @@ from tqdm import tqdm
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, COLUMNS, SEP, SEP2
-from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600TextAction
+from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600JsonAction
 
 
 ALL_LABELS = ("SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_TAGS", "ROOTS", "TOPONYM_LABELS",
@@ -17,8 +17,9 @@ ALL_LABELS = ("SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_T
 
 def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
 
-    fpath = fpath.replace(TEXT_REPO, JSON_REPO)
-    fpath = fpath.replace('.EIS1600', '.json')
+    if not fpath.endswith(".json"):
+        fpath = fpath.replace(TEXT_REPO, JSON_REPO)
+        fpath = fpath.replace('.EIS1600', '.json')
 
     structural_data, content_data = [], []
     with open(fpath, "r", encoding="utf-8") as fp:
@@ -87,8 +88,8 @@ def main():
     )
     arg_parser.add_argument(
             'infile', type=str, nargs='?',
-            help='EIS1600 or EIS1600TMP file to process',
-            action=CheckFileEndingEIS1600TextAction
+            help='json file to process',
+            action=CheckFileEndingEIS1600JsonAction
     )
     arg_parser.add_argument(
         "--label_list",

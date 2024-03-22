@@ -45,6 +45,10 @@ eis1600/helper/miu_random_revisions.py
 eis1600/helper/parse_range.py
 eis1600/helper/part_file_names.py
 eis1600/helper/data/__init__.py
+eis1600/json_to_text/__init__.py
+eis1600/json_to_text/reconstruct.py
+eis1600/json_to_tsv/__init__.py
+eis1600/json_to_tsv/corpus_dump.py
 eis1600/markdown/EntityTags.py
 eis1600/markdown/__init__.py
 eis1600/markdown/markdown_methods.py

@@ -6,7 +6,7 @@ from eis1600.corpus_analysis.analyse_all_on_cluster import routine_per_text
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600TextAction
 from eis1600.repositories.repo import get_all_part_files
 from eis1600.helper.part_file_names import get_part_number
-from eis1600.dump.corpus_dump import dump_file
+from eis1600.json_to_tsv.corpus_dump import dump_file
 
 
 def main():

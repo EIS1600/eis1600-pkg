@@ -38,6 +38,18 @@ class CheckFileEndingEIS1600TextAction(Action):
             setattr(namespace, self.dest, None)
 
 
+class CheckFileEndingEIS1600JsonAction(Action):
+    def __call__(self, parser, namespace, input_arg, option_string=None):
+        if input_arg and isfile(input_arg):
+            filepath, fileext = splitext(input_arg)
+            if fileext != '.json' and not filepath[-1:-12].isdigit():
+                parser.error('Input must be a single JSON file')
+            else:
+                setattr(namespace, self.dest, input_arg)
+        else:
+            setattr(namespace, self.dest, None)
+
+
 class CheckFileEndingEIS1600OrEIS1600TMPAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
         if input_arg and isfile(input_arg):

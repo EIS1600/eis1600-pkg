@@ -17,7 +17,7 @@ from torch import cuda
 
 from eis1600.corpus_analysis.miu_methods import analyse_miu
 from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
-from eis1600.dump.corpus_dump import dump_file
+from eis1600.json_to_tsv.corpus_dump import dump_file
 from eis1600.helper.logging import setup_persistent_logger
 from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
@@ -68,6 +68,7 @@ def routine_per_text(
     dir_path, _ = os.path.split(out_path)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
+    #FIXME remove original too !!!!!
     # if file is original or part 1, remove previous json files to avoid problem with previous chunkings
     if clean_out_dir and (PART_NAME_INFIX not in out_path or int(PART_NUM_REGEX.search(out_path).group(1)) == 1):
         if os.path.exists(dir_path):

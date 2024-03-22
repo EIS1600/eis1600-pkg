@@ -119,6 +119,7 @@ def add_annotated_entities_to_yml(
     :param DataFrame df: DataFrame with two columns 'TAGS_LISTS' and 'TOKENS'.
     :param YAMLHandler yml_handler: YAMLHandler of the MIU.
     :param str file_path: Filename of the current MIU (used in error msg).
+    :param str reconstructed_miu_text_with_tags: Reconstructed text with all the tags added.
     """
     # We do not need to differentiate between automated and manual tags
     entity_tags_df = EntityTags().get_entity_tags_df()

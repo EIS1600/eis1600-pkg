@@ -68,11 +68,10 @@ def routine_per_text(
     dir_path, _ = os.path.split(out_path)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-    #FIXME remove original too !!!!!
     # if file is original or part 1, remove previous json files to avoid problem with previous chunkings
     if clean_out_dir and (PART_NAME_INFIX not in out_path or int(PART_NUM_REGEX.search(out_path).group(1)) == 1):
         if os.path.exists(dir_path):
-            for json_file in glob.iglob(f"{dir_path}*.json"):
+            for json_file in glob.iglob(os.path.join(dir_path, "*.json")):
                 os.remove(json_file)
 
     with open(out_path, 'w', encoding='utf-8') as fh:

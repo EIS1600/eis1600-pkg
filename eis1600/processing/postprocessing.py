@@ -54,7 +54,11 @@ def reconstruct_miu_text_with_tags(
     reconstructed_text = heading
     for section, token, tags in text_and_tags_iter:
         if notna(section):
-            reconstructed_text += '\n\n' + section + '\n_ء_'
+            if token and notna(token):
+                reconstructed_text += '\n\n' + section + '\n_ء_'
+            else:
+                reconstructed_text += '\n\n' + section
+
         if isinstance(tags, list):
             reconstructed_text += ' ' + ' '.join(tags)
         elif tags is not None:
@@ -97,8 +101,9 @@ def write_updated_miu_to_file(
         miu_file_object: TextIO,
         yml_handler: YAMLHandler,
         df: DataFrame,
-        target_columns: tuple[str] = ('DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS'),
-        forced_re_annotation: Optional[bool] = False
+        target_columns: tuple[str] = ('DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS'),
+        forced_re_annotation: Optional[bool] = False,
+        add_annotations_to_yml: Optional[bool] = True
 ) -> None:
     """Write MIU file with annotations and populated YAML header.
 
@@ -108,6 +113,7 @@ def write_updated_miu_to_file(
     :param tuple target_columns: columns to include in reconstructed text. All by default.
     :param bool forced_re_annotation: some annotation was added to already existing annotation, therefore merge new
     annotation into TAGS_LISTS.
+    :param bool add_annotations_to_yml: add all annotations to yml header.
     :return None:
     """
     if not yml_handler.is_reviewed() or forced_re_annotation:
@@ -118,7 +124,8 @@ def write_updated_miu_to_file(
     else:
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]
 
-    add_annotated_entities_to_yml(df_subset, yml_handler, path.realpath(miu_file_object.name), df_subset)
+    if add_annotations_to_yml:
+        add_annotated_entities_to_yml(df_subset, yml_handler, path.realpath(miu_file_object.name), df_subset)
     updated_text = reconstruct_miu_text_with_tags(df_subset)
 
     miu_file_object.seek(0)

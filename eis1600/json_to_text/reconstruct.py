@@ -13,10 +13,15 @@ from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.yml.YAMLHandler import YAMLHandler
 
 
-TAGS_LIST = ('DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS')
+TAGS_LIST = ('DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS')
 
 
-def reconstruct_file(fpath: str, tags_list: tuple[str], force: bool = False):
+def reconstruct_file(
+        fpath: str,
+        tags_list: tuple[str],
+        force: bool = False,
+        add_annotations_yml: bool = False,
+        ):
 
     if fpath.endswith(".json"):
         out_fpath = fpath.replace(".json", f"{RECONSTRUCTED_INFIX}.EIS1600")
@@ -34,10 +39,19 @@ def reconstruct_file(fpath: str, tags_list: tuple[str], force: bool = False):
         data = json.load(fp)
 
         yml = data[0]["yml"]
-        yml_handler = YAMLHandler(yml)
+        yml_handler = YAMLHandler(yml, ignore_annotations=not add_annotations_yml)
         df = pd.concat([pd.read_json(StringIO(miu["df"])) for miu in data], ignore_index=True)
         df["TAGS_LISTS"] = None
-        write_updated_miu_to_file(outfp, yml_handler, df, target_columns=tags_list, forced_re_annotation=True)
+        if 'ONOM_TAGS' in df:
+            df['ONOM_TAGS'] = df['ONOM_TAGS'].map(lambda s: '' if s == '_' else s)
+        write_updated_miu_to_file(
+            outfp,
+            yml_handler,
+            df,
+            target_columns=tags_list,
+            forced_re_annotation=True,
+            add_annotations_to_yml=add_annotations_yml
+        )
 
 
 def main():
@@ -59,6 +73,10 @@ def main():
             '--force', action='store_true',
             help='create file even though it is already created'
     )
+    arg_parser.add_argument(
+            '--add_annotations_to_yml', action='store_true',
+            help='add all annotations to yml header'
+    )
     args = arg_parser.parse_args()
 
     tags_list = tuple(args.tags)
@@ -70,7 +88,14 @@ def main():
         files_ready, files_double_checked = get_ready_and_double_checked_files()
         files = files_ready + files_double_checked
 
-        list(p_uimap(partial(reconstruct_file, tags_list=tags_list, force=args.force), files, num_cpus=0.7))
+        list(p_uimap(partial(reconstruct_file,
+                             tags_list=tags_list,
+                             force=args.force,
+                             add_annotations_yml=args.sadd_annotations_to_yml
+                             ),
+                     files,
+                     num_cpus=0.7)
+             )
 
         print(f"Reconstructed {len(files)} files")
         print(f"For each json file in {JSON_REPO} directory, a reconstructed .EIS1600 file has been created.")

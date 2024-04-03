@@ -151,8 +151,6 @@ def add_annotated_entities_to_yml(
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
 
         if cat == 'DATE' or cat == 'LUNAR_MONTH' or cat == 'AGE':
-            # TODO what about the month? ATM, they are not collected into the yml. If you want to change that,
-            #  add 'month' (or maybe lunar_month) to YAMLHandler line 27!
             try:
                 val, e_cat = get_yrs_tag_value(row['full_tag'])
                 add_to_entities_dict(entities_dict, cat, {'entity': entity, cat.lower(): val, 'cat': e_cat})

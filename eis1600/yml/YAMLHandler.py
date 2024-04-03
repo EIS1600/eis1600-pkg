@@ -30,7 +30,7 @@ class YAMLHandler:
         'dates',
         'min_date',
         'max_date',
-        'lunar_month',
+        'lunar_months',
         'ages',
         'onomastics',
         'ambiguous_toponyms',
@@ -128,7 +128,7 @@ class YAMLHandler:
 
         return yml
 
-    def __init__(self, yml: Optional[Dict] = None) -> None:
+    def __init__(self, yml: Optional[Dict] = None, ignore_annotations: bool = False) -> None:
         self.reviewed = 'NOT REVIEWED'
         self.reviewer = 'RESEARCHER'
         self.category = None
@@ -149,7 +149,11 @@ class YAMLHandler:
                 if key == 'ambigious':
                     # Fix typo
                     key = 'ambiguous'
-                self.__setattr__(key, val)
+                if ignore_annotations:
+                    if key not in YAMLHandler.__attr_from_annotation:
+                        self.__setattr__(key, val)
+                else:
+                    self.__setattr__(key, val)
 
     @classmethod
     def from_yml_str(cls, yml_str: str) -> YAMLHandler:

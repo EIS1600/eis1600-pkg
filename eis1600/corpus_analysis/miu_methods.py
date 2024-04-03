@@ -10,6 +10,7 @@ from eis1600.processing.postprocessing import merge_tagslists, reconstruct_miu_t
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.yml.yml_handling import add_annotated_entities_to_yml, add_statistics_to_yml
 from eis1600.markdown.category import Category, CategoryType
+from eis1600.helper.fix_bonom_position import fix_bonom_position
 
 
 def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -> Dict:
@@ -57,6 +58,10 @@ def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -
 
             # 6. annotate onomastic information
             df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df, debug)
+
+            # if there is a BONOM value in ONOM_TAGS and a sections in the previous and following token,
+            # move the BONOM to the next token
+            df = fix_bonom_position(df)
 
             # TODO 6. disambiguation of toponyms (same toponym, different places) --> replace ambiguous toponyms flag
             # TODO 9. get frequencies of unidentified entities (toponyms, nisbas)

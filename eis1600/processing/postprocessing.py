@@ -97,6 +97,7 @@ def write_updated_miu_to_file(
         miu_file_object: TextIO,
         yml_handler: YAMLHandler,
         df: DataFrame,
+        target_columns: tuple[str] = ('DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS'),
         forced_re_annotation: Optional[bool] = False
 ) -> None:
     """Write MIU file with annotations and populated YAML header.
@@ -104,13 +105,13 @@ def write_updated_miu_to_file(
     :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml_handler: The YAMLHandler of the MIU.
     :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'].
+    :param tuple target_columns: columns to include in reconstructed text. All by default.
     :param bool forced_re_annotation: some annotation was added to already existing annotation, therefore merge new
     annotation into TAGS_LISTS.
     :return None:
     """
     if not yml_handler.is_reviewed() or forced_re_annotation:
-        columns_of_automated_tags = ['DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
-        for col in columns_of_automated_tags:
+        for col in target_columns:
             if col in df.columns:
                 df['TAGS_LISTS'] = df.apply(merge_tagslists, key=col, axis=1)
         df_subset = df[['SECTIONS', 'TOKENS', 'TAGS_LISTS']]

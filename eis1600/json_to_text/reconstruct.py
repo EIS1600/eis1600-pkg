@@ -13,7 +13,10 @@ from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.yml.YAMLHandler import YAMLHandler
 
 
-def reconstruct_file(fpath: str, force: bool = False):
+TAGS_LIST = ('DATE_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS')
+
+
+def reconstruct_file(fpath: str, tags_list: tuple[str], force: bool = False):
 
     if fpath.endswith(".json"):
         out_fpath = fpath.replace(".json", f"{RECONSTRUCTED_INFIX}.EIS1600")
@@ -34,7 +37,7 @@ def reconstruct_file(fpath: str, force: bool = False):
         yml_handler = YAMLHandler(yml)
         df = pd.concat([pd.read_json(StringIO(miu["df"])) for miu in data], ignore_index=True)
         df["TAGS_LISTS"] = None
-        write_updated_miu_to_file(outfp, yml_handler, df, forced_re_annotation=True)
+        write_updated_miu_to_file(outfp, yml_handler, df, target_columns=tags_list, forced_re_annotation=True)
 
 
 def main():
@@ -48,19 +51,26 @@ def main():
             action=CheckFileEndingEIS1600JsonAction
     )
     arg_parser.add_argument(
+            '--tags', nargs='+',
+            choices=TAGS_LIST, default=TAGS_LIST,
+            help='list of tags to include in the reconstructed text. All by default'
+    )
+    arg_parser.add_argument(
             '--force', action='store_true',
             help='create file even though it is already created'
     )
     args = arg_parser.parse_args()
 
+    tags_list = tuple(args.tags)
+
     if args.infile:
-        reconstruct_file(args.infile)
+        reconstruct_file(args.infile, tags_list=tags_list, force=True)
 
     else:
         files_ready, files_double_checked = get_ready_and_double_checked_files()
         files = files_ready + files_double_checked
 
-        list(p_uimap(partial(reconstruct_file, force=args.force), files, num_cpus=0.7))
+        list(p_uimap(partial(reconstruct_file, tags_list=tags_list, force=args.force), files, num_cpus=0.7))
 
         print(f"Reconstructed {len(files)} files")
         print(f"For each json file in {JSON_REPO} directory, a reconstructed .EIS1600 file has been created.")

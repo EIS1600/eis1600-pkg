@@ -14,6 +14,7 @@ from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.processing.preprocessing import get_tokens_and_tags, get_yml_and_miu_df
 from eis1600.repositories.repo import GAZETTEERS_REPO
 from eis1600.yml.YAMLHandler import YAMLHandler
+from eis1600.markdown.category import BIO_MAN, BIO_REP
 
 __log_filename = GAZETTEERS_REPO + 'logs/nasab_unknown.log'
 makedirs(dirname(__log_filename), exist_ok=True)
@@ -238,10 +239,10 @@ def nasab_annotation(file: str, test: Optional[bool] = False):
         yml_handler, df = get_yml_and_miu_df(miu_file_object)
     if test:
         # Only used if run on training_data batch because this information is missing there
-        if '$' not in df.iat[0]['SECTIONS'] or '$$$' in df.iat[0]['SECTIONS'] or not yml_handler.is_reviewed():
+        if BIO_MAN not in df.iat[0]['SECTIONS'] or BIO_REP in df.iat[0]['SECTIONS'] or not yml_handler.is_reviewed():
             df['ONOM_TAGS'] = Series([nan] * len(df))
         else:
-            yml_handler.set_category('$')
+            yml_handler.set_category(BIO_MAN)
             df['ONOM_TAGS'] = nasab_annotate_miu(df, yml_handler, file, test)
     else:
         # Run on new data batch

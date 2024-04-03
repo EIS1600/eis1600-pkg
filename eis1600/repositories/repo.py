@@ -42,7 +42,7 @@ TOPO_TRAINING_REPO = 'topo_training/data/'
 POETRY_TEST_RES_REPO = 'POETRY_TEST_RESULTS/'
 
 PART_NAME_INFIX = '_part'
-RECONSTRUCTED_INFIX = '_reconstructed'
+RECONSTRUCTED_INFIX = '_assembled'
 
 PART_NUM_REGEX = re.compile(fr"{PART_NAME_INFIX}0+([0-9]+)")
 

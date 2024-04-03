@@ -8,7 +8,8 @@ from eis1600.markdown.markdown_patterns import BIO_CHR_TO_NEWLINE_PATTERN, \
     NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, ONLY_PAGE_TAG_PATTERN, PAGE_TAG_IN_BETWEEN_PATTERN, \
     PAGE_TAG_ON_NEWLINE_TMP_PATTERN, PAGE_TAG_PATTERN, \
     PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN, UID_TAG_PATTERN, MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN, \
-    PARAGRAPH_UID_TAG_PATTERN
+    PARAGRAPH_UID_TAG_PATTERN, MIU_TAG_PATTERN
+from eis1600.markdown.category import convert_to_longer_bio_tag
 from eis1600.texts_to_mius.SubIDs import SubIDs
 from eis1600.texts_to_mius.UIDs import UIDs
 from eis1600.texts_to_mius.check_formatting_methods import check_formatting_before_update_ids
@@ -259,6 +260,9 @@ def update_ids(text: str) -> str:
                 paragraph = f'_ء_={sub_ids.get_id()}= {section_header} ~\n' + paragraph
             elif not MIU_UID_TAG_PATTERN.match(paragraph):
                 paragraph = f'_ء_={sub_ids.get_id()}= ::UNDEFINED:: ~\n' + paragraph
+            else:
+                if "$" in MIU_TAG_PATTERN.match(paragraph).group(3):
+                    paragraph = convert_to_longer_bio_tag(paragraph)
 
             text_updated.append(paragraph)
 

@@ -60,7 +60,7 @@ def routine_per_text(
             try:
                 res.append(analyse_miu(tup, debug))
             except ValueError as e:
-                uid, miu_as_text, analyse_flag = tup
+                uid, *_ = tup
                 error += f'{uid}\n{e}\n\n\n'
             except Exception:
                 raise

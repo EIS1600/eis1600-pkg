@@ -29,7 +29,7 @@ MIU_UID_TAG = r'_ء_#=(?P<UID>\d{12})= '
 MIU_UID_TAG_WITHOUT_CAPTURING_GROUP = r'_ء_#=\d{12}= '
 MIU_UID_TAG_PATTERN = compile(MIU_UID_TAG)
 MIU_SPLITTER_PATTERN = compile(r'(?:^|\n\n)(?=' + MIU_UID_TAG + ')')
-PARAGRAPH_CAT = '::(?P<cat>[A-Z_]+)::'
+PARAGRAPH_CAT = '::(?P<cat>[A-Z_]+(?::: ::[A-Z_]+)*)::'
 PARAGRAPH_CAT_PATTERN = compile(PARAGRAPH_CAT)
 PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS = '::[A-Z_]+::'
 PARAGRAPH_SIMPLE_SPLITTER_PATTERN = compile('\n\n(' + PARAGRAPH_CAT_WITHOUT_CAPTURING_GROUPS + ')\n')
@@ -115,6 +115,8 @@ PAGE_TAG_SPLITTING_PARAGRAPH_PATTERN = compile(
 )
 NORMALIZE_BIO_CHR_MD_PATTERN = compile('# ([$@]((BIO|CHR)_[A-Z]+[$@])| RAW)')
 BIO_CHR_TO_NEWLINE_PATTERN = compile(TAG_AND_TEXT_SAME_LINE)
+
+SECTION_KEYWORDS_WITHOUT_SPACE = compile("[A-Z]::::[A-Z]")
 
 # Fixed poetry old file path pattern
 FIXED_POETRY_OLD_PATH_PATTERN = compile(r'/Users/romanov/_OpenITI/_main_corpus/\w+/data/')

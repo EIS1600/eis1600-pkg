@@ -5,7 +5,7 @@ from eis1600.markdown.markdown_patterns import MIU_UID_TAG_AND_TEXT_SAME_LINE_PA
     NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN, NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN, PARAGRAPH_TAG_MISSING, \
     EMPTY_PARAGRAPH_CHECK_PATTERN, SIMPLE_MARKDOWN, MISSING_DIRECTIONALITY_TAG_PATTERN, SPAN_ELEMENTS, \
     TEXT_START_PATTERN, TILDA_HICKUPS_PATTERN, HEADER_END_PATTERN, CATEGORY_PATTERN, MIU_TAG_PATTERN
-from eis1600.markdown.markdown_patterns import SIMPLE_MARKDOWN_TEXT_START_PATTERN
+from eis1600.markdown.markdown_patterns import SIMPLE_MARKDOWN_TEXT_START_PATTERN, SECTION_KEYWORDS_WITHOUT_SPACE
 from eis1600.repositories.repo import get_part_filepath
 
 
@@ -21,7 +21,9 @@ def check_file_for_mal_formatting(infile: str, content: str):
 
     # Poetry is still to messed up, do not bother with it for now
     # or POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
-
+    if SECTION_KEYWORDS_WITHOUT_SPACE.search(content):
+        errors.append("the text seems to contain keywords that are not separated."
+                      "Check for :::: and add a space in between \":: ::\"")
     if not TEXT_START_PATTERN.match(content):
         errors.append('* Text does not start with an MIU tag, check if the preface is tagged as PARATEXT.')
     if m := PARAGRAPH_TAG_MISSING.search(content):
@@ -40,7 +42,10 @@ def check_file_for_mal_formatting(infile: str, content: str):
         errors.append('* There is a single newline inside a paragraph (somewhere the emtpy line is missing). '
                       f'Failed at "{m.group(0)}"')
     if m := EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
-        errors.append(f'* There are empty paragraphs in the text. Failed at "{m.group(0)}"')
+        context = content[m.span()[0] - 50:m.span()[1] + 50]
+        err = f'\n * There are empty paragraphs in the text. Failed at "{m.group(0)}".\n' \
+              f'Failed position with more context = "{context}"'
+        errors.append(err)
     if m := SPAN_ELEMENTS.search(content):
         errors.append(f'* There are span elements in the text. Failed at "{m.group(0)}"')
     if m := MISSING_DIRECTIONALITY_TAG_PATTERN.search(content):
@@ -48,7 +53,6 @@ def check_file_for_mal_formatting(infile: str, content: str):
                       f'`ids_insert_or_update` on {infile}. Failed at "{m.group(0)}"')
     # if POETRY_ATTACHED_AFTER_PAGE_TAG.search(content):
     #     errors.append('* There is poetry attached to a PageTag (there should be a linebreak instead).')
-
     if errors:
         errors_str = "\n".join(errors)
         raise ValueError(
@@ -73,29 +77,28 @@ def check_formatting(infile: str):
 
 
 def check_formatting_before_update_ids(infile: str, content: str):
-    if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content) \
-            or NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content) \
-            or TILDA_HICKUPS_PATTERN.search(content) \
-            or NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content) \
-            or EMPTY_PARAGRAPH_CHECK_PATTERN.search(content) \
-            or SPAN_ELEMENTS.search(content):
+    error = ''
+    if SECTION_KEYWORDS_WITHOUT_SPACE.search(content):
+        error += "the text seems to contain keywords that are not separated."\
+                 "Check for :::: and add a space in between \":: ::\""
+    if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content):
+        error += f'\n * Text does not start with Header or PARATEXT, check if the preface is tagged.'
+    if m := NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
+        error += f'\n * There are elements missing the double newline (somewhere the emtpy line is missing). ' \
+                 f'Failed at "{m.group(0)}"'
+    if m := TILDA_HICKUPS_PATTERN.search(content):
+        error += f'\n * There is this pattern with tildes: `~\\n~`. Failed at "{m.group(0)}"'
+    if m := NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
+        error += f'\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing). ' \
+                 f'Failed at "{m.group(0)}"'
+    if m := EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
+        context = content[m.span()[0]-50:m.span()[1]+50]
+        error += f'\n * There are empty paragraphs in the text. Failed at "{m.group(0)}".\n'\
+                 f'Failed position with more context = "{context}"'
+    if m := SPAN_ELEMENTS.search(content):
+        error += f'\n * There are span elements in the text. Failed at "{m.group(0)}"'
 
-        error = ''
-        if not TEXT_START_PATTERN.match(content) and not SIMPLE_MARKDOWN_TEXT_START_PATTERN.match(content):
-            error += f'\n * Text does not start with Header or PARATEXT, check if the preface is tagged.'
-        if m := NEW_LINE_BUT_NO_EMPTY_LINE_PATTERN.search(content):
-            error += f'\n * There are elements missing the double newline (somewhere the emtpy line is missing). ' \
-                     f'Failed at "{m.group(0)}"'
-        if m := TILDA_HICKUPS_PATTERN.search(content):
-            error += f'\n * There is this pattern with tildes: `~\\n~`. Failed at "{m.group(0)}"'
-        if m := NEW_LINE_INSIDE_PARAGRAPH_NOT_POETRY_PATTERN.search(content):
-            error += f'\n * There is a single newline inside a paragraph (somewhere the emtpy line is missing). ' \
-                     f'Failed at "{m.group(0)}"'
-        if m := EMPTY_PARAGRAPH_CHECK_PATTERN.search(content):
-            error += f'\n * There are empty paragraphs in the text. Failed at "{m.group(0)}"'
-        if m := SPAN_ELEMENTS.search(content):
-            error += f'\n * There are span elements in the text. Failed at "{m.group(0)}"'
-
+    if error:
         raise ValueError(
             f'Correct the following errors\n'
             f'open -a kate {infile}\n'

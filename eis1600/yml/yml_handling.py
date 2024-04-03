@@ -1,3 +1,4 @@
+import numpy as np
 from typing import Dict, List, Optional, Set, Tuple, Union, Iterator
 
 from itertools import combinations
@@ -142,7 +143,7 @@ def add_annotated_entities_to_yml(
         length = int(row['length'])
         sub_cat = row['sub_cat']
         try:
-            entity = ' '.join(df['TOKENS'].iloc[index:index + length].to_list())
+            entity = ' '.join(df['TOKENS'].iloc[index:index + length].replace(np.nan, '').to_list())
         except TypeError:
             print(f'Something is at odd here: {row["full_tag"]}\nCheck: {file_path}')
             yml_handler.set_error_while_collecting_annotated_entities(row["full_tag"])

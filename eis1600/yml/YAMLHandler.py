@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 from ast import literal_eval
 
 from eis1600.markdown.markdown_patterns import MIU_HEADER
+from eis1600.markdown.category import Category
 from eis1600.miu.HeadingTracker import HeadingTracker
 from eis1600.yml.yml_methods import dict_to_yaml
 
@@ -25,9 +26,23 @@ class YAMLHandler:
     """
     # Only attributes named in the following list are allowed to be added to the YAMLHeader - add any new attribute
     # to that list
-    __attr_from_annotation = ['dates', 'min_date', 'max_date', 'ages', 'onomastics', 'ambiguous_toponyms', 'persons',
-                              'toponyms', 'settlements', 'provinces', 'edges_settlements', 'edges_provinces',
-                              'books', 'miscs']
+    __attr_from_annotation = [
+        'dates',
+        'min_date',
+        'max_date',
+        'lunar_month',
+        'ages',
+        'onomastics',
+        'ambiguous_toponyms',
+        'persons',
+        'toponyms',
+        'settlements',
+        'provinces',
+        'edges_settlements',
+        'edges_provinces',
+        'books',
+        'miscs'
+    ]
 
     @staticmethod
     def __parse_yml_val(val: str) -> Any:
@@ -200,7 +215,7 @@ class YAMLHandler:
         return json_dict
 
     def is_bio(self) -> bool:
-        return self.category == '$' or self.category == '$$'
+        return Category(self.category).is_bio()
 
     def is_reviewed(self) -> bool:
         return self.reviewed.startswith('REVIEWED')

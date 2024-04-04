@@ -30,6 +30,10 @@ def reconstruct_file(
         out_fpath = fpath.replace(".EIS1600", f"{RECONSTRUCTED_INFIX}.EIS1600")
         fpath = fpath.replace('.EIS1600', '.json')
 
+    if not Path(fpath).is_file():
+        print(f"Warning! file {fpath} not found")
+        return
+
     # do not process file if it's already generated and it should not be overwritten
     if Path(out_fpath).is_file() and not force:
         return
@@ -91,7 +95,7 @@ def main():
         list(p_uimap(partial(reconstruct_file,
                              tags_list=tags_list,
                              force=args.force,
-                             add_annotations_yml=args.sadd_annotations_to_yml
+                             add_annotations_yml=args.add_annotations_to_yml
                              ),
                      files,
                      num_cpus=0.7)

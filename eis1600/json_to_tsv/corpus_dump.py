@@ -23,6 +23,11 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
         fpath = fpath.replace('.EIS1600', '.json')
 
     structural_data, content_data = [], []
+
+    if not Path(fpath).is_file():
+        print(f"Warning! file {fpath} not found")
+        return
+
     with open(fpath, "r", encoding="utf-8") as fp:
         data = json.load(fp)
 

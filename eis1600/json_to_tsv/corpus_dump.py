@@ -1,13 +1,14 @@
 import os.path
-
 import jsonpickle
-from sys import argv
 import ujson as json
 import pandas as pd
+from pathlib import Path
+from sys import argv
 from tqdm import tqdm
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, COLUMNS, SEP, SEP2
+from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, TSV_REPO, COLUMNS, \
+    SEP, SEP2
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600JsonAction
 
 
@@ -72,6 +73,10 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
                     content_data.append((uid, entity, f"{j}{SEP}{value}"))
 
     fbase, _ = os.path.splitext(fpath)
+
+    fbase = fbase.replace(JSON_REPO, TSV_REPO)
+    dir_path, _ = os.path.split(fbase)
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
 
     content_df = pd.DataFrame(content_data, columns=COLUMNS)
     content_df.to_csv(f"{fbase}_df.tsv", sep="\t", index=False)

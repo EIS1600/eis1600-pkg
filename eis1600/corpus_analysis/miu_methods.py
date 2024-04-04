@@ -10,7 +10,7 @@ from eis1600.processing.postprocessing import merge_tagslists, reconstruct_miu_t
 from eis1600.processing.preprocessing import get_yml_and_miu_df
 from eis1600.yml.yml_handling import add_annotated_entities_to_yml, add_statistics_to_yml
 from eis1600.markdown.category import Category, CategoryType
-from eis1600.helper.fix_bonom_position import fix_bonom_position
+from eis1600.helper.fix_dataframe import fix_bonom_position
 
 
 def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -> Dict:

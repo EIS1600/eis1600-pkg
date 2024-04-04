@@ -101,7 +101,7 @@ def write_updated_miu_to_file(
         miu_file_object: TextIO,
         yml_handler: YAMLHandler,
         df: DataFrame,
-        target_columns: tuple[str] = ('DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS'),
+        target_columns: tuple[str],
         forced_re_annotation: Optional[bool] = False,
         add_annotations_to_yml: Optional[bool] = True
 ) -> None:
@@ -110,7 +110,7 @@ def write_updated_miu_to_file(
     :param TextIO miu_file_object: Path to the MIU file to write
     :param YAMLHandler yml_handler: The YAMLHandler of the MIU.
     :param DataFrame df: df containing the columns ['SECTIONS', 'TOKENS', 'TAGS_LISTS'].
-    :param tuple target_columns: columns to include in reconstructed text. All by default.
+    :param tuple target_columns: columns to include in reconstructed text.
     :param bool forced_re_annotation: some annotation was added to already existing annotation, therefore merge new
     annotation into TAGS_LISTS.
     :param bool add_annotations_to_yml: add all annotations to yml header.

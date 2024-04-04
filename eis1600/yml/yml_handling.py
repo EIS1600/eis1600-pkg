@@ -147,7 +147,7 @@ def add_annotated_entities_to_yml(
         except TypeError:
             print(f'Entity {" ".join(df["TOKENS"].iloc[index:index + length].replace(np.nan, ""))}'
                   f' with tag {row["full_tag"]} seem to be splitted between two sections.'
-                  f' It has been added to the first section\nCheck: {file_path}')
+                  f' It has been added to the first section.\nCheck: {file_path}')
             entity = ' '.join(df['TOKENS'].iloc[index:index + length].replace(np.nan, '').to_list())
         cat = entity_tags_df.loc[entity_tags_df['TAG'].str.fullmatch(tag), 'CATEGORY'].iloc[0]
 

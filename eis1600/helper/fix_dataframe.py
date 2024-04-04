@@ -1,5 +1,8 @@
+from typing import Any
 
-def fix_bonom_position(df):
+import pandas as pd
+
+def fix_bonom_position(df: pd.DataFrame) -> pd.DataFrame:
     """
     BONOM tag is sometimes added to an empty section below. It should be moved to the next section.
         Example input:
@@ -31,4 +34,21 @@ def fix_bonom_position(df):
     df.loc[mytag_indices[misplaced_bonom], 'ONOM_TAGS'] = None
     df.loc[mytag_indices[misplaced_bonom] + 1, 'ONOM_TAGS'] = 'BONOM'
 
+    return df
+
+
+def _extract_page(tags_list: list) -> str | None:
+    for tag in tags_list:
+        if "Page" in tag:
+            return tag
+    return None
+
+
+def add_page_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    add a column with the pages so that they are not lost when the text is reconstructed
+    """
+    df['PAGES'] = df['TAGS_LISTS'].apply(
+        lambda x: _extract_page(x) if x is not None and isinstance(x, list) else None
+    )
     return df

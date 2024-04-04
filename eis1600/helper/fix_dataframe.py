@@ -37,18 +37,20 @@ def fix_bonom_position(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _extract_page(tags_list: list) -> str | None:
+def _extract_value(tags_list: list, value: str) -> str | None:
     for tag in tags_list:
-        if "Page" in tag:
+        if value in tag:
             return tag
     return None
 
 
-def add_page_column(df: pd.DataFrame) -> pd.DataFrame:
+def add_missing_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    add a column with the pages so that they are not lost when the text is reconstructed
+    Add a column with the pages tags so that they are not lost when the text is reconstructed.
+    Potentially other tags can be easily added just by including the pair (COL, VAl) below.
     """
-    df['PAGES'] = df['TAGS_LISTS'].apply(
-        lambda x: _extract_page(x) if x is not None and isinstance(x, list) else None
-    )
+    for col, val in (("PAGES", "Page"),):
+        df[col] = df['TAGS_LISTS'].apply(
+            lambda x: _extract_value(x, val) if x is not None and isinstance(x, list) else None
+        )
     return df

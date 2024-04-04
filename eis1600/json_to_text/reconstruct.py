@@ -11,12 +11,12 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, RECONSTRUCTED_REPO, \
                                        RECONSTRUCTED_INFIX
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600JsonAction
-from eis1600.helper.fix_dataframe import add_page_column
+from eis1600.helper.fix_dataframe import add_missing_columns
 from eis1600.processing.postprocessing import write_updated_miu_to_file
 from eis1600.yml.YAMLHandler import YAMLHandler
 
 
-TAGS_LIST_FOR_RECONSTRUCTION = ('PAGES', 'DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS')
+TAGS_LIST_FOR_RECONSTRUCTION = ('MSS', 'PAGES', 'DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS')
 
 
 def reconstruct_file(
@@ -53,7 +53,7 @@ def reconstruct_file(
         yml = data[0]["yml"]
         yml_handler = YAMLHandler(yml, ignore_annotations=not add_annotations_yml)
         df = pd.concat([pd.read_json(StringIO(miu["df"])) for miu in data], ignore_index=True)
-        df = add_page_column(df)
+        df = add_missing_columns(df)
         df["TAGS_LISTS"] = None
         if 'ONOM_TAGS' in df:
             df['ONOM_TAGS'] = df['ONOM_TAGS'].map(lambda s: '' if s == '_' else s)
@@ -111,5 +111,4 @@ def main():
                      num_cpus=0.7)
              )
 
-        print(f"Reconstructed {len(files)} files")
-        print(f"For each json file in {JSON_REPO} directory, a reconstructed .EIS1600 file has been created.")
+        print(f"Reconstructed files have been saved in {RECONSTRUCTED_REPO} directory.")

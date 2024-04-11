@@ -68,7 +68,8 @@ def routine_per_text(
     dir_path, _ = os.path.split(out_path)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-    # if file is original or part 1, remove previous json files to avoid problem with previous chunkings
+    # if file is original or part 1, it might be good to remove previous json files
+    # to avoid problems with previous chunking
     if clean_out_dir and (PART_NAME_INFIX not in out_path or int(PART_NUM_REGEX.search(out_path).group(1)) == 1):
         if os.path.exists(dir_path):
             for json_file in glob.iglob(os.path.join(dir_path, "*.json")):
@@ -107,6 +108,11 @@ def main():
             help="randomise list of files"
     )
     arg_parser.add_argument(
+            "--clean_out_dir",
+            action="store_true",
+            help="clean previous processing, in case there has been a different chunking"
+    )
+    arg_parser.add_argument(
             "--force", "-f",
             action="store_true",
             help="process file regardless if it exist and overwrite it"
@@ -116,6 +122,7 @@ def main():
     debug = args.debug
     parallel = args.parallel
     force = args.force
+    clean_out_dir = args.clean_out_dir
 
     print(f'GPU available: {cuda.is_available()}')
 
@@ -145,7 +152,7 @@ def main():
         print(f"[{i+1}] {infile}")
 
         try:
-            routine_per_text(infile, parallel=parallel, force=force, clean_out_dir=True, debug=debug)
+            routine_per_text(infile, parallel=parallel, force=force, clean_out_dir=clean_out_dir, debug=debug)
             if not args.no_tsv:
                 dump_file(infile)
         except ValueError as e:

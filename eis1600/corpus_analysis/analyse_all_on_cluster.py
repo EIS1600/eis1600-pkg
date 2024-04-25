@@ -23,6 +23,9 @@ from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
                                        get_ready_and_double_checked_files
 
+from eis1600.processing.short_miu_generation import get_short_miu
+
+
 
 def routine_per_text(
         infile: str,
@@ -74,6 +77,10 @@ def routine_per_text(
         if os.path.exists(dir_path):
             for json_file in glob.iglob(os.path.join(dir_path, "*.json")):
                 os.remove(json_file)
+
+    # add short id to each miu object
+    for miu_obj in res:
+        miu_obj["yml"]["id"] = get_short_miu(miu_obj["yml"]["UID"])
 
     with open(out_path, 'w', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)

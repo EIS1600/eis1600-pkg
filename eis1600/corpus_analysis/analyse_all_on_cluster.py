@@ -23,8 +23,7 @@ from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
                                        get_ready_and_double_checked_files
 
-from eis1600.processing.short_miu_generation import get_short_miu
-
+from eis1600.processing.short_miu_generation import get_short_miu, save_ids
 
 
 def routine_per_text(
@@ -86,6 +85,8 @@ def routine_per_text(
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(res, unpicklable=False)
         fh.write(json_str)
+
+    save_ids()
 
     if error:
         raise ValueError(error)

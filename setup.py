@@ -17,7 +17,8 @@ setup(name='eis1600',
               'eis1600.gazetteers.data': ['*.csv'],
               'eis1600.markdown.data': ['*.csv'],
               'eis1600.models.data': ['*.csv'],
-              'eis1600.processing.persistent_ids': ['short_long_ids_mapping.json']
+              'eis1600.processing.persistent_ids': ['long_short_ids_mapping.json',
+                                                    'deprecated_long_short_ids_mapping.json']
       },
       entry_points={
           'console_scripts': [

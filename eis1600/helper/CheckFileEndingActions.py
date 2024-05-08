@@ -42,8 +42,11 @@ class CheckFileEndingEIS1600JsonAction(Action):
     def __call__(self, parser, namespace, input_arg, option_string=None):
         if input_arg and isfile(input_arg):
             filepath, fileext = splitext(input_arg)
-            if fileext != '.json' and not filepath[-1:-12].isdigit():
-                parser.error('Input must be a single JSON file')
+            if '.' in filepath:
+                filepath, fileext1 = splitext(filepath)
+                fileext = fileext1 + fileext
+            if fileext != '.json.gz' and not filepath[-1:-12].isdigit():
+                parser.error(f'Input must be a single compressed JSON file')
             else:
                 setattr(namespace, self.dest, input_arg)
         else:

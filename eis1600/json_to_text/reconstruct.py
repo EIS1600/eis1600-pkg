@@ -1,4 +1,5 @@
 import os
+import gzip
 from sys import argv
 import ujson as json
 import pandas as pd
@@ -26,12 +27,12 @@ def reconstruct_file(
         add_annotations_yml: bool = False,
         ):
 
-    if fpath.endswith(".json"):
-        out_fpath = fpath.replace(".json", f"{RECONSTRUCTED_INFIX}.EIS1600")
+    if fpath.endswith(".json.gz"):
+        out_fpath = fpath.replace(".json.gz", f"{RECONSTRUCTED_INFIX}.EIS1600")
     else:
         fpath = fpath.replace(TEXT_REPO, JSON_REPO)
         out_fpath = fpath.replace(".EIS1600", f"{RECONSTRUCTED_INFIX}.EIS1600")
-        fpath = fpath.replace('.EIS1600', '.json')
+        fpath = fpath.replace('.EIS1600', '.json.gz')
 
     out_fpath = out_fpath.replace(JSON_REPO, RECONSTRUCTED_REPO)
 
@@ -46,10 +47,12 @@ def reconstruct_file(
     dir_path, _ = os.path.split(out_fpath)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-    with open(fpath, "r", encoding="utf-8") as fp, \
+    with gzip.open(fpath, "rt", encoding="utf-8") as fp, \
          open(out_fpath, "w", encoding="utf-8") as outfp:
-        data = json.load(fp)
 
+        print(f"{fpath}")
+
+        data = json.load(fp)
         yml = data[0]["yml"]
         yml_handler = YAMLHandler(yml, ignore_annotations=not add_annotations_yml)
         df = pd.concat([pd.read_json(StringIO(miu["df"])) for miu in data], ignore_index=True)

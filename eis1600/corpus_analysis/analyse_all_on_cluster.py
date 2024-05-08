@@ -1,4 +1,5 @@
 import sys
+import gzip
 import glob
 import os.path
 from typing import Optional
@@ -45,7 +46,7 @@ def routine_per_text(
     :param bool debug: Debug flag for more console messages.
     """
     out_path = infile.replace(TEXT_REPO, JSON_REPO)
-    out_path = out_path.replace('.EIS1600', '.json')
+    out_path = out_path.replace('.EIS1600', '.json.gz')
 
     # do not process file if it's already generated and it should not be overwritten
     if Path(out_path).is_file() and not force:
@@ -74,14 +75,15 @@ def routine_per_text(
     # to avoid problems with previous chunking
     if clean_out_dir and (PART_NAME_INFIX not in out_path or int(PART_NUM_REGEX.search(out_path).group(1)) == 1):
         if os.path.exists(dir_path):
-            for json_file in glob.iglob(os.path.join(dir_path, "*.json")):
+            for json_file in glob.iglob(os.path.join(dir_path, "*.json.gz")):
                 os.remove(json_file)
 
     # add short id to each miu object
     for miu_obj in res:
-        miu_obj["yml"]["id"] = get_short_miu(miu_obj["yml"]["UID"])
+        old_id = f'{miu_obj["yml"]["author"]}.{miu_obj["yml"]["text"]}.{miu_obj["yml"]["UID"]}'
+        miu_obj["yml"] = {"id": get_short_miu(old_id), **miu_obj["yml"]}
 
-    with open(out_path, 'w', encoding='utf-8') as fh:
+    with gzip.open(out_path, 'wt', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(res, unpicklable=False)
         fh.write(json_str)

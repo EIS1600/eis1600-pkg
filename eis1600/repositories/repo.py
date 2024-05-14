@@ -98,7 +98,7 @@ def get_ready_and_double_checked_files(only_complete: bool = False) -> Tuple[Lis
     double_checked_files = []
     ready_files = []
 
-    #FIXME modify ready files logic !!
+    # FIXME modify ready files logic
 
     # Check if any EIS1600TMP files are missing
     missing_texts = []

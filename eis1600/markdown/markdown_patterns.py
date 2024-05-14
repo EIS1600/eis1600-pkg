@@ -39,8 +39,7 @@ PARAGRAPH_UID_TAG_PATTERN = compile(PARAGRAPH_UID_TAG)
 HEADER_END_PATTERN = compile(r'(#META#Header#End#)\n')
 MIU_HEADER = r'#MIU#Header#'
 MIU_HEADER_PATTERN = compile(MIU_HEADER)
-#HEADING_PATTERN = compile(UID_TAG + r'(?P<level>[|]+) (?P<heading>.*)\n')  #FIXME
-HEADING_PATTERN = compile(UID_TAG + '(?:LONG )?' + r'(?P<level>[|]+) (?P<heading>.*)\n') #FIXME keep LONG temporarily
+HEADING_PATTERN = compile(UID_TAG + r'(?P<level>[|]+) (?P<heading>.*)\n')
 PAGE_TAG = r' ?(?P<page_tag>PageV\d{2}P\d{3,})'
 PAGE_TAG_PATTERN = compile(PAGE_TAG)
 ONLY_PAGE_TAG = PARAGRAPH_UID_TAG + r'\n' + PAGE_TAG
@@ -48,8 +47,7 @@ ONLY_PAGE_TAG_PATTERN = compile(ONLY_PAGE_TAG)
 PAGE_TAG_IN_BETWEEN_PATTERN = compile(
         AR_STR + r' ?' + r'\n\n' + ONLY_PAGE_TAG + r'\n\n' + PARAGRAPH_UID_TAG_WITHOUT_CAPTURING_GROUPS + ' ~\n' + AR_STR
 )
-#TEXT_START_PATTERN = compile(MIU_UID_TAG + r'[|]') #FIXME
-TEXT_START_PATTERN = compile(MIU_UID_TAG + r'(?:LONG )?[|]')  #FIXME  keep LONG temporarily
+TEXT_START_PATTERN = compile(MIU_UID_TAG + r'[|]')
 SIMPLE_MARKDOWN_TEXT_START_PATTERN = compile(r'# [|]')
 PARAGRAPH_TAG_MISSING = compile(r'(\n\n[^_])|(\n\n' + MIU_UID_TAG + r'[^\n]+\n(?:_ء_ )?)' + AR_CHR)
 SIMPLE_MARKDOWN = compile(r'\n#')
@@ -67,8 +65,7 @@ NOR_DIGIT_NOR_AR_STR = r'[^\d\n' + u''.join(AR_LETTERS_CHARSET) + ']*?'
 TAG_AND_TEXT_SAME_LINE = r'([$@]+' + NOR_DIGIT_NOR_AR_STR + r'\d*' + NOR_DIGIT_NOR_AR_STR + r') ?((?:[(\[] ?)?' + AR_STR + r')'
 MIU_UID_TAG_AND_TEXT_SAME_LINE_PATTERN = compile(r'(' + MIU_UID_TAG_WITHOUT_CAPTURING_GROUP + ')' + TAG_AND_TEXT_SAME_LINE)
 # for chunking the files by first level headings
-#FIRST_LEVEL_HEADING_PATTERN = r"^_ء_#=[0-9]+= ?\|(?![PEA|])" #FIXME
-FIRST_LEVEL_HEADING_PATTERN = r"^_ء_#=[0-9]+=(?: LONG)? ?\|(?![PEA|])" #FIXME keep LONG temporarily
+FIRST_LEVEL_HEADING_PATTERN = r"^_ء_#=[0-9]+= ?\|(?![PEA|])"
 
 # Catches MIU tags for BIO, CHR and PARATEXT, EDITOR, etc. (everything in between pipes).
 # Does not catch HEADERS!

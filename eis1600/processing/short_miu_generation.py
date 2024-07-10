@@ -2,7 +2,7 @@
 import ujson as json
 from tqdm import tqdm
 from random import choices
-from string import ascii_letters, digits
+from string import ascii_uppercase, digits
 from importlib_resources import files
 from eis1600.repositories.repo import TEXT_REPO, JSON_REPO, get_ready_and_double_checked_files
 
@@ -10,7 +10,7 @@ from eis1600.repositories.repo import TEXT_REPO, JSON_REPO, get_ready_and_double
 ids_path = files('eis1600.processing.persistent_ids').joinpath('long_short_ids_mapping.json')
 deprecated_ids_path = files('eis1600.processing.persistent_ids').joinpath('deprecated_long_short_ids_mapping.json')
 
-SYMBOLS = ascii_letters + digits
+SYMBOLS = ascii_uppercase + digits
 
 
 def generate_id(size: int = 5) -> str:

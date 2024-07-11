@@ -68,7 +68,7 @@ def md_to_bio(
 
                     processed_tokens += 1
 
-            df['BIO'].loc[df['BIO'].isna()] = 'O'
+            df.loc[df['BIO'].isna(), 'BIO'] = 'O'
     else:
         df['BIO'] = 'O'
 

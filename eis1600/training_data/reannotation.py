@@ -62,7 +62,10 @@ def reannotation(path: str, which_annotations: List[str]):
             df = df
 
         write_updated_miu_to_file(
-            miu_file_object, yml_handler, df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'ONOM_TAGS', 'ONOMASTIC_TAGS']],
+            miu_file_object,
+            yml_handler,
+            df[['SECTIONS', 'TOKENS', 'TAGS_LISTS', 'ONOM_TAGS', 'ONOMASTIC_TAGS']],
+            tuple(which_annotations),
             forced_re_annotation=True
         )
 
@@ -78,7 +81,7 @@ def main():
     arg_parser.add_argument('-p', '--persons', action='store_true')
     arg_parser.add_argument('-t', '--toponyms', action='store_true')
     arg_parser.add_argument(
-            'input', type=str, nargs='1',
+            'input', type=str, nargs=1,
             help='Directory which holds the files to process or individual file to annotate',
             action=CheckIsDirAction
     )

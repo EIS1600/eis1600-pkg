@@ -9,7 +9,7 @@ def fix_formatting(file: str):
         yml_str, text = extract_yml_header_and_text(fh, False)
         yml_handler = YAMLHandler().from_yml_str(yml_str)
 
-        # Files from the online editor are stript of directionality tags and paragraph tags for ease of annotation
+        # Files from the online editor are stripped of directionality tags and paragraph tags for ease of annotation
         # 1. Reconstruct MIU tag
         updated_text = text.replace('#', '_ء_#')
         # 2. Some more pre_cleaning

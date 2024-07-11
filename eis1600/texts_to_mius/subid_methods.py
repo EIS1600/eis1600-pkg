@@ -257,13 +257,13 @@ def update_ids(text: str) -> str:
                             'There is an empty paragraph, check with\n'
                             '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
                     )
+
                 paragraph = f'_ء_={sub_ids.get_id()}= {section_header} ~\n' + paragraph
             elif not MIU_UID_TAG_PATTERN.match(paragraph):
                 paragraph = f'_ء_={sub_ids.get_id()}= ::UNDEFINED:: ~\n' + paragraph
             else:
                 if "$" in MIU_TAG_PATTERN.match(paragraph).group(3):
                     paragraph = convert_to_longer_bio_tag(paragraph)
-
             text_updated.append(paragraph)
 
     # 5. Reassemble text

@@ -4,7 +4,7 @@ from eis1600.yml.yml_handling import extract_yml_header_and_text
 from eis1600.yml.YAMLHandler import YAMLHandler
 
 
-def fix_formatting(file: str):
+def fix_formatting(file: str, update_ids_flag: bool = True):
     with open(file, 'r+', encoding='utf-8') as fh:
         yml_str, text = extract_yml_header_and_text(fh, False)
         yml_handler = YAMLHandler().from_yml_str(yml_str)
@@ -17,7 +17,8 @@ def fix_formatting(file: str):
         # 3. Add directionality tags at the beginning of a text line
         updated_text = MISSING_DIRECTIONALITY_TAG_PATTERN.sub('\g<1>_ء_ \g<2>', updated_text)
         # 4. Add paragraph tags
-        updated_text = update_ids(updated_text)
+        if update_ids_flag:
+            updated_text = update_ids(updated_text)
 
         fh.seek(0)
         fh.write(str(yml_handler) + updated_text)

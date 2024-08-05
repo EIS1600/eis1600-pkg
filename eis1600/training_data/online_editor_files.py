@@ -1,3 +1,4 @@
+import re
 from eis1600.markdown.markdown_patterns import MISSING_DIRECTIONALITY_TAG_PATTERN
 from eis1600.texts_to_mius.subid_methods import pre_clean_text, update_ids
 from eis1600.yml.yml_handling import extract_yml_header_and_text
@@ -11,7 +12,7 @@ def fix_formatting(file: str, update_ids_flag: bool = True):
 
         # Files from the online editor are stripped of directionality tags and paragraph tags for ease of annotation
         # 1. Reconstruct MIU tag
-        updated_text = text.replace('#', '_ء_#')
+        updated_text = re.sub(r'(?<!_ء_)#', '_ء_#', text)
         # 2. Some more pre_cleaning
         updated_text = pre_clean_text(updated_text)
         # 3. Add directionality tags at the beginning of a text line

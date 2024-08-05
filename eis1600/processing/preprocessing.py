@@ -4,7 +4,8 @@ from pandas import DataFrame, options
 from camel_tools.tokenizers.word import simple_word_tokenize
 
 from eis1600.markdown.markdown_patterns import MIU_TAG_PATTERN, PARAGRAPH_SIMPLE_SPLITTER_PATTERN, \
-    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PARAGRAPH_SPLITTER_PATTERN, PUNCTUATION_DICT, TAG_PATTERN
+    PARAGRAPH_CAT_PATTERN, PARAGRAPH_UID_TAG_PATTERN, PARAGRAPH_SPLITTER_PATTERN, PUNCTUATION_DICT, TAG_PATTERN, \
+    PARAGRAPH_UID_TAG_PATTERN
 from eis1600.yml.YAMLHandler import YAMLHandler
 from eis1600.yml.yml_handling import extract_yml_header_and_text
 
@@ -34,7 +35,8 @@ def get_tokens_and_tags(tagged_text: str) -> Tuple[List[Union[str, None]], List[
 def tokenize_miu_text(
         text: str,
         simple_mARkdown: Optional[bool] = False,
-        keep_automatic_tags: Optional[bool] = False
+        keep_automatic_tags: Optional[bool] = False,
+        skip_subsections: Optional[bool] = False,
 ) -> Iterator[Tuple[Union[str, None], Union[str, None], List[Union[str, None]]]]:
     """Returns the MIU text as zip object of three sparse columns: sections, tokens, lists of tags.
 
@@ -42,9 +44,14 @@ def tokenize_miu_text(
     be None because of sparsity.
     :param str text: MIU text content to process.
     :param bool keep_automatic_tags: Optional, if True keep automatic annotation (Ü-tags), defaults to False.
+    :param bool skip_subsections: skip lines containing subsection headers from text,
+        e.g.: _ء_ =871337959360-00000040= ::UNDEFINED:: ~
     :return Iterator: Returns a zip object containing three sparse columns: sections, tokens, lists of tags. Elements
     can be None because of sparsity.
     """
+    if skip_subsections:
+        text = PARAGRAPH_UID_TAG_PATTERN.sub("", text)
+
     text_and_heading = MIU_TAG_PATTERN.split(text)
     # The indices are connected to the number of capturing group in MIU_TAG_PATTERN
     heading = text_and_heading[1]
@@ -109,12 +116,15 @@ def tokenize_miu_text(
 
 def get_yml_and_miu_df(
         miu_file_object: Union[TextIO, str],
-        keep_automatic_tags: Optional[bool] = False
+        keep_automatic_tags: Optional[bool] = False,
+        skip_subsections: Optional[bool] = False,
 ) -> Tuple[YAMLHandler, DataFrame]:
     """Returns YAMLHandler instance and MIU as a DataFrame containing the columns 'SECTIONS', 'TOKENS', 'TAGS_LISTS'.
 
     :param TextIO miu_file_object: File object of the MIU file.
     :param bool keep_automatic_tags: Optional, if True keep automatic annotation (Ü-tags), defaults to False.
+    :param bool skip_subsections: skip lines containing subsection headers from text,
+        e.g.: _ء_ =871337959360-00000040= ::UNDEFINED:: ~
     :return Tuple[YAMLHandler, DataFrame]: YAMLHandler and DataFrame containing the columns 'SECTIONS', 'TOKENS',
     'TAGS_LISTS'.
     """
@@ -124,7 +134,11 @@ def get_yml_and_miu_df(
         miu_text_line_iter = iter(miu_file_object)
     yml_str, text = extract_yml_header_and_text(miu_text_line_iter, False)
     yml_handler = YAMLHandler().from_yml_str(yml_str)
-    zipped = tokenize_miu_text(text, simple_mARkdown=False, keep_automatic_tags=keep_automatic_tags)
+    zipped = tokenize_miu_text(
+        text,
+        simple_mARkdown=False,
+        keep_automatic_tags=keep_automatic_tags,
+        skip_subsections=skip_subsections)
     df = DataFrame(zipped, columns=['SECTIONS', 'TOKENS', 'TAGS_LISTS'])
 
     df.mask(df == '', inplace=True)

@@ -255,7 +255,8 @@ def update_ids(text: str) -> str:
                 else:
                     raise ValueError(
                             'There is an empty paragraph, check with\n'
-                            '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]'
+                            '::\\n[^هسءگؤقأذپيمجثاڤوضآرتنكزفبعٱشىصلدطغإـئظحةچخ_]\n'\
+                            + '\nPosition near = ' + ', '.join(p_pieces)
                     )
 
                 paragraph = f'_ء_={sub_ids.get_id()}= {section_header} ~\n' + paragraph

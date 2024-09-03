@@ -69,8 +69,12 @@ class YAMLHandler:
                     t = v.split(', ')
                     values.append((YAMLHandler.__parse_yml_val(t[0]), YAMLHandler.__parse_yml_val(t[1])))
             elif raw_val_list.startswith('[') or raw_val_list.startswith('{'):
-                # Nested lists
-                values = literal_eval(val)
+                try:
+                    # Nested lists
+                    values = literal_eval(val)
+                except Exception as err:
+                    raise ValueError(f"{err}\nSomething is illegal in the following list: {val}\n"
+                                     f"Check if there has been a manual modification by mistake.")
             elif raw_val_list == '':
                 return None
             else:
@@ -101,7 +105,6 @@ class YAMLHandler:
                     else:
                         yml[dict_key] = dict_val
                     level.pop()
-
                 if intend and intend == len(level) and val != '':
                     # Stay on level and add key, val to the respective dict
                     curr_dict = level[-1][1]

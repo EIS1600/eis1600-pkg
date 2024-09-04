@@ -1,3 +1,5 @@
+
+import re
 import pandas as pd
 
 from datetime import date
@@ -11,6 +13,7 @@ from re import compile
 from json import dump
 from p_tqdm import p_uimap
 from tqdm import tqdm
+from pprint import pprint
 
 from eis1600.helper.CheckFileEndingActions import CheckIsDirAction
 from eis1600.processing.preprocessing import get_yml_and_miu_df
@@ -24,9 +27,11 @@ from eis1600.training_data.online_editor_files import fix_formatting
 #   $ cp -r eis1600-online-editor/data/production/tasks_output/12k_random_bios eis1600-training
 #   $ cd eis1600-training/12k_random_bios ; gunzip * ; cd -
 #   $
-#   $ prepare_training_data eis1600-training/12k_random_bios TOPONYM/training_data_toponym TOPONYM
+#   $ prepare_training_data eis1600-training/12k_random_bios TOPONYM_DESCRIPTION_DETECTION/training_data_toponym TOPONYM
 #   $ prepare_training_data eis1600-training/12k_random_bios ONOMASTIC_ELEMENTS/training_data_onomastic ONOMASTIC
-#
+#   $ prepare_training_data eis1600-training/12k_random_bios NASAB_SECTION_DETECTION/training_data_nasab NASAB
+#   $ prepare_training_data eis1600-training/12k_random_bios PERSONS_CLASSIFICATION/training_data_person_FCOM PERSON_FCOM
+#   $ prepare_training_data eis1600-training/12k_random_bios PERSONS_CLASSIFICATION/training_data_person_BSTI PERSON_BSTI
 
 stat = {'NOT REVIEWED': 0, 'REVIEWED': 0, 'REVIEWED2': 0, 'EXCLUDED': 0}
 
@@ -44,17 +49,23 @@ def get_data(file: str,
              label_dict: dict,
              keep_automatic_tags: Optional[bool] = False,
              add_bio_class_as_prefix: Optional[bool] = False,
-             empty_to_X: Optional[bool] = False) -> Tuple[str, Union[Dict, None]]:
+             empty_to_X: Optional[bool] = False,
+             is_nasab: bool = False,
+             norm_ner: bool = False,
+             norm_person: bool = False) -> Tuple[str, Union[Dict, None]]:
     """
     :param file: miu to process.
     :param pattern: pattern describing the tag.
-    :param str bio_main_class: String of two letters which are used to indicate the main entity, e.g. 'YY' for dates,
-    'TO' for toponyms, etc.
+    :param str bio_main_class: String used to indicate the main entity, e.g. 'YY' for dates,
+        'TO' for toponyms, etc.
     :param label_dict: labels associated to integer classes.
     :param keep_automatic_tags: Keep Ü-tags, defaults to false.
     :param add_bio_class_as_prefix: add bio_class as prefix in bio label,
         e.g. for toponym subclass "A", convert it to "TOA".
     :param empty_to_X: convert empty subclasses into X subclass, e.g. "T1" in training data must be changed to "T1X".
+    :param is_nasab: indicates that the tag is of type nasab and required special treatment.
+    :param norm_ner: convert P:PERS, T:LOC and M:MISC.
+    :param norm_person: expand tag names for person classes.
     :return: Tuple of reviewed status and bio-tags dict.
     """
     fix_formatting(file, update_ids_flag=False)
@@ -70,6 +81,14 @@ def get_data(file: str,
 
     if keep_automatic_tags:
         s_notna = s_notna.str.replace('Ü', '')
+
+    if is_nasab:
+        if s_notna[s_notna.str.contains("BONOM")].empty:
+            return yml_handler.reviewed, None
+        bonom_index = s_notna[s_notna.str.contains("BONOM")].index[0]
+        eonom_index = s_notna[s_notna.str.contains("EONOM")].index[0]
+        num_words = eonom_index - bonom_index
+        s_notna.at[bonom_index] = s_notna.at[bonom_index].replace("BONOM", f"BONOM{num_words}")
 
     df_true = s_notna.str.extract(pattern).dropna(how='all')
 
@@ -94,6 +113,22 @@ def get_data(file: str,
     # class "" is converted to "X"
     if empty_to_X:
         df["BIO"] = df["BIO"].replace(bio_main_class, bio_main_class+"X")
+
+    if norm_ner:
+        df.BIO = df.BIO.replace({"P": "PERS", "T": "LOC", "M": "MISC"})
+
+    if norm_person:
+        df.BIO = df.BIO.replace(
+            {"F": "FAMILY",
+             "C": "CONTACT",
+             "O": "OPINION",
+             "M": "MAWLA",
+             "B": "BIOGRAPHEE",
+             "S": "STUDENT",
+             "T": "TEACHER",
+             "I": "ISNAD",
+             "X": "NEUTRAL",
+        })
 
     # extend labels according to num_tokens and convert labels into B- or I-
     for index, row in enumerate(df.itertuples(index=False)):
@@ -139,7 +174,7 @@ def main():
     arg_parser.add_argument(
         'entities_class',
         type=str,
-        choices=["NASAB", "NER", "ONOMASTIC", "PERSON_FCON", "PERSON_STN", "TOPONYM", "TOPONYM_DESC"],
+        choices=["NASAB", "NER", "ONOMASTIC", "PERSON_FCOM", "PERSON_BSTI", "TOPONYM", "TOPONYM_DESC"],
         help='Class of labels to extract.',
     )
     arg_parser.add_argument(
@@ -154,15 +189,14 @@ def main():
 
     pattern, bio_main_class, label_dict = "", "", ""
     add_bio_class_as_prefix = False
-    empty_to_X = False
+    empty_to_X, is_nasab, norm_ner, norm_person = False, False, False, False
 
     if args.entities_class == "TOPONYM":
         bio_main_class = "TO"
         classes = ["A", "B", "D", "G", "K", "O", "R", "V", "X"]
         category_to_class = {c: bio_main_class+c for c in classes}   # {"A": "TOA", ...}
         label_dict = get_label_dict(category_to_class.values())      # {"B-TOA": 0, "I-TOA", 1, ...}
-        print("label_dict =", label_dict, sep="\n")
-        pattern = compile(fr'T(?P<num_tokens>\d+)(?P<cat>[{"".join(category_to_class)}]*)')
+        pattern = compile(fr'\bT(?P<num_tokens>\d+)(?P<cat>[{"".join(category_to_class)}]*)')
         add_bio_class_as_prefix = True
         empty_to_X = True
 
@@ -171,20 +205,46 @@ def main():
         classes = ["ISM", "KUN", "LQB", "NAS", "NSB", "SHR"]
         category_to_class = {c: bio_main_class+c for c in classes}
         label_dict = get_label_dict(category_to_class.values())
-        print("label_dict =", label_dict, sep="\n")
-        pattern = compile(fr'(?P<cat>{"|".join(category_to_class)})(?P<num_tokens>\d+)')
+        pattern = compile(fr'\b(?P<cat>{"|".join(category_to_class)})(?P<num_tokens>\d+)')
+
+    elif args.entities_class == "NASAB":
+        bio_main_class = ""
+        classes = ["BONOM"]
+        category_to_class = {c: bio_main_class+c for c in classes}
+        label_dict = get_label_dict(category_to_class.values())
+        pattern = compile(fr'\b(?P<cat>BONOM)(?P<num_tokens>\d+)')
+        is_nasab = True
+
+    elif args.entities_class == "NER":
+        bio_main_class = ""
+        classes = ["PERS", "MISC", "LOC"]
+        category_to_class = {c: bio_main_class+c for c in classes}
+        label_dict = get_label_dict(category_to_class.values())
+        pattern = compile(fr'\b(?P<cat>[PTM])(?P<num_tokens>\d+)')
+        norm_ner = True
+
+    elif args.entities_class == "PERSON_FCOM":
+        bio_main_class = ""
+        classes = ["FAMILY", "CONTACT", "OPINION", "MAWLA", "NEUTRAL"]
+        category_to_class = {c: bio_main_class+c for c in classes}
+        label_dict = get_label_dict(category_to_class.values())
+        pattern = compile(fr'\bP(?P<num_tokens>\d+)[BSTIX]?(?P<cat>[FCOMX])')
+        norm_person = True
+
+    elif args.entities_class == "PERSON_BSTI":
+        bio_main_class = ""
+        classes = ["BIOGRAPHEE", "STUDENT", "TEACHER", "ISNAD", "NEUTRAL"]
+        category_to_class = {c: bio_main_class+c for c in classes}
+        label_dict = get_label_dict(category_to_class.values())
+        pattern = compile(fr'\bP(?P<num_tokens>\d+)[FCOMX]?(?P<cat>[BSTIX]+)')
+        norm_person = True
 
     #TODO
-    elif args.entities_class == "NASAB":
-        ...
-    elif args.entities_class == "NER":
-        ...
     elif args.entities_class == "TOPONYM_DESC":
         ...
-    elif args.entities_class == "PERSON_FCON":
-        ...
-    elif args.entities_class == "PERSON_FCON":
-        ...
+
+    print("label_dict = \\")
+    pprint(label_dict)
 
     class_args = {
         "pattern": pattern,
@@ -192,22 +252,35 @@ def main():
         "label_dict": label_dict,
         "keep_automatic_tags": args.keep_automatic_tags,
         "add_bio_class_as_prefix": add_bio_class_as_prefix,
-        "empty_to_X": empty_to_X
+        "empty_to_X": empty_to_X,
+        "is_nasab": is_nasab,
+        "norm_ner": norm_ner,
+        "norm_person": norm_person
     }
 
     res = []
     if args.debug:
         for idx, miu in tqdm(list(enumerate(mius))):
+            print(f"miu = {miu}")
             try:
                 res.append(get_data(miu, **class_args))
             except Exception as e:
                 print(f"Error idx={idx} miu={miu}: {e}")
+                exit(1)
     else:
-        res += p_uimap(
-            partial(get_data, **class_args),
-            mius,
-            total=len(mius)
-        )
+        try:
+            res += p_uimap(
+                partial(get_data, **class_args),
+                mius,
+                total=len(mius)
+            )
+        except Exception as e:
+            print("Error:", e)
+            print("There might be errors in the input files. Run process again with -D")
+
+    if not res:
+        print("There is no output data")
+        exit()
 
     reviewed, bio_dicts = zip(*res)
     bio_dicts = [r for r in bio_dicts if r is not None]

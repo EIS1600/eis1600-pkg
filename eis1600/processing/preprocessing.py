@@ -57,7 +57,7 @@ def tokenize_miu_text(
     heading = text_and_heading[1]
 
     if text_and_heading[4]:
-        while text_and_heading[4][-1] == "\n":
+        while text_and_heading[4] and text_and_heading[4][-1] == "\n":
             text_and_heading[4] = text_and_heading[4][:-1]
 
     if simple_mARkdown:

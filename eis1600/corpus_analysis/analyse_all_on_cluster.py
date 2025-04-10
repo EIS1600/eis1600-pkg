@@ -1,3 +1,4 @@
+import io
 import re
 import sys
 import gzip
@@ -86,7 +87,7 @@ def routine_per_text(
         miu_obj["yml"] = {"id": get_short_miu(uri), **miu_obj["yml"]}
 
         # add ids also to sections
-        df = pd.read_json(miu_obj["df"])
+        df = pd.read_json(io.StringIO(miu_obj["df"]))
         sections = {}
         for sec in filter(None, df["SECTIONS"].tolist()):
             if m := re.search(r"(\d+-\d+)", sec):
@@ -94,7 +95,6 @@ def routine_per_text(
                 uri = f'{miu_obj["yml"]["author"]}.{miu_obj["yml"]["text"]}.{id_}'
                 sections[id_] = get_short_miu(uri)
         miu_obj["yml"] = {"sections_id": sections, **miu_obj["yml"]}
-        miu_obj["df"] = df.to_json(force_ascii=False, compression=None)
 
     with gzip.open(out_path, 'wt', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)

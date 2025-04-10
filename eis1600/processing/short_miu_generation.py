@@ -13,12 +13,10 @@ deprecated_ids_path = files('eis1600.processing.persistent_ids').joinpath('depre
 SYMBOLS = ascii_uppercase + digits
 
 
-def generate_id(size: int = 5) -> str:
+def generate_id(size: int = 6) -> str:
     """
-    len(list(itertools.product(string.ascii_letters + string.digits, repeat=4)))
-    14_776_336
-    len(list(itertools.product(string.ascii_letters + string.digits, repeat=5)))
-    916_132_832
+    len(string.ascii_uppercase + string.digits) ** 6
+    2,176,782,336
     """
     return "".join(choices(SYMBOLS, k=size))
 
@@ -72,7 +70,6 @@ def save_ids():
         json.dump(IDS_MAPPING.old_new_map, outfp)
 
 
-#
 def clean_unused_old_ids():
     files_ready, files_double_checked = get_ready_and_double_checked_files()
     infiles = [f.replace(TEXT_REPO, JSON_REPO).replace(".EIS1600", ".json")

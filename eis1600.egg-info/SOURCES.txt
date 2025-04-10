@@ -64,9 +64,11 @@ eis1600/model_evaluations/EvalResultsEncoder.py
 eis1600/model_evaluations/__init__.py
 eis1600/model_evaluations/eval_date_model.py
 eis1600/model_evaluations/eval_topo_cat_model.py
+eis1600/models/BiographeeStudentTeacherIsnadModel.py
 eis1600/models/BiosPunctuationModel.py
 eis1600/models/Disambiguator.py
 eis1600/models/EventsPunctuationModel.py
+eis1600/models/FamilyContactOpinionMawlaModel.py
 eis1600/models/FamilyContactOpinionModel.py
 eis1600/models/Lemmatizer.py
 eis1600/models/Model.py

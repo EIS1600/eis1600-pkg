@@ -27,8 +27,6 @@ from eis1600.helper.parse_range import parse_range
 from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
                                        get_ready_and_double_checked_files
 
-from eis1600.processing.short_miu_generation import get_short_miu, save_ids
-
 
 def routine_per_text(
         infile: str,
@@ -81,27 +79,10 @@ def routine_per_text(
             for json_file in glob.iglob(os.path.join(dir_path, "*.json.gz")):
                 os.remove(json_file)
 
-    # add short id to each miu object
-    for miu_obj in res:
-        uri = f'{miu_obj["yml"]["author"]}.{miu_obj["yml"]["text"]}.{miu_obj["yml"]["UID"]}'
-        miu_obj["yml"] = {"id": get_short_miu(uri), **miu_obj["yml"]}
-
-        # add ids also to sections
-        df = pd.read_json(io.StringIO(miu_obj["df"]))
-        sections = {}
-        for sec in filter(None, df["SECTIONS"].tolist()):
-            if m := re.search(r"(\d+-\d+)", sec):
-                id_ = m.group(1)
-                uri = f'{miu_obj["yml"]["author"]}.{miu_obj["yml"]["text"]}.{id_}'
-                sections[id_] = get_short_miu(uri)
-        miu_obj["yml"] = {"sections_id": sections, **miu_obj["yml"]}
-
     with gzip.open(out_path, 'wt', encoding='utf-8') as fh:
         jsonpickle.set_encoder_options('json', indent=4, ensure_ascii=False)
         json_str = jsonpickle.encode(res, unpicklable=False)
         fh.write(json_str)
-
-    save_ids()
 
     if error:
         raise ValueError(error)

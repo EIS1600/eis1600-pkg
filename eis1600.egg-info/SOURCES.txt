@@ -94,10 +94,6 @@ eis1600/paragraphs/split_mius_into_paragraphs.py
 eis1600/processing/__init__.py
 eis1600/processing/postprocessing.py
 eis1600/processing/preprocessing.py
-eis1600/processing/short_miu_generation.py
-eis1600/processing/persistent_ids/__init__.py
-eis1600/processing/persistent_ids/deprecated_long_short_ids_mapping.json
-eis1600/processing/persistent_ids/long_short_ids_mapping.json
 eis1600/repositories/__init__.py
 eis1600/repositories/repo.py
 eis1600/statistics/__init__.py

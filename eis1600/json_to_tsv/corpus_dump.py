@@ -61,7 +61,11 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
                     elif type(sub_value) == dict:
                         # e.g. onomastics elements
                         for sub_sub_ent, sub_sub_val in sub_value.items():
-                            structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_sub_ent}{SEP2}"))
+                            if "_" in sub_sub_ent:
+                                stem, num = sub_sub_ent.split("_", 2)
+                                if num.isdigit():
+                                    sub_sub_ent = f"{stem}_{num:02}"
+                            structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_sub_ent}{SEP2}{sub_sub_val}"))
                     else:
                         structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_value}"))
             else:

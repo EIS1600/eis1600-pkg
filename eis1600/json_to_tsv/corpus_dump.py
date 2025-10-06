@@ -64,7 +64,7 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
                             if "_" in sub_sub_ent:
                                 stem, num = sub_sub_ent.split("_", 2)
                                 if num.isdigit():
-                                    sub_sub_ent = f"{stem}_{num:02}"
+                                    sub_sub_ent = f"{stem}_{int(num):02}"
                             structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_sub_ent}{SEP2}{sub_sub_val}"))
                     else:
                         structural_data.append((uid, entity, f"{sub_entity}{SEP}{sub_value}"))

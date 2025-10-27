@@ -90,4 +90,13 @@ def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -
     yml_init = {'author': author, 'text': text, 'edition': edition, 'UID': miu_uid}
     miu_as_json = {'yml': yml_handler.to_json(yml_init), 'df': df.to_json(force_ascii=False, compression=None)}
 
+    # remove deprecated data items
+    miu_as_json["yml"].pop("reviewed", None)
+    miu_as_json["yml"].pop("reviewer", None)
+    miu_as_json["yml"].pop("settlements", None)
+    miu_as_json["yml"].pop("provinces", None)
+
+    CID = f'{miu_as_json["yml"]["author"]}.{miu_as_json["yml"]["text"]}.{miu_as_json["yml"]["UID"]}'
+    miu_as_json["yml"] = {"CID": CID} | miu_as_json["yml"]
+
     return miu_as_json

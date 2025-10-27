@@ -22,17 +22,29 @@ def parse_year(m: Match[str]) -> (int, int):
     year = 0
     year_digits = 0
     length = len(m.group('sana').split())  # (?P<sana>سنة|عام|في حدود)
+    if m.group('punct1'):
+        length += 1
     if m.group('ones'):
         year += ONES_NOR.get(normalize_ara_heavy(m.group('ones')))
+        length += 1
+    if m.group('punct2'):
         length += 1
     if m.group('ten'):
         year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
         length += 1
+    if m.group('punct3'):
+        length += 1
     if m.group('hundred'):
         year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
         length += len(m.group('hundred').split())
+    if m.group('punct4'):
+        length += 1
     if m.group('thousand'):
         year += THOUSAND_NOR.get(normalize_ara_heavy(m.group('thousand')))
+        length += 1
+    if m.group('punct5'):
+        length += 1
+    if m.group('punct6'):
         length += 1
     if m.group('digits'):
         digits = m.group('digits')
@@ -86,8 +98,7 @@ def tag_dates_fulltext(text: str) -> str:
     while m:
         # While date phrases are recognized in the text
         if m.group('year') and not SANA_PATTERN.fullmatch(m.group('year')):
-            # Check if phrase is an actual date. Date phrases give the years after the word sana. In
-            # contrast, age phrases give the years before the word sana.
+            # Check if phrase is an actual date. Date phrases give the years after the word sana. It not, it's an age
             year = 0
             length = 1
             month = None

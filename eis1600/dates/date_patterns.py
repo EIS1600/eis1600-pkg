@@ -3,7 +3,7 @@ from re import compile
 from openiti.helper.ara import denormalize
 
 from eis1600.helper.ar_normalization import normalize_dict
-from eis1600.markdown.markdown_patterns import WORD
+from eis1600.markdown.markdown_patterns import WORD, OPT_PUNCT_PATTERN
 
 ONES = {
         'واحد': 1, 'احدى': 1, 'احد': 1, 'اثنين': 2, 'اثنتين': 2, 'اثنتي': 2, 'ثلاث': 3, 'ثلث': 3, 'اربع': 4, 'خمس': 5,
@@ -22,7 +22,7 @@ TEN_NOR = normalize_dict(TEN)
 HUNDRED = {
         'مائة': 100, 'ماية': 100, 'مية': 100, 'مئة': 100,
         'المائة': 100, 'الماية': 100, 'المية': 100, 'المئة': 100,
-        'مائتين': 200, 'مايتين': 200, 'ميتين': 200,
+        'مائتين': 200, 'مئتين': 200, 'مايتين': 200, 'ميتين': 200,
         'ثلاثمائة': 300, 'ثلاث مائة': 300, 'ثلثمائة': 300, 'ثلث مائة': 300, 'ثلاثماية': 300, 'ثلاث ماية': 300,
         'ثلثماية': 300, 'ثلث ماية': 300, 'ثلاثمية': 300, 'ثلاث مية': 300, 'ثلثمية': 300, 'ثلث مية': 300,
         'ثلاثمئة': 300, 'ثلاث مئة': 300, 'ثلثمئة': 300, 'ثلث مئة': 300,
@@ -77,17 +77,18 @@ AR_TEN_DAY = '|'.join([denormalize(key) for key in DAY_TEN.keys()])
 AR_WEEKDAY = '|'.join([denormalize(key) for key in WEEKDAYS.keys()])
 AR_SANA = '|'.join([denormalize(s) for s in SANA])
 MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?P<month>(?:ال)?(?:' + AR_MONTHS + r'))(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
+
 DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
        r'(?:' + MONTH_IN_CONTEXT + r')?' +\
        r'(?P<year>' + \
-              r'\s(?P<sana>' + AR_SANA + ')' + \
-              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + \
-              r'(?:\s(?P<ones>' + AR_ONES + r'))?' + \
-              r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
-              r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?' + \
-              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + \
+              r'\s(?P<sana>' + AR_SANA + ')' + r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s(?P<ones>' + AR_ONES + r'))?' + r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?' + r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))?' + \
        r')' + \
        r'(?=(?:' + WORD + r'|[\s.,]|$))'
 

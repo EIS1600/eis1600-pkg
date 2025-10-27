@@ -5,6 +5,8 @@ from eis1600.markdown.EntityTags import EntityTags
 PUNCTUATION_DICT = {'.': 'PERIOD', ',': 'LATINCOMMA', '،': 'COMMA', ':': 'COLON'}
 PUNCTUATION = PUNCTUATION_DICT.keys()
 
+OPT_PUNCT_PATTERN = f'[{"".join(PUNCTUATION)}]+'
+
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'
         u'\u0628\u0629\u062a\u062b\u062c\u062d\u062e'

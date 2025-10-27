@@ -1,4 +1,4 @@
-from re import compile
+from regex import compile
 
 from openiti.helper.ara import denormalize
 
@@ -78,7 +78,7 @@ AR_WEEKDAY = '|'.join([denormalize(key) for key in WEEKDAYS.keys()])
 AR_SANA = '|'.join([denormalize(s) for s in SANA])
 MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?P<month>(?:ال)?(?:' + AR_MONTHS + r'))(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
 
-DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
+DATE1 = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
        r'(?:' + MONTH_IN_CONTEXT + r')?' +\
@@ -92,8 +92,24 @@ DATE = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?'
        r')' + \
        r'(?=(?:' + WORD + r'|[\s.,]|$))'
 
+# only for reversed cases such as سنة مائتين وست وأربعين
+DATE2 = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
+       r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
+       r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
+       r'(?:' + MONTH_IN_CONTEXT + r')?' +\
+       r'(?P<year>' + \
+              r'\s(?P<sana>' + AR_SANA + ')' + r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'\s(?P<hundred>' + AR_HUNDRED + r')' + r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'\s[و]?(?P<ones>' + AR_ONES + r')' + r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'\s[و]?(?P<ten>' + AR_TEN + r')' + r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))?' + \
+       r')' + \
+       r'(?=(?:' + WORD + r'|[\s.,]|$))'
 
-DATE_PATTERN = compile(DATE)
+
+DATE_PATTERN = compile(fr'{DATE2}|{DATE1}')
+
 MONTH_PATTERN = compile(AR_MONTHS)
 MONTH_IN_CONTEXT_PATTERN = compile(MONTH_IN_CONTEXT)
 SANA_PATTERN = compile(r'\s' + r'|'.join([denormalize(s) for s in SANA]))

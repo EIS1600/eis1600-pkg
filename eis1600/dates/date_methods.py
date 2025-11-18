@@ -1,3 +1,4 @@
+from re import search
 from numpy import nan
 
 from pandas import DataFrame, Series
@@ -10,6 +11,8 @@ from eis1600.dates.date_patterns import DATE_CATEGORIES_NOR, DATE_CATEGORY_PATTE
     ONES_NOR, TEN_NOR, HUNDRED_NOR, THOUSAND_NOR, ONES_HINDI, SANA_PATTERN
 from eis1600.processing.preprocessing import get_tokens_and_tags
 from eis1600.yml.YAMLHandler import YAMLHandler
+
+from eis1600.markdown.markdown_patterns import EMPTY_YEAR_TAG, PUNCTUATION
 
 
 def parse_year(m: Match[str]) -> (int, int):
@@ -29,11 +32,15 @@ def parse_year(m: Match[str]) -> (int, int):
         length += 1
     if m.group('punct2'):
         length += 1
+    if m.group('opt_ones'):
+        length += 2
     if m.group('ten'):
         year += TEN_NOR.get(normalize_ara_heavy(m.group('ten')))
         length += 1
     if m.group('punct3'):
         length += 1
+    if m.group('note'):
+        length += 3
     if m.group('hundred'):
         year += HUNDRED_NOR.get(normalize_ara_heavy(m.group('hundred')))
         length += len(m.group('hundred').split())
@@ -61,10 +68,9 @@ def parse_year(m: Match[str]) -> (int, int):
         if year == 0:
             year = year_digits
         elif year != year_digits:
-            raise ValueError(
-                    f"Date recognition: parsed value and given value are at odds. Check {m.group(0)}\n"
-                    f"given: {year_digits}\n"
-                    f"parsed: {year}"
+            print(
+                f"Warning in date recognition: parsed value ({year}) != given value ({year_digits}). "
+                f"Check {m.group(0)}. We keep parsed value"
             )
 
     return year, length
@@ -76,12 +82,21 @@ def get_dates_headings(yml_handler: YAMLHandler) -> None:
 
     :param YAMLHandler yml_handler: arabic text.
     """
+    #FIXME for some reason this function is called twice (using analyse_text)
     headings = yml_handler.headings
     for key, val in headings:
-        if DATE_PATTERN.search(val):
-            m = DATE_PATTERN.search(val)
-            year, length = parse_year(m)
-            yml_handler.add_date_headings(year)
+        m = DATE_PATTERN.search(val)
+        if m:
+            # exclude matches with no relevant information
+            if any(
+                v is not None for k, v in m.groupdict().items()
+                if k not in (
+                    "year", "sana", "opt_ones", "context",
+                    "punct1", "punct2", "punct3", "punct4", "punct5", "punct6"
+                )
+            ):
+                year, length = parse_year(m)
+                yml_handler.add_date_headings(year)
 
 
 def tag_dates_fulltext(text: str) -> str:
@@ -108,6 +123,7 @@ def tag_dates_fulltext(text: str) -> str:
             try:
                 year, length = parse_year(m)
             except ValueError as e:
+                print("ERROR in dates", e)
                 raise e
             else:
                 # Date classification
@@ -150,6 +166,8 @@ def tag_dates_fulltext(text: str) -> str:
             # Recognize next date phrase
             m = DATE_PATTERN.search(text_updated, m.end('sana'))
 
+    # remove empty years
+    text_updated = EMPTY_YEAR_TAG.sub("", text_updated)
     return text_updated
 
 

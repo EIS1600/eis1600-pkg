@@ -8,8 +8,8 @@ from sys import argv
 from tqdm import tqdm
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, JSON_REPO, TSV_YML_REPO, \
-    TSV_DF_REPO, COLUMNS, SEP, SEP2
+from eis1600.repositories.repo import get_ready_and_double_checked_files, TEXT_REPO, TEXT_REPO_TEST, \
+    JSON_REPO, JSON_REPO_TEST, TSV_YML_REPO, TSV_YML_REPO_TEST, TSV_DF_REPO, TSV_DF_REPO_TEST, COLUMNS, SEP, SEP2
 from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600JsonAction
 
 
@@ -17,10 +17,13 @@ ALL_LABELS = ("SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_T
               "NER_TAGS", "DATE_TAGS", "MONTH_TAGS", "ONOM_TAGS", "ONOMASTIC_TAGS")
 
 
-def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
+def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS, test: bool = False):
 
     if not fpath.endswith(".json.gz"):
-        fpath = fpath.replace(TEXT_REPO, JSON_REPO)
+        fpath = fpath.replace(
+            TEXT_REPO_TEST if test else TEXT_REPO,
+            JSON_REPO_TEST if test else JSON_REPO
+        )
         fpath = fpath.replace('.EIS1600', '.json.gz')
 
     structural_data, content_data = [], []
@@ -82,7 +85,10 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
                 if value:
                     content_data.append((uid, entity, f"{j}{SEP}{value}"))
 
-    fpath_yml = fpath.replace(JSON_REPO, TSV_YML_REPO)
+    fpath_yml = fpath.replace(
+        JSON_REPO_TEST if test else JSON_REPO,
+        TSV_YML_REPO_TEST if test else TSV_YML_REPO
+    )
     fpath_yml = fpath_yml.replace(".json.gz", "")
     dir_path_yml, _ = os.path.split(fpath_yml)
     Path(dir_path_yml).mkdir(parents=True, exist_ok=True)
@@ -90,7 +96,10 @@ def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS):
     struct_df = pd.DataFrame(structural_data, columns=COLUMNS)
     struct_df.to_csv(f"{fpath_yml}_yml.tsv.gz", sep="\t", index=False, compression='gzip')
 
-    fpath_df = fpath.replace(JSON_REPO, TSV_DF_REPO)
+    fpath_df = fpath.replace(
+        JSON_REPO_TEST if test else JSON_REPO,
+        TSV_DF_REPO_TEST if test else TSV_DF_REPO
+    )
     fpath_df = fpath_df.replace(".json.gz", "")
     dir_path_df, _ = os.path.split(fpath_df)
     Path(dir_path_df).mkdir(parents=True, exist_ok=True)

@@ -1,16 +1,31 @@
-from typing import List
-
-from openiti.helper.ara import normalize_ara_heavy
+from typing import List, KeysView
+from openiti.helper.ara import normalize_ara_heavy, denormalize
 
 ALIF_VARIATIONS = ['ا', 'أ', 'ٱ', 'آ', 'إ']
 
+
 def normalize_dict(o_set: dict) -> dict:
     n_set = {}
-
-    for key, val in o_set.items():
+    for key, val in sorted(o_set.items(), key=lambda x: x[1], reverse=True):
         n_set[normalize_ara_heavy(key)] = val
 
     return n_set
+
+
+# there is a bug in denormalize
+# print(denormalize('ماءة'))
+# م[إأٱآا](?:[ؤئ]|[وي]ء)[هة]
+def create_opt_pattern(values: KeysView) -> str:
+    return '|'.join(
+        sorted(
+            [
+                'ماءة' if key == 'ماءة' else denormalize(key)
+                for key in values
+            ],
+            key=len,
+            reverse=True
+        )
+    )
 
 
 def denormalize_list(elem: str) -> List[str]:

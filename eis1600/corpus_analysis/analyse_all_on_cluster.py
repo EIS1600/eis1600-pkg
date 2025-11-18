@@ -24,8 +24,8 @@ from eis1600.corpus_analysis.text_methods import get_text_as_list_of_mius
 from eis1600.json_to_tsv.corpus_dump import dump_file
 from eis1600.helper.logging import setup_persistent_logger
 from eis1600.helper.parse_range import parse_range
-from eis1600.repositories.repo import JSON_REPO, TEXT_REPO, PART_NAME_INFIX, PART_NUM_REGEX, \
-                                       get_ready_and_double_checked_files
+from eis1600.repositories.repo import JSON_REPO, JSON_REPO_TEST, TEXT_REPO, TEXT_REPO_TEST, \
+    PART_NAME_INFIX, PART_NUM_REGEX, get_ready_and_double_checked_files
 
 
 def routine_per_text(
@@ -34,6 +34,9 @@ def routine_per_text(
         force: Optional[bool] = False,
         clean_out_dir: Optional[bool] = False,
         debug: Optional[bool] = False,
+        test: Optional[bool] = False,
+        mock:  Optional[bool] = False,
+        log_isolated_sana:  Optional[bool] = False,
     ):
     """Entry into analysis routine per text.
 
@@ -45,8 +48,15 @@ def routine_per_text(
     :param bool clean_out_dir: When processing all files, clean json output in case there are previous splitting.
         This param will remove all json files in subfolder when file is original or part 1.
     :param bool debug: Debug flag for more console messages.
+    :param bool debug: Use testing repos.
+    :param bool mock: Do not pass models.
+    :param bool log_isolated_sana: Show all sana citations not matched as sates.
+
     """
-    out_path = infile.replace(TEXT_REPO, JSON_REPO)
+    out_path = infile.replace(
+        TEXT_REPO_TEST if test else TEXT_REPO,
+        JSON_REPO_TEST if test else JSON_REPO
+    )
     out_path = out_path.replace('.EIS1600', '.json.gz')
 
     # do not process file if it's already generated and it should not be overwritten
@@ -58,16 +68,32 @@ def routine_per_text(
     res = []
     error = ''
     if parallel:
-        res += p_uimap(partial(analyse_miu, debug=debug), mius_list)
+        res += p_uimap(partial(analyse_miu, mock=mock, debug=debug), mius_list)
     else:
         for idx, tup in tqdm(list(enumerate(mius_list))):
             try:
-                res.append(analyse_miu(tup, debug))
+                res.append(analyse_miu(tup, mock=mock, debug=debug))
             except ValueError as e:
                 uid, *_ = tup
                 error += f'{uid}\n{e}\n\n\n'
             except Exception:
                 raise
+
+    if log_isolated_sana:
+        for r in res:
+            df = pd.DataFrame(jsonpickle.decode(r['df']))
+            if 'DATE_TAGS' in df.columns:
+                isolated_sana = df['TOKENS'].eq('سنة') & df['DATE_TAGS'].str.endswith('NoneY', na=False)
+                if isolated_sana.any():
+                    print(f"Warning! Isolated sana in {r['yml']['CID']}: ")
+
+                    for idx in df[isolated_sana].index.tolist():
+                        pos = df.index.get_loc(idx)
+                        start = max(0, pos - 12)
+                        end = min(len(df), pos + 13)
+                        context_tokens = df['TOKENS'].iloc[start:end].tolist()
+                        context_tokens = [t for t in context_tokens if t is not None]
+                        print(f"  Context: {' '.join(context_tokens)}")
 
     dir_path, _ = os.path.split(out_path)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
@@ -93,8 +119,10 @@ def main():
             prog=sys.argv[0], formatter_class=RawDescriptionHelpFormatter,
             description='''Script to parse whole corpus to annotated MIUs.'''
     )
-    arg_parser.add_argument('-D', '--debug', action='store_true')
-    arg_parser.add_argument('-P', '--parallel', action='store_true')
+    arg_parser.add_argument(
+        '-P', '--parallel',
+        action='store_true'
+    )
     arg_parser.add_argument(
         '--no_tsv',
         action='store_true',
@@ -121,12 +149,20 @@ def main():
             action="store_true",
             help="process file regardless if it exist and overwrite it"
     )
-
+    arg_parser.add_argument(
+        "--mock",
+        action="store_true",
+        help="do not pass models"
+    )
+    arg_parser.add_argument(
+        '-D', '--debug',
+        action='store_true'
+    )
+    arg_parser.add_argument(
+        '--test',
+        action='store_true'
+    )
     args = arg_parser.parse_args()
-    debug = args.debug
-    parallel = args.parallel
-    force = args.force
-    clean_out_dir = args.clean_out_dir
 
     print(f'GPU available: {cuda.is_available()}')
 
@@ -141,7 +177,11 @@ def main():
         print('There are no EIS1600 files to process')
         exit()
 
-    logger = setup_persistent_logger('analyse_all_on_cluster', 'analyse_all_on_cluster.log', INFO)
+    logger = setup_persistent_logger(
+        'analyse_all_on_cluster',
+        'analyse_all_on_cluster.log',
+        INFO
+    )
 
     if args.range:
         infiles = infiles[args.range[0]:args.range[1]]
@@ -156,13 +196,21 @@ def main():
         print(f"[{i+1}] {infile}")
 
         try:
-            routine_per_text(infile, parallel=parallel, force=force, clean_out_dir=clean_out_dir, debug=debug)
+            routine_per_text(
+                infile,
+                parallel=args.parallel,
+                force=args.force,
+                clean_out_dir=args.clean_out_dir,
+                mock=args.mock,
+                debug=args.debug,
+                test=args.test,
+            )
             if not args.no_tsv:
-                dump_file(infile)
+                dump_file(infile, test=args.test)
         except ValueError as e:
             logger.error(f'{infile}\n{e}')
         except Exception as e:
-            print(e)
+            print("Exception met:", e)
             logger.exception(f'{infile}\n{e}')
 
     et = time()

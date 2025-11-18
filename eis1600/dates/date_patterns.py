@@ -1,28 +1,43 @@
 from regex import compile
 
 from openiti.helper.ara import denormalize
-
-from eis1600.helper.ar_normalization import normalize_dict
+from eis1600.helper.ar_normalization import normalize_dict, create_opt_pattern
 from eis1600.markdown.markdown_patterns import WORD, OPT_PUNCT_PATTERN
 
 ONES = {
-        'واحد': 1, 'احدى': 1, 'احد': 1, 'اثنين': 2, 'اثنتين': 2, 'اثنتي': 2, 'ثلاث': 3, 'ثلث': 3, 'اربع': 4, 'خمس': 5,
-        'ست': 6, 'سبع': 7, 'ثماني': 8, 'ثمان': 8, 'تسع': 9, 'نيف': 5, 'بضع': 5
+        'واحد': 1, 'الواحد': 1, 'احدى': 1, 'احد': 1,
+        'اثنين': 2, 'الاثنين': 2, 'اثنتين': 2, 'الاثنتين': 2, 'اثني': 2, 'اثنتي': 2,
+        'ثنين': 2, 'ثنتين': 2, 'ثني': 2, 'ثنتي': 2,
+        'أثنا': 2, 'اثنتان': 2,
+        'ثلاث': 3, 'ثلث': 3, 'ثلاثة': 3, 'الثلاثة': 3,
+        'اربع': 4, 'اربعة': 4, 'الاربعة': 4, 'أربع': 4, 'أربعة': 4, 'الأربعة': 4,
+        'خمس': 5, 'خمسة': 5, 'الخمسة': 5, 'نيف': 5, 'بضع': 5,
+        'ست': 6, 'ستة': 6, 'الستة': 6,
+        'سبع': 7, 'سبعة': 7, 'السبعة': 7,
+        'ثماني': 8, 'ثمان': 8, 'ثمانية': 8, 'الثمانية': 8,
+        'تسع': 9, 'تسعة': 9, 'التسعة': 9
 }
 ONES_NOR = normalize_dict(ONES)
 ONES_HINDI = {
         '٠': 0, '١': 1, '٢': 2, '٣': 3, '٤': 4, '٥': 5, '٦': 6, '٧': 7, '٨': 8, '٩': 9
 }
 TEN = {
-        'عشرة': 10, 'عشري': 10, 'عشر': 10, 'عشرين': 20, 'ثلاثين': 30, 'اربعين': 40, 'خمسين': 50, 'ستين': 60,
-        'سبعين': 70,
-        'ثمانين': 80, 'تسعين': 90
+        'عشرة': 10, 'العشرة': 10, 'عشري': 10, 'عشر': 10,
+        'عشرين': 20, 'عشرون': 20, 'العشرين': 20, 'العشرون': 20,
+        'ثلاثين': 30, 'ثلاثون': 30, 'الثلاثين': 30, 'الثلاثون': 30,
+        'اربعين': 40, 'اربعون': 40, 'الاربعين': 40, 'الاربعون': 40,
+        'أربعين': 40, 'أربعون': 40, 'الأربعين': 40, 'الأربعون': 40,
+        'خمسين': 50, 'خمسون': 50, 'الخمسين': 50, 'الخمسون': 50,
+        'ستين': 60, 'ستون': 60, 'الستين': 60, 'الستون': 60,
+        'سبعين': 70, 'سبعون': 70, 'السبعين': 70, 'السبعون': 70,
+        'ثمانين': 80, 'ثمانون': 80, 'الثمانين': 80, 'الثمانون': 80,
+        'تسعين': 90, 'تسعون': 90, 'التسعين': 90, 'التسعون': 90
 }
 TEN_NOR = normalize_dict(TEN)
 HUNDRED = {
-        'مائة': 100, 'ماية': 100, 'مية': 100, 'مئة': 100,
+        'مائة': 100, 'ماية': 100, 'مية': 100, 'مئة': 100, 'ماءة': 100,
         'المائة': 100, 'الماية': 100, 'المية': 100, 'المئة': 100,
-        'مائتين': 200, 'مئتين': 200, 'مايتين': 200, 'ميتين': 200,
+        'مائتين': 200, 'مئتين': 200, 'مايتين': 200, 'ميتين': 200, 'المائتين': 200,
         'ثلاثمائة': 300, 'ثلاث مائة': 300, 'ثلثمائة': 300, 'ثلث مائة': 300, 'ثلاثماية': 300, 'ثلاث ماية': 300,
         'ثلثماية': 300, 'ثلث ماية': 300, 'ثلاثمية': 300, 'ثلاث مية': 300, 'ثلثمية': 300, 'ثلث مية': 300,
         'ثلاثمئة': 300, 'ثلاث مئة': 300, 'ثلثمئة': 300, 'ثلث مئة': 300,
@@ -41,7 +56,7 @@ HUNDRED = {
         'تسع مئة': 900
 }
 HUNDRED_NOR = normalize_dict(HUNDRED)
-THOUSAND = normalize_dict({'ألف': 1000})
+THOUSAND = normalize_dict({'ألف': 1000, 'الف': 1000})
 THOUSAND_NOR = normalize_dict(THOUSAND)
 
 DAY_ONES = {
@@ -65,16 +80,16 @@ MONTHS = {
         'ذو قعدة': 11, 'ذو الحجة': 12, 'ذو حجة': 12, 'اخر': -1
 }
 MONTHS_NOR = normalize_dict(MONTHS)
-SANA = sorted(['سنة', 'عام', 'في حدود سنة', 'في حدود'], key=len, reverse=True)
+SANA = sorted(['سنة', 'وسنة', 'عام', 'في حدود سنة', 'في حدود'], key=len, reverse=True)
 
-AR_MONTHS = '|'.join(sorted([denormalize(key) for key in MONTHS.keys()], key=len, reverse=True))
-AR_ONES = '|'.join([denormalize(key) for key in ONES.keys()])
-AR_TEN = '|'.join([denormalize(key) for key in TEN.keys()])
-AR_HUNDRED = '|'.join([denormalize(key) for key in HUNDRED.keys()])
-AR_THOUSAND = '|'.join([denormalize(key) for key in THOUSAND.keys()])
-AR_ONES_DAY = '|'.join([denormalize(key) for key in DAY_ONES.keys()])
-AR_TEN_DAY = '|'.join([denormalize(key) for key in DAY_TEN.keys()])
-AR_WEEKDAY = '|'.join([denormalize(key) for key in WEEKDAYS.keys()])
+AR_MONTHS = create_opt_pattern(MONTHS.keys())
+AR_ONES = create_opt_pattern(ONES.keys())
+AR_TEN = create_opt_pattern(TEN.keys())
+AR_HUNDRED = create_opt_pattern(HUNDRED.keys())
+AR_THOUSAND = create_opt_pattern(THOUSAND.keys())
+AR_ONES_DAY = create_opt_pattern(DAY_ONES.keys())
+AR_TEN_DAY = create_opt_pattern(DAY_TEN.keys())
+AR_WEEKDAY = create_opt_pattern(WEEKDAYS.keys())
 AR_SANA = '|'.join([denormalize(s) for s in SANA])
 MONTH_IN_CONTEXT = r'\s(?:(?:من\s)?(?:شهر\s)?)?(?P<month>(?:ال)?(?:' + AR_MONTHS + r'))(?:\s(?:من|ف[يى])(?:\sشهور)?)?'
 
@@ -83,30 +98,44 @@ DATE1 = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?
        r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
        r'(?:' + MONTH_IN_CONTEXT + r')?' +\
        r'(?P<year>' + \
-              r'\s(?P<sana>' + AR_SANA + ')' + r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s(?P<ones>' + AR_ONES + r'))?' + r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + r'))?' + r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'\s(?P<sana>' + AR_SANA + ')' + \
+              r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s(?P<digits_str>(?P<digits>[1-9١٢٣٤٥٦٧٨٩][\d٠١٢٣٤٥٦٧٨٩]{0,3})(?:\s(?:[هم]|الهجري[هة])|ه)?))?' + \
+              r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s(?P<ones>' + AR_ONES + r'))?' + \
+              r'(?:\s(?P<opt_ones>[إأٱآا]و\s+(?:' + AR_ONES + r')))?' + \
+              r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s(?P<note>\(\s+\d+\s+\)))?' + \
+              r'(?:\s[و]?(?P<ten>' + AR_TEN + r'))?' + \
+              r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s[و]?(?P<hundred>' + AR_HUNDRED + \
+              r'))?' + r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + \
+              r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))??' + \
        r')' + \
-       r'(?=(?:' + WORD + r'|[\s.,]|$))'
+        r'(?=(?:' + WORD + r'|[\s.,]|$))'
 
-# only for reversed cases such as سنة مائتين وست وأربعين
+# only for reversed cases such as سنة مائتين وست وأ ربعين
 DATE2 = r'(?P<context>' + WORD + r'{0,10}?' + r'(?:\s(?:ف[يى]|تقريبا))?' + WORD + r'{0,9}?)' + \
        r'(?:\s(?P<weekday>' + AR_WEEKDAY + r'))?' + \
        r'(?:\s(?:ال)?(?P<day_ones>' + AR_ONES_DAY + r'))?(?:\s(?:و)?(?:ال)?(?P<day_ten>' + AR_TEN_DAY + r'))?' + \
        r'(?:' + MONTH_IN_CONTEXT + r')?' +\
        r'(?P<year>' + \
-              r'\s(?P<sana>' + AR_SANA + ')' + r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s(?P<digits_str>(?P<digits>[٠١٢٣٤٥٦٧٨٩\d]{1,4})(?:\s(?:[هم]|الهجري[هة]))?))?' + r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'\s(?P<hundred>' + AR_HUNDRED + r')' + r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'\s[و]?(?P<ones>' + AR_ONES + r')' + r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'\s[و]?(?P<ten>' + AR_TEN + r')' + r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))?' + \
-              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))?' + \
+              r'\s(?P<sana>' + AR_SANA + ')' + \
+              r'(?:\s(?P<punct1>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s(?P<digits_str>(?P<digits>[1-9١٢٣٤٥٦٧٨٩][\d٠١٢٣٤٥٦٧٨٩]{0,3})(?:\s(?:[هم]|الهجري[هة])|ه)?))?' + \
+              r'(?:\s(?P<punct2>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'\s(?P<hundred>' + AR_HUNDRED + r')' + \
+              r'(?:\s(?P<punct3>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'\s[و]?(?P<ones>' + AR_ONES + r')' + \
+              r'(?:\s(?P<opt_ones>[إأٱآا]و\s+(?:' + AR_ONES + r')))?' + \
+              r'(?:\s(?P<punct4>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'\s[و]?(?P<ten>' + AR_TEN + r')' + \
+              r'(?:\s(?P<punct5>' + OPT_PUNCT_PATTERN + '))??' + \
+              r'(?:\s[و]?(?P<thousand>' + AR_THOUSAND + r'))?' + \
+              r'(?:\s(?P<punct6>' + OPT_PUNCT_PATTERN + '))??' + \
        r')' + \
-       r'(?=(?:' + WORD + r'|[\s.,]|$))'
-
+        r'(?=(?:' + WORD + r'|[\s.,]|$))'
 
 DATE_PATTERN = compile(fr'{DATE2}|{DATE1}')
 

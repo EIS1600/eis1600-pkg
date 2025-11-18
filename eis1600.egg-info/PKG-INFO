@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: eis1600
 Version: 1.7.4
 Summary: EIS1600 project tools and utilities
@@ -36,6 +36,18 @@ Requires-Dist: torch; extra == "eis"
 Requires-Dist: torchvision; extra == "eis"
 Requires-Dist: torchaudio; extra == "eis"
 Requires-Dist: transformers; extra == "eis"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
 # EIS1600 Tools
 

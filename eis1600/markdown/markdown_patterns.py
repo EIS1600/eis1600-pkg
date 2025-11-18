@@ -1,11 +1,23 @@
-from re import compile
+from re import compile, escape
 
 from eis1600.markdown.EntityTags import EntityTags
 
-PUNCTUATION_DICT = {'.': 'PERIOD', ',': 'LATINCOMMA', '،': 'COMMA', ':': 'COLON'}
+PUNCTUATION_DICT = {
+        # '.': 'PERIOD',
+        ',': 'LATIN_COMMA',
+        '،': 'COMMA',
+        ':': 'COLON',
+        '[': 'OPEN_BRACKET',
+        ']': 'CLOSE_BRACKET',
+        '/': 'SLASH',
+        # '(': 'OPEN_PARENTHESIS',
+        # ')': 'CLOSE_PARENTHESIS'
+}
 PUNCTUATION = PUNCTUATION_DICT.keys()
 
-OPT_PUNCT_PATTERN = f'[{"".join(PUNCTUATION)}]+'
+OPT_PUNCT_PATTERN = rf'[{"".join(map(escape, PUNCTUATION))}]+'
+
+EMPTY_YEAR_TAG = compile(r"ÜY\d[A-Z]NoneY\s+")
 
 AR_LETTERS_CHARSET = frozenset(
         u'\u0621\u0622\u0623\u0624\u0625\u0626\u0627'

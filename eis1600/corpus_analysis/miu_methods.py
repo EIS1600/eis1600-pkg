@@ -13,7 +13,7 @@ from eis1600.markdown.category import Category, CategoryType
 from eis1600.helper.fix_dataframe import fix_bonom_position
 
 
-def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -> Dict:
+def analyse_miu(tup: Tuple[str, str, Category], mock: Optional[bool] = False, debug: Optional[bool] = False) -> Dict:
     """Analysis the miu with our models.
 
     This methods applies our models to the text of the MIU and thereby runs different analysis (NER, POS, LEMMAS,
@@ -21,6 +21,7 @@ def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -
     JSON object which contains yml information, as well as the df with all analysis results.
     :param Tuple tup: Params are given as a Tuple: (uid: str, miu_as_text: str, category: Category).
     :param bool debug: Optional flag to print debug statements
+    :param bool mock: Do not pass models.
     :return Dict: JSON representation of the miu, including yml header and analysis results.
     """
     uid, miu_as_text, miu_category = tup
@@ -34,8 +35,18 @@ def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -
         # 2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information
         if debug:
             print('2. annotate NEs, POS and lemmatize. NE are: person + relation(s), toponym + relation, onomastic information')
-        df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
-            df['TOPONYM_LABELS'] = annotate_miu_text(df, debug)
+
+        if mock:
+            df['NER_LABELS'] = df["TOKENS"].apply(lambda _: "-")
+            df['LEMMAS'] = df["TOKENS"].apply(lambda _: "-")
+            df['POS_TAGS'] = df["TOKENS"].apply(lambda _: "-")
+            df['ROOTS'] = df["TOKENS"].apply(lambda _: "-")
+            ST_labels = ["-"] * len(df["TOKENS"])
+            FCO_labels = ["-"] * len(df["TOKENS"])
+            df['TOPONYM_LABELS'] = df["TOKENS"].apply(lambda _: "-")
+        else:
+            df['NER_LABELS'], df['LEMMAS'], df['POS_TAGS'], df['ROOTS'], ST_labels, FCO_labels, \
+                df['TOPONYM_LABELS'] = annotate_miu_text(df, debug)
 
         # 3. convert cameltools labels format to markdown format
         if debug:
@@ -53,11 +64,15 @@ def analyse_miu(tup: Tuple[str, str, Category], debug: Optional[bool] = False) -
         df['MONTH_TAGS'] = month_annotate_miu_text(df[['TOKENS']], uid)
 
         if miu_category.type == CategoryType.BIOGRAPHY:
-            # 5. insert BONOM and EONOM tags with the pretrained transformer model
-            df['ONOM_TAGS'] = insert_onom_tag(df, debug)
 
-            # 6. annotate onomastic information
-            df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df, debug)
+            if mock:
+                df['ONOM_TAGS'] = df["TOKENS"].apply(lambda _: "-")
+                df['ONOMASTIC_TAGS'] = df["TOKENS"].apply(lambda _: "-")
+            else:
+                # 5. insert BONOM and EONOM tags with the pretrained transformer model
+                df['ONOM_TAGS'] = insert_onom_tag(df, debug)
+                # 6. annotate onomastic information
+                df['ONOMASTIC_TAGS'] = insert_onomastic_tags(df, debug)
 
             # if there is a BONOM value in ONOM_TAGS and a sections in the previous and following token,
             # move the BONOM to the next token

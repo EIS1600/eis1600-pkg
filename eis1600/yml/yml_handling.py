@@ -226,10 +226,10 @@ def add_annotated_entities_to_yml(
     # Generate edges
     if settlements_set:
         entities_dict['settlements'] = list(settlements_set)
-        entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(settlements_set, 2) if a != b]
+        # entities_dict['edges_settlements'] = [[a, b] for a, b in combinations(settlements_set, 2) if a != b]
     if provinces_set:
         entities_dict['provinces'] = list(provinces_set)
-        entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2) if a != b]
+        # entities_dict['edges_provinces'] = [[a, b] for a, b in combinations(provinces_set, 2) if a != b]
 
     # Extrapolate active period for the biographee
     # TODO dates_headings are not analysed yet

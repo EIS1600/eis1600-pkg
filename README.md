@@ -187,6 +187,9 @@ See also [Processing Workflow](#processing-workflow).
 
 ### Annotation Pipeline
 
+Version 1.8.0 supports the seven November 2026 CAMeLBERT-CA checkpoints. Place the evaluated model directories under `EIS1600_Pretrained_Models/` in the corpus working directory. The person-role merger supports biographee (B), isnad (I) and mawla (M), including valid two-role combinations. The main pipeline exports automatic toponym descriptions as `ÜQ` spans in `TOPD_TAGS` and as `toponym_descriptions` in the MIU metadata. Reviewed Q spans take precedence. The two TSV exports carry those same annotations. [Model inventory and evaluation](https://github.com/EIS1600/eis1600-training/blob/main/retraining/runs/2026-11-25/report.md)
+
+
 * Use `-P` flag to run annotation of MIUs in parallel, parallel processing will eat up __ALL__ resources!
 * Use `-D` flag to get detailed debug messages in the console.
 ```shell

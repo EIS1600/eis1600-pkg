@@ -5,6 +5,12 @@ from pandas import notna
 
 def aggregate_STFCON_classes(st_list: list, fco_list: list) -> List[str]:
     label_dict = {
+        "B-BIOGRAPHEE": "B",
+        "I-BIOGRAPHEE": "B",
+        "B-ISNAD": "I",
+        "I-ISNAD": "I",
+        "B-MAWLA": "M",
+        "I-MAWLA": "M",
         "B-FAMILY": "F",
         "I-FAMILY": "F",
         "B-CONTACT": "C",

@@ -36,6 +36,7 @@ class YAMLHandler:
         'ambiguous_toponyms',
         'persons',
         'toponyms',
+        'toponym_descriptions',
         'settlements',
         'provinces',
         'edges_settlements',

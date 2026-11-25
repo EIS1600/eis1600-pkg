@@ -3,6 +3,7 @@ from typing import Dict, Optional, Tuple
 from eis1600.dates.month_methods import month_annotate_miu_text
 
 from eis1600.bio.md_to_bio import bio_to_md
+from eis1600.toponym_descriptions.description_tags import predict_description_tags
 from eis1600.dates.date_methods import date_annotate_miu_text
 from eis1600.nlp.annotation_utils import annotate_miu_text, insert_onom_tag, insert_onomastic_tags
 from eis1600.nlp.utils import aggregate_STFCON_classes, merge_ner_with_person_classes, merge_ner_with_toponym_classes
@@ -57,6 +58,9 @@ def analyse_miu(tup: Tuple[str, str, Category], mock: Optional[bool] = False, de
         toponym_labels_md = bio_to_md(df['TOPONYM_LABELS'].to_list(), sub_class=True)
         df['NER_TAGS'] = merge_ner_with_toponym_classes(ner_tags_with_person_classes, toponym_labels_md)
 
+        if not mock:
+            df['TOPD_TAGS'] = predict_description_tags(df)
+
         # 4. annotate dates
         if debug:
             print('4. annotate dates')
@@ -84,7 +88,7 @@ def analyse_miu(tup: Tuple[str, str, Category], mock: Optional[bool] = False, de
         # 11. reconstruct the text, populate yml with annotated entities and save it to the output file
         if debug:
             print('Reconstruct the text, populate yml with annotated entities and save it to the output file')
-        columns_of_automated_tags = ['DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS']
+        columns_of_automated_tags = ['DATE_TAGS', 'MONTH_TAGS', 'ONOM_TAGS', 'ONOMASTIC_TAGS', 'NER_TAGS', 'TOPD_TAGS']
         for col in columns_of_automated_tags:
             if col in df.columns:
                 df['TAGS_LISTS'] = df.apply(merge_tagslists, key=col, axis=1)

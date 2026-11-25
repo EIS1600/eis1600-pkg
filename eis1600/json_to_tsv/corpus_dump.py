@@ -14,7 +14,7 @@ from eis1600.helper.CheckFileEndingActions import CheckFileEndingEIS1600JsonActi
 
 
 ALL_LABELS = ("SECTIONS", "TOKENS", "TAGS_LISTS", "NER_LABELS", "LEMMAS", "POS_TAGS", "ROOTS", "TOPONYM_LABELS",
-              "NER_TAGS", "DATE_TAGS", "MONTH_TAGS", "ONOM_TAGS", "ONOMASTIC_TAGS")
+              "NER_TAGS", "DATE_TAGS", "MONTH_TAGS", "ONOM_TAGS", "ONOMASTIC_TAGS", "TOPD_TAGS")
 
 
 def dump_file(fpath: str, label_list: tuple[str] = ALL_LABELS, test: bool = False):

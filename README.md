@@ -334,3 +334,5 @@ This command will create two files:
                         ONOMASTIC_TAGS. A different selection of output entities can be done with the argument --label_list, e.g. `$ tsv_dump --label_list NER_LABELS NER_TAGS` will output only the information included in those entities.
 
 >  For example, to extract all TOPONYM_LABELS from the whole eis1600 data and output it to a single file, use: `$ tsv_dump --label_list TOPONYM_LABELS`
+
+Version 1.8.1 preserves each detected place span when attaching a place role. A place with no role prediction at its first token receives the unspecified role X.

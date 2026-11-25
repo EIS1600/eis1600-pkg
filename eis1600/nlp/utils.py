@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from pandas import notna
@@ -50,13 +51,13 @@ def merge_ner_with_person_classes(ner_labels, aggregated_stfco_labels):
 
 
 def merge_ner_with_toponym_classes(ner_labels: List[str], toponym_labels: List[str]) -> List[str]:
+    """Attach the role at a location start while preserving the detected NER span."""
+    if len(ner_labels) != len(toponym_labels):
+        raise ValueError("NER and place roles must have one prediction per token")
     merged_labels = []
-    for a, b in zip(ner_labels, toponym_labels):
-        if notna(a) and a[:2] == 'ÜT':
-            if b:
-                merged_labels.append(b)
-            else:
-                merged_labels.append(a + 'X')
-        else:
-            merged_labels.append(a)
+    for entity, role_tag in zip(ner_labels, toponym_labels):
+        if isinstance(entity, str) and entity.startswith("ÜT"):
+            role = re.fullmatch(r"ÜT\d+([ABDGKORVX])", role_tag) if isinstance(role_tag, str) else None
+            entity += role[1] if role else "X"
+        merged_labels.append(entity)
     return merged_labels

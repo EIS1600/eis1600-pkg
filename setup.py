@@ -54,7 +54,7 @@ setup(name='eis1600',
                   'tsv_dump = eis1600.json_to_tsv.corpus_dump:main',
           ],
       },
-      python_requires='>=3.7',
+      python_requires='>=3.10',
       install_requires=[
               'openiti',
               'pandas',

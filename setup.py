@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eis1600',
-      version='1.8.1',
+      version='1.9.0',
       description='EIS1600 project tools and utilities',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -14,6 +14,7 @@ setup(name='eis1600',
       license='MIT License',
       packages=find_packages(include=['eis1600', 'eis1600.*'], exclude=['excluded']),
       package_data={
+              'eis1600._vendor.temporal_entity_recogniser': ['LICENSE'],
               'eis1600.gazetteers.data': ['*.csv'],
               'eis1600.markdown.data': ['*.csv'],
               'eis1600.models.data': ['*.csv'],
@@ -22,6 +23,7 @@ setup(name='eis1600',
       },
       entry_points={
           'console_scripts': [
+                  'eis1600_retag_dates = eis1600.dates.retag:main',
                   'analyse_all_on_cluster = eis1600.corpus_analysis.analyse_all_on_cluster:main [EIS]',
                   'analyse_text = eis1600.corpus_analysis.analyse_text:main [EIS]',
                   'annotate_topd = eis1600.toponym_descriptions.annotate_topd:main [NER]',
@@ -62,7 +64,7 @@ setup(name='eis1600',
               'importlib_resources',
               'jsonpickle',
               'requests',
-              'ujson'
+              'ujson', 'regex', 'convertdate>=2.4', 'ijson>=3.2'
       ],
       extras_require={
               'NER': ['camel-tools', 'torch'],

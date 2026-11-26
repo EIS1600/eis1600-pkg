@@ -187,7 +187,7 @@ See also [Processing Workflow](#processing-workflow).
 
 ### Annotation Pipeline
 
-Version 1.8.0 supports the seven November 2026 CAMeLBERT-CA checkpoints. Place the evaluated model directories under `EIS1600_Pretrained_Models/` in the corpus working directory. The person-role merger supports biographee (B), isnad (I) and mawla (M), including valid two-role combinations. The main pipeline exports automatic toponym descriptions as `ÜQ` spans in `TOPD_TAGS` and as `toponym_descriptions` in the MIU metadata. Reviewed Q spans take precedence. The two TSV exports carry those same annotations. [Model inventory and evaluation](https://github.com/EIS1600/eis1600-training/blob/main/retraining/runs/2026-11-25/report.md)
+Version 1.8.0 supports the seven November 2026 CAMeLBERT-CA checkpoints. Place the evaluated model directories under `EIS1600_Pretrained_Models/` in the corpus working directory. The person-role merger supports biographee (B), isnad (I) and mawla (M), including valid two-role combinations. The main pipeline exports automatic toponym descriptions as `ÜQ` spans in `TOPD_TAGS` and as `toponym_descriptions` in the MIU metadata. Reviewed Q spans take precedence. The two TSV exports carry those same annotations. [Model inventory and evaluation](https://github.com/EIS1600/eis1600-training/blob/main/data/report.md)
 
 
 * Use `-P` flag to run annotation of MIUs in parallel, parallel processing will eat up __ALL__ resources!
@@ -336,3 +336,13 @@ This command will create two files:
 >  For example, to extract all TOPONYM_LABELS from the whole eis1600 data and output it to a single file, use: `$ tsv_dump --label_list TOPONYM_LABELS`
 
 Version 1.8.1 preserves each detected place span when attaching a place role. A place with no role prediction at its first token receives the unspecified role X.
+
+### Temporal annotation of an existing book
+
+Version 1.9.0 uses the evaluated [standalone temporal recogniser](https://github.com/EIS1600/temporal-entity-recogniser/tree/3130bb68d06326a4a9e74e29316d4a0ac9efb0a8) for new analysis and for updating earlier book JSONs. The MIT-licensed module is bundled at that revision. The named-year gazetteer is disabled, as in the editor evaluation.
+
+```sh
+eis1600_retag_dates original.json.gz corrected.json.gz
+```
+
+The command requires no BERT weights. It preserves the token frame and manual temporal tags, including written and corrected years. It replaces automatic year, month, weekday and century tags and recomputes date bounds. In each MIU, `temporal_entities` records the origin (body or numbered heading), source, token interval, role and available numeric components. Body intervals index the original token rows, including structural rows, using zero-based half-open offsets. Heading intervals index the heading words after removal of inline markup. The `temporal_recogniser` field records the rule revision. Generate TSV dumps from the corrected JSONs.
